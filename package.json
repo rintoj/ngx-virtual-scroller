@@ -1,0 +1,25 @@
+{
+  "name": "angular2-virtual-scroll",
+  "version": "1.0.0",
+  "description": "Angular 2 module for introducing virtual scroll capability",
+  "main": "index.ts",
+  "scripts": {
+    "test": "npm test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rintoj/angular2-virtual-scroll.git"
+  },
+  "keywords": [
+    "virtual",
+    "scroll",
+    "angular",
+    "2"
+  ],
+  "author": "Rinto Jose",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/rintoj/angular2-virtual-scroll/issues"
+  },
+  "homepage": "https://github.com/rintoj/angular2-virtual-scroll#readme"
+}
