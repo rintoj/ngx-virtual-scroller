@@ -1,4 +1,15 @@
-import { Component, Input, Output, EventEmitter, ElementRef, OnDestroy, OnChanges, Renderer } from '@angular/core';
+import {
+    Input,
+    Output,
+    NgModule,
+    Renderer,
+    Component,
+    OnDestroy,
+    OnChanges,
+    ElementRef,
+    EventEmitter,
+    ModuleWithProviders,
+} from '@angular/core';
 
 import { CommonModule } from '@angular/common';
 
@@ -87,5 +98,19 @@ export class VirtualScrollComponent implements OnDestroy, OnChanges {
         }
         this.previousStart = start;
         this.previousEnd = end;
+    }
+}
+
+@NgModule({
+    imports: [CommonModule],
+    exports: [VirtualScrollComponent],
+    declarations: [VirtualScrollComponent]
+})
+export class VirtualScrollModule {
+    static forRoot(): ModuleWithProviders {
+        return {
+            ngModule: VirtualScrollModule,
+            providers: []
+        };
     }
 }

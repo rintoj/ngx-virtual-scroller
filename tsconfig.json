@@ -1,0 +1,29 @@
+{
+    "compilerOptions": {
+        "target": "es5",
+        "module": "commonjs",
+        "moduleResolution": "node",
+        "emitDecoratorMetadata": true,
+        "experimentalDecorators": true,
+        "allowSyntheticDefaultImports": true,
+        "sourceMap": true,
+        "declaration": true,
+        "noEmitHelpers": true,
+        "strictNullChecks": false,
+        "baseUrl": "./src",
+        "outDir": "./dist",
+        "lib": [
+            "dom",
+            "es6"
+        ],
+        "types": [
+            "node"
+        ]
+    },
+    "exclude": [
+        "node_modules",
+        "dist"
+    ],
+    "compileOnSave": false,
+    "buildOnSave": false
+}
