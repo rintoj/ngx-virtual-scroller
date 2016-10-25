@@ -10,8 +10,9 @@
   <link rel="stylesheet" href="assets/fonts/advent-pro/stylesheet.css">
   <link rel="stylesheet" href="assets/fonts/noto-sans/stylesheet.css">
   <link rel="stylesheet" href="style/style.css">
+  <link rel="stylesheet" href="style/menu-spy.css">
+  <link rel="stylesheet" href="style/simplegrid.css">
   <link rel="stylesheet" href="assets/highlight/styles/atom-one-dark.css">
-  <link rel="stylesheet" href="assets/simplegrid.css">
   <script src="assets/highlight/highlight.pack.js"></script>
   <script>hljs.initHighlightingOnLoad();</script>
 </head>
@@ -24,27 +25,74 @@
     </div>
   </section>
   <div class="content">
+    <div class="col-1-12"></div>
     <div class="col-3-12">
-      Menu
+      <!--<h2>Content</h2>
+      <div class="menu-selector"></div>
+      <div id="scroll-menu"></div>-->
+      <header id="main-header">
+        <nav>
+          <ul>
+            <li><a href="#features">Features</a></li>
+            <li><a href="#usage">Usage</a></li>
+            <li><a href="#options">Options</a></li>
+            <li><a href="#examples">Examples</a></li>
+          </ul>
+        </nav>
+      </header>
     </div>
-    <div class="col-9-12">
+    <div class="col-7-12 scroll-menu-content">
       <section>
         <h1>Introduction</h1>
         <p>
-        Menu An array of records is passed to the virtual scroll containing the data to create templates for. The template created
-        for each record, referred to as a cell, can consist of items, headers, and footers. For performance reasons, not
-        every record in the list is rendered at once; instead a small subset of records (enough to fill the viewport) are
-        rendered and reused as the user scrolls.
+          Menu An array of records is passed to the virtual scroll containing the data to create templates for. The template created
+          for each record, referred to as a cell, can consist of items, headers, and footers. For performance reasons, not
+          every record in the list is rendered at once; instead a small subset of records (enough to fill the viewport) are
+          rendered and reused as the user scrolls.
         </p>
       </section>
       <section>
         <h1>Usage</h1>
-        <pre><code class="javascript">function test() {
-  return null;
-} </code></pre>
+        <pre><code class="javascript">
+  function test() {
+    return null;
+  }
+
+</code></pre>
+      </section>
+      <section>
+        <h1>Demo</h1>
+        <h2>Vertical Scroll with One Column</h2>
+        <pre><code class="javascript">
+  function test() {
+    return null;
+  }
+
+</code></pre>
+        <h2>Vertical Scroll with Multiple Column</h2>
+        <pre><code class="javascript">
+  function test() {
+    return null;
+  }
+
+</code></pre>
+        <h2>Horizontal Scroll</h2>
+        <pre><code class="javascript">
+  function test() {
+    return null;
+  }
+
+</code></pre>
       </section>
     </div>
+    <div class="col-1-12"></div>
   </div>
+  <script src="../node_modules/menuspy/dist/menuspy.min.js"></script>
+  <!--<script src="js/scroll-menu.js"></script>-->
+  <script>
+    var elm = document.querySelector('#main-header');
+    var ms = new MenuSpy(elm);
+  </script>
 </body>
 
 </html>

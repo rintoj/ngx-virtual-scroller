@@ -3,6 +3,9 @@ body {
   font-family: 'Noto Sans';
   font-size: 16px;
 }
+h2 {
+  font-weight: normal;
+}
 section {
   display: block;
   width: 100%;
@@ -45,6 +48,29 @@ section.header h5 {
 .content-bottom {
   bottom: 1rem;
   position: absolute;
+}
+.menu-selector {
+  background: #0071cc;
+  width: 3px;
+  height: 15px;
+  margin-top: 8px;
+  position: absolute;
+  transition: transform 0.2s ease-out;
+}
+#scroll-menu {
+  position: relative;
+}
+#scroll-menu ul {
+  margin: 0;
+  padding: 0;
+}
+#scroll-menu li {
+  list-style: none;
+  padding: 5px 10px;
+  cursor: pointer;
+}
+#scroll-menu li.selected {
+  color: #0071cc;
 }
 @keyframes slideup-header {
   from {
