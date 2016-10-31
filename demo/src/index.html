@@ -19,7 +19,7 @@
     <nav>
       <ul class="horizontal">
         <li class="selected"><a href="#virtual-scroll">Virtual Scroll</a></li>
-        <li><a href="#features">About</a></li>
+        <li><a href="#about">About</a></li>
         <li><a href="#usage">Usage</a></li>
         <li><a href="#get-started">Get Started</a></li>
         <li><a href="#demo">Demo</a></li>
@@ -40,7 +40,7 @@
         <div class="author">
           <div>Rinto Jose (rintoj)</div>
           <span>
-                <a href="https://github.com/rintoj">Github</a> |
+                <a href="https://github.com/rintoj">GitHub</a> |
                 <a href="https://www.facebook.com/rinto.jose">Facebook</a> |
                 <a href="https://twitter.com/rintoj">Twitter</a> |
                 <a href="https://youtube.com/+RintoJoseMankudy">YouTube</a>
@@ -48,24 +48,29 @@
         </div>
       </div>
     </section>
-    <div class="content">
+    <section id="about">
       <div class="col-1-12"></div>
-      <div class="col-10-12 scroll-menu-content">
-        <section id="features">
-          <h1>About</h1>
-          <p>
-            This module does not render every record in the list at once; instead a small subset of records just enough to fill the viewport
-            are rendered and reused as the user scrolls. Thus display an infinitely growing list of items in a viewport of
-            size just about a couple rows in an effcient way is made possible.
-          </p>
-          <ul>
-            <li>Angular 2 compatible module</li>
-            <li>Easy to use apis</li>
-          </ul>
-        </section>
-        <section id="usage">
-          <h1>Usage</h1>
-          <pre><code class="html">
+      <div class="col-10-12">
+        <h1>About</h1>
+        <p>
+          This module does not render every record in the list at once; instead a small subset of records just enough to fill the viewport
+          are rendered and reused as the user scrolls. Thus displaying an infinitely growing list of items in a viewport of
+          size just about a couple rows in an effcient way is made possible.
+        </p>
+        <ul>
+          <li>Angular 2 compatible module</li>
+          <li>Easy to use apis</li>
+          <li>OpenSource and available in <a href="https://github.com/rintoj/angular2-virtual-scroll">GitHub</a></li>
+        </ul>
+        <strong>Note:</strong> Items must have a fixed height and width for this module to work perfectly.
+      </div>
+      <div class="col-1-12"></div>
+    </section>
+    <section id="usage">
+      <div class="col-1-12"></div>
+      <div class="col-10-12">
+        <h1>Usage</h1>
+        <pre><code class="html">
 &lt;virtual-scroll [items]="items" (update)="viewPortItems = $event"&gt;
 
     &lt;list-item *ngFor="let item of viewPortItems" [item]="item"&gt;
@@ -74,13 +79,17 @@
 &lt;/virtual-scroll&gt;
 
 </code></pre>
-        </section>
-        <section id="get-started">
-          <h1>Get Started</h1>
-          <strong>Step 1:</strong> Install angular2-virtual-scroll
-          <pre><code class="bash">npm install angular2-virtual-scroll --save </code></pre>
-          <strong>Step 2:</strong> Import virtual scroll module into your app module
-          <pre><code class="typescript">
+      </div>
+      <div class="col-1-12"></div>
+    </section>
+    <section id="get-started">
+      <div class="col-1-12"></div>
+      <div class="col-10-12">
+        <h1>Get Started</h1>
+        <strong>Step 1:</strong> Install angular2-virtual-scroll
+        <pre><code class="bash">npm install angular2-virtual-scroll --save </code></pre>
+        <strong>Step 2:</strong> Import virtual scroll module into your app module
+        <pre><code class="typescript">
 ....
 import { VirtualScrollModule } from 'angular2-virtual-scroll';
 
@@ -96,8 +105,8 @@ import { VirtualScrollModule } from 'angular2-virtual-scroll';
 })
 export class AppModule { }
 </code></pre>
-          <strong>Step 3:</strong> Wrap virtual-scroll tag around list items;
-          <pre><code class="html">
+        <strong>Step 3:</strong> Wrap virtual-scroll tag around list items;
+        <pre><code class="html">
 &lt;virtual-scroll [items]="items" (update)="viewPortItems = $event"&gt;
 
     &lt;list-item *ngFor="let item of viewPortItems" [item]="item"&gt;
@@ -106,35 +115,50 @@ export class AppModule { }
 &lt;/virtual-scroll&gt;
 
 </code></pre>
-          Input would be <strong>items</strong> and an updated list will be passed on through <strong>update</strong> event
-        </section>
-        <section id="demo">
-          <h1>Demo
-            <a href="https://youtu.be/6VbstjQmjU8" target="_blank"><img width="30" height="30" src="assets/images/youtube-128.png"></a>
-          </h1>
-          <video src="assets/video/scroll.mov" controls loop autoplay></video>
-        </section>
-        <section id="examples">
-          <h1>Examples</h1>
-          <app-root>Loading...</app-root>
-        </section>
-        <section>
-          <h1>Author</h1>
-          <strong>Rinto Jose (rintoj)</strong>
-          <p>
-            <a href="https://github.com/rintoj">Github</a> |
-            <a href="https://www.facebook.com/rinto.jose">Facebook</a> |
-            <a href="https://twitter.com/rintoj">Twitter</a> |
-            <a href="https://youtube.com/+RintoJoseMankudy">YouTube</a>
-          </p>
-        </section>
-        <section>
-          <h1>License</h1>
-          <p>The MIT License (MIT) Copyright (c) 2016 Rinto Jose (rintoj)</p>
-        </section>
+        Input would be <strong>items</strong> and an updated list will be passed on through <strong>update</strong> event
       </div>
       <div class="col-1-12"></div>
-    </div>
+    </section>
+    <section id="demo">
+      <div class="col-1-12"></div>
+      <div class="col-10-12">
+        <h1>Demo
+          <a href="https://youtu.be/6VbstjQmjU8" target="_blank"><img width="30" height="30" src="assets/images/youtube-128.png"></a>
+        </h1>
+        <video src="assets/video/scroll.mov" controls loop autoplay></video>
+      </div>
+      <div class="col-1-12"></div>
+    </section>
+    <section id="examples">
+      <div class="col-1-12"></div>
+      <div class="col-10-12">
+        <h1>Examples</h1>
+        <app-root>Loading...</app-root>
+      </div>
+      <div class="col-1-12"></div>
+    </section>
+    <section>
+      <div class="col-1-12"></div>
+      <div class="col-10-12">
+        <h1>Author</h1>
+        <strong>Rinto Jose (rintoj)</strong>
+        <p>
+          <a href="https://github.com/rintoj">Github</a> |
+          <a href="https://www.facebook.com/rinto.jose">Facebook</a> |
+          <a href="https://twitter.com/rintoj">Twitter</a> |
+          <a href="https://youtube.com/+RintoJoseMankudy">YouTube</a>
+        </p>
+      </div>
+      <div class="col-1-12"></div>
+    </section>
+    <section>
+      <div class="col-1-12"></div>
+      <div class="col-10-12">
+        <h1>License</h1>
+        <p>The MIT License (MIT) Copyright (c) 2016 Rinto Jose (rintoj)</p>
+      </div>
+      <div class="col-1-12"></div>
+    </section>
   </main>
 </body>
 

@@ -9,18 +9,9 @@ body {
   color: $secondary-text;
 }
 
-h1 {
-  margin-top: 4rem;
-}
-
 h2 {
   font-weight: normal;
   margin-top: 2rem;
-}
-
-a {
-  text-decoration: none;
-  color: $secondary-text;
 }
 
 header {
@@ -31,6 +22,10 @@ header {
   background: $semi-transparent;
   color: $secondary-text;
   z-index: 1;
+  a {
+    text-decoration: none;
+    color: $secondary-text;
+  }
   ul {
     margin: 0;
     padding: 0;
@@ -159,6 +154,10 @@ section {
 .content-bottom {
   bottom: 1rem;
   position: absolute;
+}
+
+.col-10-12 {
+    padding: 2rem;
 }
 
 .menu-selector {

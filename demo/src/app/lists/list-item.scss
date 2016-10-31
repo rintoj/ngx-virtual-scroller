@@ -1,9 +1,10 @@
 @import '../../variables';
-
 :host {
   display: block;
   font-size: .8em;
   border-bottom: 1px solid $border-color;
+  background: white;
+  padding: 5px;
 }
 
 .avatar {
