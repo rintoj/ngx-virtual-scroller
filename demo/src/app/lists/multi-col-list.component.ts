@@ -4,7 +4,6 @@ import { Input, Component } from '@angular/core';
 @Component({
     selector: 'multi-col-list',
     template: `
-
         <div class="status">
              Showing <span class="badge">{{indices?.start + 1}}</span>
              - <span class="badge">{{indices?.end}}</span>

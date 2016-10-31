@@ -7,20 +7,20 @@ import { AppComponent } from './app.component';
 import { ListItemComponent } from './lists/list-item.component';
 import { VerticalListComponent } from './lists/vertical-list.component';
 import { MultiColListComponent } from './lists/multi-col-list.component';
-import { VirtualScrollComponent } from '../../../src/virtual-scroll';
+import { VirtualScrollModule } from '../../../src/virtual-scroll';
 
 @NgModule({
     declarations: [
         AppComponent,
         ListItemComponent,
         MultiColListComponent,
-        VerticalListComponent,
-        VirtualScrollComponent,
+        VerticalListComponent
     ],
     imports: [
         BrowserModule,
         FormsModule,
-        HttpModule
+        HttpModule,
+        VirtualScrollModule
     ],
     providers: [],
     bootstrap: [AppComponent]

@@ -1,7 +1,9 @@
+@import '../../variables';
+
 :host {
   display: block;
   font-size: .8em;
-  border-bottom: 1px solid #dce2e6;
+  border-bottom: 1px solid $border-color;
 }
 
 .avatar {
@@ -13,8 +15,8 @@
   margin-top: 5px;
   display: inline-block;
   border-radius: 100%;
-  background: #2196F3;
-  color: white;
+  background: $primary-color;
+  color: $primary-text;
 }
 
 .item-content {

@@ -1,7 +1,9 @@
+@import '../variables';
+
 virtual-scroll {
   overflow: hidden;
   overflow-y: auto;
-  border: 1px solid #dce2e6;
+  border: 1px solid $border-color;
   width: calc(100% - 25px);
   height: 288px;
   display: block;
@@ -14,8 +16,8 @@ virtual-scroll {
 
 .badge {
   font-size: .6em;
-  color: white;
-  background: #FF9800;
+  color: $primary-text;
+  background: $accent-color;
   padding: 2px 4px;
   border-radius: 3px;
   vertical-align: middle;

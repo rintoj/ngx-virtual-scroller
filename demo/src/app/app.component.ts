@@ -10,9 +10,6 @@ import { OnInit, ViewEncapsulation, Component } from '@angular/core';
 
         <h2>Vertical Scroll with Multiple Column</h2>
         <multi-col-list [items]="items"></multi-col-list>
-
-        <h2>Horizontal Scroll</h2>
-        Coming soon....
     `,
     styleUrls: ['./app.component.scss'],
     encapsulation: ViewEncapsulation.None
@@ -26,6 +23,6 @@ export class AppComponent implements OnInit {
     ngOnInit() {
         this.http.get('assets/data/items.json')
             .map(response => response.json())
-            .subscribe(data => this.items = data.slice(0, 1000));
+            .subscribe(data => this.items = data);
     }
 }

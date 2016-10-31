@@ -21,17 +21,31 @@
         <li class="selected"><a href="#virtual-scroll">Virtual Scroll</a></li>
         <li><a href="#features">About</a></li>
         <li><a href="#usage">Usage</a></li>
+        <li><a href="#get-started">Get Started</a></li>
         <li><a href="#demo">Demo</a></li>
         <li><a href="#examples">Examples</a></li>
       </ul>
     </nav>
+    <a href="https://github.com/rintoj/angular2-virtual-scroll">
+      <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://camo.githubusercontent.com/e7bbb0521b397edbd5fe43e7f760759336b5e05f/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f677265656e5f3030373230302e706e67"
+        alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_green_007200.png">
+    </a>
   </header>
   <main>
     <section class="header" id="virtual-scroll">
       <div class="content content-bottom">
-        <h1>Virutal Scroll</h1>
+        <h1>Virtual Scroll</h1>
         <p>Virtual Scroll displays a virtual, "infinite" list.</p>
         <pre><code class="bash">npm install angular2-virtual-scroll</code></pre>
+        <div class="author">
+          <div>Rinto Jose (rintoj)</div>
+          <span>
+                <a href="https://github.com/rintoj">Github</a> |
+                <a href="https://www.facebook.com/rinto.jose">Facebook</a> |
+                <a href="https://twitter.com/rintoj">Twitter</a> |
+                <a href="https://youtube.com/+RintoJoseMankudy">YouTube</a>
+            </span>
+        </div>
       </div>
     </section>
     <div class="content">
@@ -54,20 +68,69 @@
           <pre><code class="html">
 &lt;virtual-scroll [items]="items" (update)="viewPortItems = $event"&gt;
 
-  &lt;list-item *ngFor="let item of viewPortItems" [item]="item"&gt;
-  &lt;/list-item&gt;
+    &lt;list-item *ngFor="let item of viewPortItems" [item]="item"&gt;
+    &lt;/list-item&gt;
 
 &lt;/virtual-scroll&gt;
 
 </code></pre>
         </section>
+        <section id="get-started">
+          <h1>Get Started</h1>
+          <strong>Step 1:</strong> Install angular2-virtual-scroll
+          <pre><code class="bash">npm install angular2-virtual-scroll --save </code></pre>
+          <strong>Step 2:</strong> Import virtual scroll module into your app module
+          <pre><code class="typescript">
+....
+import { VirtualScrollModule } from 'angular2-virtual-scroll';
+
+....
+
+@NgModule({
+    ...
+    imports: [
+        ....
+        VirtualScrollModule
+    ],
+    ....
+})
+export class AppModule { }
+</code></pre>
+          <strong>Step 3:</strong> Wrap virtual-scroll tag around list items;
+          <pre><code class="html">
+&lt;virtual-scroll [items]="items" (update)="viewPortItems = $event"&gt;
+
+    &lt;list-item *ngFor="let item of viewPortItems" [item]="item"&gt;
+    &lt;/list-item&gt;
+
+&lt;/virtual-scroll&gt;
+
+</code></pre>
+          Input would be <strong>items</strong> and an updated list will be passed on through <strong>update</strong> event
+        </section>
         <section id="demo">
-          <h1>Demo <a href="https://youtu.be/6VbstjQmjU8" target="_blank"><img width="30" height="30" src="assets/images/youtube-128.png"></a></h1>
+          <h1>Demo
+            <a href="https://youtu.be/6VbstjQmjU8" target="_blank"><img width="30" height="30" src="assets/images/youtube-128.png"></a>
+          </h1>
           <video src="assets/video/scroll.mov" controls loop autoplay></video>
         </section>
         <section id="examples">
           <h1>Examples</h1>
           <app-root>Loading...</app-root>
+        </section>
+        <section>
+          <h1>Author</h1>
+          <strong>Rinto Jose (rintoj)</strong>
+          <p>
+            <a href="https://github.com/rintoj">Github</a> |
+            <a href="https://www.facebook.com/rinto.jose">Facebook</a> |
+            <a href="https://twitter.com/rintoj">Twitter</a> |
+            <a href="https://youtube.com/+RintoJoseMankudy">YouTube</a>
+          </p>
+        </section>
+        <section>
+          <h1>License</h1>
+          <p>The MIT License (MIT) Copyright (c) 2016 Rinto Jose (rintoj)</p>
         </section>
       </div>
       <div class="col-1-12"></div>
