@@ -26,4 +26,7 @@ document.addEventListener('DOMContentLoaded', function () {
     new MenuSpy(document.querySelector('#main-header'), {
         activeClass: 'selected'
     });
+
+    let menu: any = document.querySelector('header ul');
+    menu.addEventListener('click', () => menu.classList.toggle('open'));
 });

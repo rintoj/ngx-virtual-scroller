@@ -1,7 +1,4 @@
 :host {
-  virtual-scroll {
-    padding: 0;
-  }
   list-item {
     width: calc(50% - 18px);
     margin: 2px;
@@ -10,5 +7,6 @@
     overflow: hidden;
     border: 1px solid #dce2e6;
     vertical-align: top;
+    height: 100px;
   }
 }

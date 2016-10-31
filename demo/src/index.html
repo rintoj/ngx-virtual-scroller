@@ -18,14 +18,16 @@
   <header id="main-header">
     <nav>
       <ul class="horizontal">
+        <li class="selected"><a href="#virtual-scroll">Virtual Scroll</a></li>
         <li><a href="#features">About</a></li>
         <li><a href="#usage">Usage</a></li>
+        <li><a href="#demo">Demo</a></li>
         <li><a href="#examples">Examples</a></li>
       </ul>
     </nav>
   </header>
   <main>
-    <section class="header">
+    <section class="header" id="virtual-scroll">
       <div class="content content-bottom">
         <h1>Virutal Scroll</h1>
         <p>Virtual Scroll displays a virtual, "infinite" list.</p>
@@ -50,14 +52,18 @@
         <section id="usage">
           <h1>Usage</h1>
           <pre><code class="html">
-    &lt;virtual-scroll [items]="items" (update)="viewPortItems = $event"&gt;
+&lt;virtual-scroll [items]="items" (update)="viewPortItems = $event"&gt;
 
-        &lt;list-item *ngFor="let item of viewPortItems" [item]="item"&gt;
-        &lt;/list-item&gt;
+  &lt;list-item *ngFor="let item of viewPortItems" [item]="item"&gt;
+  &lt;/list-item&gt;
 
-    &lt;/virtual-scroll&gt;
+&lt;/virtual-scroll&gt;
 
 </code></pre>
+        </section>
+        <section id="demo">
+          <h1>Demo <a href="https://youtu.be/6VbstjQmjU8" target="_blank"><img width="30" height="30" src="assets/images/youtube-128.png"></a></h1>
+          <video src="assets/video/scroll.mov" controls loop autoplay></video>
         </section>
         <section id="examples">
           <h1>Examples</h1>
