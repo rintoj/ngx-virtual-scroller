@@ -1,8 +1,142 @@
-/* You can add global styles to this file, and also import other style files */
+$primary-color: #398de8;
+$primary-text: #f2f2f2;
+$secondary-text: #424242;
+$accent-color: #ffe500;
+$semi-transparent: rgba(242,242,246,0.98);
 
 body {
-    margin: 0;
-    background: whitesmoke;
-    font-family: 'Advent Pro';
-    font-size: 20px;
+  margin: 0;
+  font-family: 'Noto Sans';
+  font-size: 16px;
+  color: $secondary-text;
+}
+h2 {
+  font-weight: normal;
+}
+a {
+  text-decoration: none;
+  color: $secondary-text;
+}
+header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  background: $semi-transparent;
+  color: $secondary-text;
+  z-index: 1;
+}
+
+section {
+  display: block;
+  width: 100%;
+  min-height: 10vh;
+  overflow: hidden;
+  position: relative;
+}
+
+.header {
+  min-height: 300px;
+  height: 40vh;
+  background: $primary-color;
+  color: $primary-text;
+  text-align: center;
+  background: url('../assets/images/bg1.jpg');
+  background-size: cover;
+  background-attachment: fixed;
+  h1 {
+    animation: slideup-header .5s ease-out;
+    margin: 0 auto;
+    width: 50%;
+    min-width: 75px;
+    &::after {
+      content: ' ';
+      background: $accent-color;
+      position: relative;
+      display: block;
+      height: 2px;
+      bottom: 0px;
+      margin: 0 auto;
+      animation: animate-underline 2s ease-out;
+    }
+  }
+  p {
+    animation: slideup-header 1s ease-out;
+  }
+  .content {
+    max-width: 100%;
+  }
+  code {
+    width: 35%;
+    min-width: 336px;
+    margin: 0 auto;
+    animation: slideup-header 1.5s ease-out;
+  }
+}
+
+.content {
+  width: calc(100% - 4rem);
+  padding: 1rem 2rem;
+  max-width: 1024px;
+  margin: 0 auto;
+}
+
+.content-bottom {
+    bottom: 1rem;
+    position: absolute;
+}
+
+.menu-selector {
+  background: $primary-color;
+  width: 3px;
+  height: 15px;
+  margin-top: 8px;
+  position: absolute;
+  transition: transform .2s ease-out;
+}
+ul {
+  margin:0;
+  padding: 0;
+  &.horizontal {
+    li {
+      display: inline-block;
+      margin: 6px 10px;
+    }
+  }
+}
+
+li {
+  list-style: none;
+  padding: 5px 10px;
+  cursor: pointer;
+  &.selected {
+    border-bottom: 3px solid $primary-color;
+    a {
+      color: $primary-color;
+    }
+  }
+}
+
+
+@keyframes slideup-header {
+  from {
+    transform: translateY(4rem);
+    opacity: 0;
+  }
+  80% {
+    opacity: 1;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes animate-underline {
+  from {
+    width: 0%;
+  }
+  to {
+    width: 100%;
+  }
 }

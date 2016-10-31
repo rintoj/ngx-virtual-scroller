@@ -10,3 +10,12 @@ if (environment.production) {
 }
 
 platformBrowserDynamic().bootstrapModule(AppModule);
+
+import * as MenuSpy from 'menuspy';
+
+ document.addEventListener('DOMContentLoaded', function() {
+    var elm = document.querySelector('#main-header');
+    var ms = new MenuSpy(elm, {
+    activeClass: 'selected'
+    });
+});
