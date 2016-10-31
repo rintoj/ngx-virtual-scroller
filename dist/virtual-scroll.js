@@ -1,6 +1,6 @@
 "use strict";
-var core_1 = require("@angular/core");
-var common_1 = require("@angular/common");
+var core_1 = require('@angular/core');
+var common_1 = require('@angular/common');
 var VirtualScrollComponent = (function () {
     function VirtualScrollComponent(element, renderer) {
         this.element = element;
@@ -9,6 +9,8 @@ var VirtualScrollComponent = (function () {
         this.marginX = 0;
         this.marginY = 0;
         this.update = new core_1.EventEmitter();
+        this.indexUpdate = new core_1.EventEmitter();
+        this.startupLoop = true;
         this.onScrollListener = this.renderer.listen(this.element.nativeElement, 'scroll', this.refresh.bind(this));
     }
     VirtualScrollComponent.prototype.ngOnChanges = function () {
@@ -39,7 +41,8 @@ var VirtualScrollComponent = (function () {
     VirtualScrollComponent.prototype.calculateItems = function () {
         var el = this.element.nativeElement;
         var scrollTop = el.scrollTop;
-        var itemCount = (this.items || []).length;
+        var items = this.items || [];
+        var itemCount = items.length;
         var viewWidth = el.clientWidth;
         var viewHeight = el.clientHeight;
         var childWidth = ((el.children[1] || {}).clientWidth || viewWidth) + (this.marginX * 2);
@@ -52,36 +55,50 @@ var VirtualScrollComponent = (function () {
         this.topPadding = childHeight * Math.ceil(start / itemsPerRow);
         this.bottomPadding = childHeight * Math.ceil((itemCount - end) / itemsPerRow);
         if (start !== this.previousStart || end !== this.previousEnd) {
-            this.update.emit((this.items || []).slice(start, end));
+            this.update.emit(items.slice(start, end));
+            this.indexUpdate.emit({
+                start: start,
+                end: Math.min(itemCount, end)
+            });
+            this.previousStart = start;
+            this.previousEnd = end;
+            if (this.startupLoop === true) {
+                this.refresh();
+            }
         }
-        this.previousStart = start;
-        this.previousEnd = end;
+        else {
+            this.startupLoop = false;
+        }
     };
+    __decorate([
+        core_1.Input(), 
+        __metadata('design:type', Array)
+    ], VirtualScrollComponent.prototype, "items", void 0);
+    __decorate([
+        core_1.Input(), 
+        __metadata('design:type', Number)
+    ], VirtualScrollComponent.prototype, "marginX", void 0);
+    __decorate([
+        core_1.Input(), 
+        __metadata('design:type', Number)
+    ], VirtualScrollComponent.prototype, "marginY", void 0);
+    __decorate([
+        core_1.Output(), 
+        __metadata('design:type', core_1.EventEmitter)
+    ], VirtualScrollComponent.prototype, "update", void 0);
+    __decorate([
+        core_1.Output(), 
+        __metadata('design:type', core_1.EventEmitter)
+    ], VirtualScrollComponent.prototype, "indexUpdate", void 0);
+    VirtualScrollComponent = __decorate([
+        core_1.Component({
+            selector: 'virtual-scroll',
+            template: "\n        <div class=\"padding-layer\" [style.height]=\"topPadding + 'px'\"></div>\n        <ng-content></ng-content>\n        <div class=\"padding-layer\" [style.height]=\"bottomPadding + 'px'\"></div>\n    "
+        }), 
+        __metadata('design:paramtypes', [core_1.ElementRef, core_1.Renderer])
+    ], VirtualScrollComponent);
     return VirtualScrollComponent;
 }());
-__decorate([
-    core_1.Input(),
-    __metadata("design:type", Array)
-], VirtualScrollComponent.prototype, "items", void 0);
-__decorate([
-    core_1.Input(),
-    __metadata("design:type", Number)
-], VirtualScrollComponent.prototype, "marginX", void 0);
-__decorate([
-    core_1.Input(),
-    __metadata("design:type", Number)
-], VirtualScrollComponent.prototype, "marginY", void 0);
-__decorate([
-    core_1.Output(),
-    __metadata("design:type", core_1.EventEmitter)
-], VirtualScrollComponent.prototype, "update", void 0);
-VirtualScrollComponent = __decorate([
-    core_1.Component({
-        selector: 'du-virtual-scroll',
-        template: "\n        <div class=\"padding-layer\" [style.height]=\"topPadding + 'px'\"></div>\n        <ng-content></ng-content>\n        <div class=\"padding-layer\" [style.height]=\"bottomPadding + 'px'\"></div>\n    "
-    }),
-    __metadata("design:paramtypes", [core_1.ElementRef, core_1.Renderer])
-], VirtualScrollComponent);
 exports.VirtualScrollComponent = VirtualScrollComponent;
 var VirtualScrollModule = (function () {
     function VirtualScrollModule() {
@@ -92,15 +109,15 @@ var VirtualScrollModule = (function () {
             providers: []
         };
     };
+    VirtualScrollModule = __decorate([
+        core_1.NgModule({
+            imports: [common_1.CommonModule],
+            exports: [VirtualScrollComponent],
+            declarations: [VirtualScrollComponent]
+        }), 
+        __metadata('design:paramtypes', [])
+    ], VirtualScrollModule);
     return VirtualScrollModule;
 }());
-VirtualScrollModule = __decorate([
-    core_1.NgModule({
-        imports: [common_1.CommonModule],
-        exports: [VirtualScrollComponent],
-        declarations: [VirtualScrollComponent]
-    }),
-    __metadata("design:paramtypes", [])
-], VirtualScrollModule);
 exports.VirtualScrollModule = VirtualScrollModule;
 //# sourceMappingURL=virtual-scroll.js.map

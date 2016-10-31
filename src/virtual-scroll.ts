@@ -87,7 +87,8 @@ export class VirtualScrollComponent implements OnDestroy, OnChanges {
         let el = this.element.nativeElement;
         let scrollTop = el.scrollTop;
 
-        let itemCount = (this.items || []).length;
+        let items = this.items || [];
+        let itemCount = items.length;
         let viewWidth = el.clientWidth;
         let viewHeight = el.clientHeight;
         let childWidth = ((el.children[1] || {}).clientWidth || viewWidth) + (this.marginX * 2);
@@ -103,7 +104,7 @@ export class VirtualScrollComponent implements OnDestroy, OnChanges {
         this.topPadding = childHeight * Math.ceil(start / itemsPerRow);
         this.bottomPadding = childHeight * Math.ceil((itemCount - end) / itemsPerRow);
         if (start !== this.previousStart || end !== this.previousEnd) {
-            this.update.emit((this.items || []).slice(start, end));
+            this.update.emit(items.slice(start, end));
             this.indexUpdate.emit({
                 start: start,
                 end: Math.min(itemCount, end)

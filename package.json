@@ -1,7 +1,7 @@
 {
   "name": "angular2-virtual-scroll",
-  "version": "1.0.0",
-  "description": "Angular 2 module for introducing virtual scroll capability",
+  "version": "0.0.2",
+  "description": "Angular 2 module for virtual -infinite- list.",
   "main": "dist/virtual-scroll.js",
   "types": "dist/virtual-scroll.d.ts",
   "scripts": {
@@ -29,15 +29,16 @@
   },
   "homepage": "https://github.com/rintoj/angular2-virtual-scroll#readme",
   "devDependencies": {
-    "@angular/common": "^2.1.1",
-    "@angular/core": "^2.1.1",
-    "@angular/platform-browser": "^2.1.1",
-    "@angular/platform-browser-dynamic": "^2.1.1",
-    "@types/node": "^6.0.45",
-    "codelyzer": "^1.0.0-beta.2",
-    "rxjs": "^5.0.0-beta.12",
-    "tslint": "^3.15.1",
-    "typescript": "^2.1.0-dev.20161016",
-    "zone.js": "^0.6.25"
+    "@angular/common": "2.1.1",
+    "@angular/compiler": "2.1.1",
+    "@angular/core": "2.1.1",
+    "@angular/platform-browser": "2.1.1",
+    "@angular/platform-browser-dynamic": "2.1.1",
+    "@types/node": "6.0.45",
+    "codelyzer": "1.0.0-beta.2",
+    "rxjs": "5.0.0-beta.12",
+    "tslint": "3.15.1",
+    "typescript": "2.0.6",
+    "zone.js": "0.6.25"
   }
 }
