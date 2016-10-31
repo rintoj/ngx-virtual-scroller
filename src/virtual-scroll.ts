@@ -13,8 +13,13 @@ import {
 
 import { CommonModule } from '@angular/common';
 
+export interface IndexUpdateEvent {
+    start?: number;
+    end?: number;
+}
+
 @Component({
-    selector: 'du-virtual-scroll',
+    selector: 'virtual-scroll',
     template: `
         <div class="padding-layer" [style.height]="topPadding + 'px'"></div>
         <ng-content></ng-content>
@@ -33,13 +38,17 @@ export class VirtualScrollComponent implements OnDestroy, OnChanges {
     marginY: number = 0;
 
     @Output()
-    update: EventEmitter<any> = new EventEmitter<any>();
+    update: EventEmitter<any[]> = new EventEmitter<any[]>();
+
+    @Output()
+    indexUpdate: EventEmitter<IndexUpdateEvent> = new EventEmitter<IndexUpdateEvent>();
 
     private onScrollListener: Function;
     private topPadding: number;
     private bottomPadding: number;
     private previousStart: number;
     private previousEnd: number;
+    private startupLoop: boolean = true;
 
     constructor(private element: ElementRef, private renderer: Renderer) {
         this.onScrollListener = this.renderer.listen(this.element.nativeElement, 'scroll', this.refresh.bind(this));
@@ -95,9 +104,18 @@ export class VirtualScrollComponent implements OnDestroy, OnChanges {
         this.bottomPadding = childHeight * Math.ceil((itemCount - end) / itemsPerRow);
         if (start !== this.previousStart || end !== this.previousEnd) {
             this.update.emit((this.items || []).slice(start, end));
+            this.indexUpdate.emit({
+                start: start,
+                end: Math.min(itemCount, end)
+            });
+            this.previousStart = start;
+            this.previousEnd = end;
+            if (this.startupLoop === true) {
+                this.refresh();
+            }
+        } else {
+            this.startupLoop = false;
         }
-        this.previousStart = start;
-        this.previousEnd = end;
     }
 }
 

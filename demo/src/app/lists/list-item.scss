@@ -1,0 +1,35 @@
+:host {
+  display: block;
+  font-size: .8em;
+  border-bottom: 1px solid #dce2e6;
+}
+
+.avatar {
+  width: 40px;
+  height: 40px;
+  line-height: 40px;
+  text-align: center;
+  vertical-align: middle;
+  display: inline-block;
+  border-radius: 100%;
+  background: #2196F3;
+  color: white;
+}
+
+.item-content {
+  display: inline-block;
+  width: calc(100% - 60px);
+  padding: 5px;
+  vertical-align: middle;
+  div {
+    opacity: .6;
+  }
+  .name {
+    display: inline-block;
+    font-weight: bold;
+    opacity: 1;
+  }
+  .badge {
+    opacity: 1;
+  }
+}

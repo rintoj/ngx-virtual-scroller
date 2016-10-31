@@ -2,7 +2,7 @@ import { ListItem } from './list-item.component';
 import { Input, Component } from '@angular/core';
 
 @Component({
-    selector: 'vertical-list',
+    selector: 'multi-col-list',
     template: `
 
         <div class="status">
@@ -14,6 +14,8 @@ import { Input, Component } from '@angular/core';
 
         <virtual-scroll
             [items]="items"
+            [marginX]="2"
+            [marginY]="2"
             (update)="scrollItems = $event"
             (indexUpdate)="indices = $event">
 
@@ -21,9 +23,9 @@ import { Input, Component } from '@angular/core';
 
         </virtual-scroll>
     `,
-    styleUrls: ['./vertical-list.scss']
+    styleUrls: ['./multi-col-list.scss']
 })
-export class VerticalListComponent {
+export class MultiColListComponent {
 
     @Input()
     items: ListItem[];

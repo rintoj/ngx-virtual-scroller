@@ -1,0 +1,14 @@
+:host {
+  virtual-scroll {
+    padding: 0;
+  }
+  list-item {
+    width: calc(50% - 18px);
+    margin: 2px;
+    padding: 5px;
+    display: inline-block;
+    overflow: hidden;
+    border: 1px solid #dce2e6;
+    vertical-align: top;
+  }
+}
