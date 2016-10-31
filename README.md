@@ -1,17 +1,80 @@
 
 # angular2-virtual-scroll
 
-Coming soon
+Virtual Scroll displays a virtual, "infinite" list.
+
+## About
+
+This module does not render every record in the list at once; instead a small subset of records just enough to fill the viewport are rendered and reused as the user scrolls. Thus displaying an infinitely growing list of items in a viewport of size just about a couple rows in an efficient way is made possible.
+
+* Angular 2 compatible module
+* Easy to use apis
+* OpenSource and available in GitHub
+
+**Note:** Items must have a fixed height and width for this module to work perfectly.
+
+## Demo
+
+[See Demo Here](http://rintoj.github.io/angular2-virtual-scroll)
+
+## Usage
+
+```
+<virtual-scroll [items]="items" (update)="viewPortItems = $event">
+
+    <list-item *ngFor="let item of viewPortItems" [item]="item">
+    </list-item>
+
+</virtual-scroll>
+```
+
+## Get Started
+
+**Step 1:** Install angular2-virtual-scroll
+
+```
+npm install angular2-virtual-scroll --save
+```
+
+**Step 2:** Import virtual scroll module into your app module
+
+```
+....
+import { VirtualScrollModule } from 'angular2-virtual-scroll';
+
+....
+
+@NgModule({
+    ...
+    imports: [
+        ....
+        VirtualScrollModule
+    ],
+    ....
+})
+export class AppModule { }
+```
+
+**Step 3:** Wrap virtual-scroll tag around list items;
+
+```
+<virtual-scroll [items]="items" (update)="viewPortItems = $event">
+
+    <list-item *ngFor="let item of viewPortItems" [item]="item">
+    </list-item>
+
+</virtual-scroll>
+```
 
 ## Contributing
-Contributions are very welcome! Just send a pull request. Feel free to contact me or checkout my [Github](https://github.com/rintoj) page.
+Contributions are very welcome! Just send a pull request. Feel free to contact me or checkout my [GitHub](https://github.com/rintoj) page.
 
 ## Author
 
-**Rinto Jose** (rintoj) 
+**Rinto Jose** (rintoj)
 
 Follow me:
-  [Github](https://github.com/rintoj)
+  [GitHub](https://github.com/rintoj)
 | [Facebook](https://www.facebook.com/rinto.jose)
 | [Twitter](https://twitter.com/rintoj)
 | [Google+](https://plus.google.com/+RintoJoseMankudy)
