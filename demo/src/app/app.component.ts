@@ -21,7 +21,7 @@ export class AppComponent implements OnInit {
     constructor(private http: Http) { }
 
     ngOnInit() {
-        this.http.get('assets/data/items.1.json')
+        this.http.get('assets/data/items.json')
             .map(response => response.json())
             .subscribe(data => this.items = data);
     }

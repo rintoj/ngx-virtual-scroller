@@ -58,6 +58,13 @@ export class VirtualScrollComponent implements OnDestroy, OnChanges {
     @Input()
     scrollbarHeight: number = 0;
 
+    @Input()
+    childWidth: number;
+
+    @Input()
+    childHeight: number;
+
+
     @Output()
     update: EventEmitter<any[]> = new EventEmitter<any[]>();
 
@@ -122,12 +129,15 @@ export class VirtualScrollComponent implements OnDestroy, OnChanges {
         let viewWidth = el.clientWidth - this.scrollbarWidth;
         let viewHeight = el.clientHeight - this.scrollbarHeight;
 
-        let contentDimensions = content.children[0] ? content.children[0].getBoundingClientRect() : {
-            width: viewWidth,
-            height: viewHeight
-        };
-        let childWidth = contentDimensions.width;
-        let childHeight = contentDimensions.height;
+        let contentDimensions;
+        if (this.childWidth == undefined || this.childHeight == undefined) {
+            contentDimensions = content.children[0] ? content.children[0].getBoundingClientRect() : {
+                width: viewWidth,
+                height: viewHeight
+            };
+        }
+        let childWidth = this.childWidth || contentDimensions.width;
+        let childHeight = this.childHeight || contentDimensions.height;
 
         let itemsPerRow = Math.max(1, Math.floor(viewWidth / childWidth));
         let itemsPerCol = Math.max(1, Math.floor(viewHeight / childHeight));

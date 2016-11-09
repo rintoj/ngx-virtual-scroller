@@ -1,44 +1,44 @@
 {
-  "name": "angular2-virtual-scroll",
-  "version": "0.0.3",
-  "description": "Angular 2 module for virtual -infinite- list.",
-  "main": "dist/virtual-scroll.js",
-  "types": "dist/virtual-scroll.d.ts",
-  "scripts": {
-    "tsc": "node_modules/typescript/bin/tsc",
-    "build": "npm run tsc --",
-    "tslint": "tslint",
-    "lint": "tslint src/**/*.ts",
-    "watch": "npm run tsc -- -w",
-    "start": "npm run watch",
-    "test": "npm test"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/rintoj/angular2-virtual-scroll.git"
-  },
-  "keywords": [
-    "virtual scroll",
-    "scroll",
-    "angular 2"
-  ],
-  "author": "Rinto Jose",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/rintoj/angular2-virtual-scroll/issues"
-  },
-  "homepage": "https://github.com/rintoj/angular2-virtual-scroll#readme",
-  "devDependencies": {
-    "@angular/common": "2.1.1",
-    "@angular/compiler": "2.1.1",
-    "@angular/core": "2.1.1",
-    "@angular/platform-browser": "2.1.1",
-    "@angular/platform-browser-dynamic": "2.1.1",
-    "@types/node": "6.0.45",
-    "codelyzer": "1.0.0-beta.2",
-    "rxjs": "5.0.0-beta.12",
-    "tslint": "3.15.1",
-    "typescript": "2.0.6",
-    "zone.js": "0.6.25"
-  }
+    "name": "angular2-virtual-scroll",
+    "version": "0.0.4",
+    "description": "Angular 2 module for virtual -infinite- list. Supports multi-column",
+    "main": "dist/virtual-scroll.js",
+    "types": "dist/virtual-scroll.d.ts",
+    "scripts": {
+        "tsc": "node_modules/typescript/bin/tsc",
+        "build": "npm run tsc --",
+        "tslint": "tslint",
+        "lint": "tslint src/**/*.ts",
+        "watch": "npm run tsc -- -w",
+        "start": "npm run watch",
+        "test": "npm test"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/rintoj/angular2-virtual-scroll.git"
+    },
+    "keywords": [
+        "virtual scroll",
+        "scroll",
+        "angular 2"
+    ],
+    "author": "Rinto Jose",
+    "license": "MIT",
+    "bugs": {
+        "url": "https://github.com/rintoj/angular2-virtual-scroll/issues"
+    },
+    "homepage": "https://github.com/rintoj/angular2-virtual-scroll#readme",
+    "devDependencies": {
+        "@angular/common": "2.1.1",
+        "@angular/compiler": "2.1.1",
+        "@angular/core": "2.1.1",
+        "@angular/platform-browser": "2.1.1",
+        "@angular/platform-browser-dynamic": "2.1.1",
+        "@types/node": "6.0.45",
+        "codelyzer": "1.0.0-beta.2",
+        "rxjs": "5.0.0-beta.12",
+        "tslint": "3.15.1",
+        "typescript": "2.0.6",
+        "zone.js": "0.6.25"
+    }
 }

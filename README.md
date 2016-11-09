@@ -12,7 +12,9 @@ This module does not render every record in the list at once; instead a small su
 * Easy to use apis
 * OpenSource and available in GitHub
 
-**Note:** Items must have a fixed height and width for this module to work perfectly.
+### Important Note
+
+Items must have fixed height and width for this module to work perfectly. However if your list happen to have items with variable width and height, set `childWidth` and `childHeight` to the smallest possible values manually to make this work.
 
 ## Demo
 
@@ -80,6 +82,9 @@ Follow me:
 | [Twitter](https://twitter.com/rintoj)
 | [Google+](https://plus.google.com/+RintoJoseMankudy)
 | [Youtube](https://youtube.com/+RintoJoseMankudy)
+
+## Versions
+[Check CHANGELOG](https://github.com/rintoj/angular2-virtual-scroll/blob/master/CHANGELOG.md)
 
 ## License
 ```
