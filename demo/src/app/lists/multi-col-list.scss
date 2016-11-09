@@ -1,12 +1,16 @@
 @import '../../variables';
 :host {
+  virtual-scroll {
+    background: #ebf1f5;
+  }
   list-item {
-    width: calc(50% - 18px);
+    /*width: calc(34% - 18px);*/
+    width: 220px;
     margin: 2px;
     display: inline-block;
     overflow: hidden;
     border: 1px solid $border-color;
     vertical-align: top;
-    height: 100px;
+    height: 150px;
   }
 }

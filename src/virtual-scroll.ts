@@ -6,8 +6,10 @@ import {
     Component,
     OnDestroy,
     OnChanges,
+    ViewChild,
     ElementRef,
     EventEmitter,
+    ViewContainerRef,
     ModuleWithProviders,
 } from '@angular/core';
 
@@ -21,10 +23,29 @@ export interface IndexUpdateEvent {
 @Component({
     selector: 'virtual-scroll',
     template: `
-        <div class="padding-layer" [style.height]="topPadding + 'px'"></div>
-        <ng-content></ng-content>
-        <div class="padding-layer" [style.height]="bottomPadding + 'px'"></div>
-    `
+        <div class="total-padding" [style.height]="scrollHeight + 'px'"></div>
+        <div class="scrollable-content" #content [style.transform]="'translateY(' + topPadding + 'px)'">
+            <ng-content></ng-content>
+        </div>
+    `,
+    styles: [`
+        :host {
+            overflow: hidden;
+            overflow-y: auto;
+            position: relative;
+        }
+        .scrollable-content {
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            position: absolute;
+        }
+        .total-padding {
+            width: 1px;
+            opacity: 0;
+        }
+    `]
 })
 export class VirtualScrollComponent implements OnDestroy, OnChanges {
 
@@ -32,10 +53,10 @@ export class VirtualScrollComponent implements OnDestroy, OnChanges {
     items: any[] = [];
 
     @Input()
-    marginX: number = 0;
+    scrollbarWidth: number = 10;
 
     @Input()
-    marginY: number = 0;
+    scrollbarHeight: number = 0;
 
     @Output()
     update: EventEmitter<any[]> = new EventEmitter<any[]>();
@@ -43,9 +64,12 @@ export class VirtualScrollComponent implements OnDestroy, OnChanges {
     @Output()
     indexUpdate: EventEmitter<IndexUpdateEvent> = new EventEmitter<IndexUpdateEvent>();
 
+    @ViewChild('content', { read: ElementRef })
+    protected contentElementRef: ElementRef;
+
     private onScrollListener: Function;
     private topPadding: number;
-    private bottomPadding: number;
+    private scrollHeight: number;
     private previousStart: number;
     private previousEnd: number;
     private startupLoop: boolean = true;
@@ -72,10 +96,15 @@ export class VirtualScrollComponent implements OnDestroy, OnChanges {
         let index: number = (this.items || []).indexOf(item);
         if (index < 0 || index >= (this.items || []).length) return;
         let el = this.element.nativeElement;
+        let content = this.contentElementRef.nativeElement;
         let viewWidth = el.clientWidth;
         let viewHeight = el.clientHeight;
-        let childWidth = ((el.children[1] || {}).clientWidth || viewWidth) + (this.marginX * 2);
-        let childHeight = ((el.children[1] || {}).clientHeight || viewHeight) + (this.marginY * 2);
+        let contentDimensions = content.children[0] ? content.children[0].getBoundingClientRect() : {
+            width: viewWidth,
+            height: viewHeight
+        };
+        let childWidth = contentDimensions.width;
+        let childHeight = contentDimensions.height;
         let itemsPerRow = Math.max(1, Math.floor(viewWidth / childWidth));
         let itemsPerCol = Math.max(1, Math.floor(viewHeight / childHeight));
 
@@ -85,29 +114,34 @@ export class VirtualScrollComponent implements OnDestroy, OnChanges {
 
     private calculateItems() {
         let el = this.element.nativeElement;
+        let content = this.contentElementRef.nativeElement;
         let scrollTop = el.scrollTop;
 
         let items = this.items || [];
         let itemCount = items.length;
-        let viewWidth = el.clientWidth;
-        let viewHeight = el.clientHeight;
-        let childWidth = ((el.children[1] || {}).clientWidth || viewWidth) + (this.marginX * 2);
-        let childHeight = ((el.children[1] || {}).clientHeight || viewHeight) + (this.marginY * 2);
+        let viewWidth = el.clientWidth - this.scrollbarWidth;
+        let viewHeight = el.clientHeight - this.scrollbarHeight;
+
+        let contentDimensions = content.children[0] ? content.children[0].getBoundingClientRect() : {
+            width: viewWidth,
+            height: viewHeight
+        };
+        let childWidth = contentDimensions.width;
+        let childHeight = contentDimensions.height;
 
         let itemsPerRow = Math.max(1, Math.floor(viewWidth / childWidth));
         let itemsPerCol = Math.max(1, Math.floor(viewHeight / childHeight));
-        let scrollHeight = childHeight * itemCount / itemsPerRow;
+        this.scrollHeight = childHeight * itemCount / itemsPerRow;
 
-        let start = Math.floor(scrollTop / scrollHeight * itemCount / itemsPerRow) * itemsPerRow;
-        let end = Math.min(itemCount, Math.ceil(scrollTop / scrollHeight * itemCount / itemsPerRow) * itemsPerRow + itemsPerRow * (itemsPerCol + 1));
+        let start = Math.floor(scrollTop / this.scrollHeight * itemCount / itemsPerRow) * itemsPerRow;
+        let end = Math.min(itemCount, Math.ceil(scrollTop / this.scrollHeight * itemCount / itemsPerRow) * itemsPerRow + itemsPerRow * (itemsPerCol + 1));;
 
         this.topPadding = childHeight * Math.ceil(start / itemsPerRow);
-        this.bottomPadding = childHeight * Math.ceil((itemCount - end) / itemsPerRow);
         if (start !== this.previousStart || end !== this.previousEnd) {
             this.update.emit(items.slice(start, end));
             this.indexUpdate.emit({
                 start: start,
-                end: Math.min(itemCount, end)
+                end: end
             });
             this.previousStart = start;
             this.previousEnd = end;

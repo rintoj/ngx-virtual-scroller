@@ -9,6 +9,7 @@ import { VerticalListComponent } from './lists/vertical-list.component';
 import { MultiColListComponent } from './lists/multi-col-list.component';
 import { VirtualScrollModule } from '../../../src/virtual-scroll';
 
+
 @NgModule({
     declarations: [
         AppComponent,

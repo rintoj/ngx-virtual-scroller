@@ -13,8 +13,6 @@ import { Input, Component } from '@angular/core';
 
         <virtual-scroll
             [items]="items"
-            [marginX]="2"
-            [marginY]="2"
             (update)="scrollItems = $event"
             (indexUpdate)="indices = $event">
 

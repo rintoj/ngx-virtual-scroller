@@ -1,12 +1,13 @@
 
 # angular2-virtual-scroll
 
-Virtual Scroll displays a virtual, "infinite" list.
+Virtual Scroll displays a virtual, "infinite" list. Supports multi-column.
 
 ## About
 
 This module does not render every record in the list at once; instead a small subset of records just enough to fill the viewport are rendered and reused as the user scrolls. Thus displaying an infinitely growing list of items in a viewport of size just about a couple rows in an efficient way is made possible.
 
+* Supports multi-column
 * Angular 2 compatible module
 * Easy to use apis
 * OpenSource and available in GitHub

@@ -7,6 +7,9 @@ body {
   font-family: 'Noto Sans';
   font-size: 16px;
   color: $secondary-text;
+  background: url('assets/images/bg.jpg');
+  background-size: cover;
+  background-attachment: fixed;
 }
 
 h2 {
@@ -90,6 +93,7 @@ section {
   min-height: 10vh;
   overflow: hidden;
   position: relative;
+  background: rgba(255, 255, 255, 0.88);
 }
 
 .header {
@@ -98,9 +102,7 @@ section {
   background: $primary-color;
   color: $dark-text;
   text-align: center;
-  background: url('assets/images/bg.jpg');
-  background-size: cover;
-  background-attachment: fixed;
+  background: transparent;
   h1 {
     animation: slideup-header .5s ease-out;
     margin: 0 auto;
@@ -156,8 +158,8 @@ section {
   position: absolute;
 }
 
-.col-10-12 {
-    padding: 2rem;
+.col-8-12 {
+  padding: 1rem;
 }
 
 .menu-selector {
