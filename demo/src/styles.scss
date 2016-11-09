@@ -7,9 +7,6 @@ body {
   font-family: 'Noto Sans';
   font-size: 16px;
   color: $secondary-text;
-  background: url('assets/images/bg.jpg');
-  background-size: cover;
-  background-attachment: fixed;
 }
 
 h2 {
@@ -93,7 +90,6 @@ section {
   min-height: 10vh;
   overflow: hidden;
   position: relative;
-  background: rgba(255, 255, 255, 0.88);
 }
 
 .header {
@@ -102,7 +98,10 @@ section {
   background: $primary-color;
   color: $dark-text;
   text-align: center;
-  background: transparent;
+  background: url('assets/images/bg.jpg');
+  background-size: cover;
+  background-attachment: fixed;
+  background-position-y: -110px;
   h1 {
     animation: slideup-header .5s ease-out;
     margin: 0 auto;
