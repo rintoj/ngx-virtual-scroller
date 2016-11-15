@@ -11,6 +11,7 @@ import {
     EventEmitter,
     ViewContainerRef,
     ModuleWithProviders,
+    SimpleChanges
 } from '@angular/core';
 
 import { CommonModule } from '@angular/common';
@@ -85,7 +86,7 @@ export class VirtualScrollComponent implements OnDestroy, OnChanges {
         this.onScrollListener = this.renderer.listen(this.element.nativeElement, 'scroll', this.refresh.bind(this));
     }
 
-    ngOnChanges() {
+    ngOnChanges(changes: SimpleChanges) {
         this.previousStart = undefined;
         this.previousEnd = undefined;
         this.refresh();
