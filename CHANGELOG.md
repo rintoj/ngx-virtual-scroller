@@ -1,6 +1,10 @@
 
 # v0.0.4
 
+* Merging pull request: [Completely define ngOnChanges function signature #2](https://github.com/rintoj/angular2-virtual-scroll/pull/2)
+
+# v0.0.4
+
 * BREAKING CHANGE: Removed `marginX` and `marginY`. These are auto calculated now.
 * Added support for list items with variable width and height. Use `childWidth` and `childHeight`
 * Performance turning: removed padding using `height`. Now uses `transform`.

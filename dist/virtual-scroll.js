@@ -22,7 +22,7 @@ var VirtualScrollComponent = (function () {
         this.startupLoop = true;
         this.onScrollListener = this.renderer.listen(this.element.nativeElement, 'scroll', this.refresh.bind(this));
     }
-    VirtualScrollComponent.prototype.ngOnChanges = function () {
+    VirtualScrollComponent.prototype.ngOnChanges = function (changes) {
         this.previousStart = undefined;
         this.previousEnd = undefined;
         this.refresh();

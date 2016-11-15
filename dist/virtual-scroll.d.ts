@@ -1,4 +1,4 @@
-import { Renderer, OnDestroy, OnChanges, ElementRef, EventEmitter, ModuleWithProviders } from '@angular/core';
+import { Renderer, OnDestroy, OnChanges, ElementRef, EventEmitter, ModuleWithProviders, SimpleChanges } from '@angular/core';
 export interface IndexUpdateEvent {
     start?: number;
     end?: number;
@@ -21,7 +21,7 @@ export declare class VirtualScrollComponent implements OnDestroy, OnChanges {
     private previousEnd;
     private startupLoop;
     constructor(element: ElementRef, renderer: Renderer);
-    ngOnChanges(): void;
+    ngOnChanges(changes: SimpleChanges): void;
     ngOnDestroy(): void;
     refresh(): void;
     scrollInto(item: any): void;
