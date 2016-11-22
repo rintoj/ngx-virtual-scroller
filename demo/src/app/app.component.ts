@@ -1,14 +1,15 @@
+import { Component, OnInit, ViewEncapsulation } from '@angular/core';
+
 import { Http } from '@angular/http';
 import { ListItem } from './lists/list-item.component';
-import { OnInit, ViewEncapsulation, Component } from '@angular/core';
 
 @Component({
     selector: 'app-root',
     template: `
-        <h2>Vertical Scroll with One Column</h2>
+        <h2>With <span>Single Column</span></h2>
         <vertical-list [items]="items"></vertical-list>
 
-        <h2>Vertical Scroll with Multiple Column</h2>
+        <h2>With <span>Multiple Columns</span></h2>
         <multi-col-list [items]="items"></multi-col-list>
     `,
     styleUrls: ['./app.component.scss'],

@@ -4,12 +4,12 @@
     background: #ebf1f5;
   }
   list-item {
-    width: calc(50% - 20px);
-    margin: 2px;
     display: inline-block;
     overflow: hidden;
-    border: 1px solid $border-color;
     vertical-align: top;
     height: 150px;
+    border: 0;
+    margin: 0px;
+    width: 50%;
   }
 }

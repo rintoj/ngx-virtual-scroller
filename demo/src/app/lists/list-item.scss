@@ -1,11 +1,13 @@
 @import '../../variables';
 :host {
   display: block;
-  font-size: .8em;
   border-bottom: 1px solid $border-color;
   background: white;
-  padding: 5px;
+  font-size: 1em;
+  padding: 20px;
   height: 100px;
+  line-height: 1.2em;
+  overflow: hidden;
 }
 
 .avatar {

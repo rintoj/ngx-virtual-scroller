@@ -1,13 +1,6 @@
 import './polyfills.ts';
-import * as MenuSpy from 'menuspy';
-import { AppModule } from './app/';
-import { environment } from './environments/environment';
-import { enableProdMode } from '@angular/core';
-import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
-
 // Statics
 import 'rxjs/add/observable/throw';
-
 // Operators
 import 'rxjs/add/operator/catch';
 import 'rxjs/add/operator/debounceTime';
@@ -16,17 +9,15 @@ import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/switchMap';
 import 'rxjs/add/operator/toPromise';
 
+import * as MenuSpy from 'menuspy';
+
+import { AppModule } from './app/';
+import { enableProdMode } from '@angular/core';
+import { environment } from './environments/environment';
+import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
+
 if (environment.production) {
     enableProdMode();
 }
 
 platformBrowserDynamic().bootstrapModule(AppModule);
-
-document.addEventListener('DOMContentLoaded', function () {
-    new MenuSpy(document.querySelector('#main-header'), {
-        activeClass: 'selected'
-    });
-
-    let menu: any = document.querySelector('header ul');
-    menu.addEventListener('click', () => menu.classList.toggle('open'));
-});
