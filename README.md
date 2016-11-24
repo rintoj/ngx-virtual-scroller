@@ -107,6 +107,16 @@ export class ListItemComponent {
 }
 ```
 
+Child component is not a necessity if your item is simple enough. See below.
+
+```
+<virtual-scroll [items]="items" (update)="viewPortItems = $event">
+
+    <div *ngFor="let item of viewPortItems" [item]="item">{{item?.name}}</div>
+
+</virtual-scroll>
+```
+
 ## Contributing
 Contributions are very welcome! Just send a pull request. Feel free to contact me or checkout my [GitHub](https://github.com/rintoj) page.
 
