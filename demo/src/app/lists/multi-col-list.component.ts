@@ -14,7 +14,6 @@ import { ListItem } from './list-item.component';
 
         <virtual-scroll
             [items]="items"
-            [scrollbarWidth]="0"
             (update)="scrollItems = $event"
             (indexUpdate)="indices = $event">
 
