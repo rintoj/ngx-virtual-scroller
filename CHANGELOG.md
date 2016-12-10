@@ -1,5 +1,13 @@
 
-# v0.0.4
+# v0.0.7
+
+* Bug fix: [Multi-column scroll is broken in the demo #6](https://github.com/rintoj/angular2-virtual-scroll/issues/6)
+
+# v0.0.6
+
+* Updating documentation
+
+# v0.0.5
 
 * Merging pull request: [Completely define ngOnChanges function signature #2](https://github.com/rintoj/angular2-virtual-scroll/pull/2)
 

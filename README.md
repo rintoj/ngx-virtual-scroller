@@ -5,16 +5,14 @@ Virtual Scroll displays a virtual, "infinite" list. Supports multi-column.
 
 ## About
 
-This module does not render every record in the list at once; instead a small subset of records just enough to fill the viewport are rendered and reused as the user scrolls. Thus displaying an infinitely growing list of items in a viewport of size just about a couple rows in an efficient way is made possible.
+This module displays a small subset of records just enough to fill the viewport and uses the same DOM elements as the user scrolls.
+This method is effective because the number of DOM elements are always constant and tiny irrespective of the size of the list. Thus virtual scroll can display infinitely growing list of items in an efficient way.
 
-* Supports multi-column
 * Angular 2 compatible module
+* Supports multi-column
 * Easy to use apis
-* OpenSource and available in GitHub
+* OpenSource and available in [GitHub](https://github.com/rintoj/angular2-virtual-scroll)
 
-### Important Note
-
-Items must have fixed height and width for this module to work perfectly. However if your list happen to have items with variable width and height, set `childWidth` and `childHeight` to the smallest possible values manually to make this work.
 
 ## Demo
 
@@ -114,6 +112,54 @@ Child component is not a necessity if your item is simple enough. See below.
     <div *ngFor="let item of viewPortItems">{{item?.name}}</div>
 </virtual-scroll>
 ```
+
+## Items with variable size
+
+Items must have fixed height and width for this module to work perfectly. However if your list happen to have items with variable width and height, set inputs `childWidth` and `childHeight` to the smallest possible values to make this work.
+
+```
+<virtual-scroll [items]="items"
+    [childWidth]="80"
+    [childHeight]="30"
+    (update)="viewPortItems = $event">
+
+    <list-item *ngFor="let item of viewPortItems" [item]="item">
+    </list-item>
+
+</virtual-scroll>
+```
+
+## If container size change
+
+If virtual scroll is used within a dropdown or collapsible menu, virtual scroll needs to know when the container size change. Use `refresh()` function after container is resized (include time for animation as well).
+
+```
+import { Component, ViewChild } from '@angular/core';
+import { VirtualScrollComponent } from 'angular2-virtual-scroll';
+
+@Component({
+    selector: 'rj-list',
+    template: `
+        <virtual-scroll [items]="items" (update)="scrollList = $event">
+            <div *ngFor="let item of scrollList; let i = index"> {{i}}: {{item}} </div>
+        </virtual-scroll>
+    `
+})
+export class ListComponent {
+
+    protected items = ['Item1', 'Item2', 'Item3'];
+
+    @ViewChild(VirtualScrollComponent)
+    private virtualScroll: VirtualScrollComponent;
+
+    // call this function after resize + animation end
+    afterResize() {
+        this.virtualScroll.refresh();
+    }
+}
+```
+
+This will be deprecated once [Resize Observer](https://wicg.github.io/ResizeObserver/) is fully implemented.
 
 ## Contributing
 Contributions are very welcome! Just send a pull request. Feel free to contact me or checkout my [GitHub](https://github.com/rintoj) page.

@@ -1,17 +1,18 @@
 {
     "name": "angular2-virtual-scroll",
-    "version": "0.0.6",
+    "version": "0.0.7",
     "description": "Angular 2 module for virtual -infinite- list. Supports multi-column",
     "main": "dist/virtual-scroll.js",
     "types": "dist/virtual-scroll.d.ts",
     "scripts": {
-        "tsc": "node_modules/typescript/bin/tsc",
         "build": "npm run tsc --",
-        "tslint": "tslint",
         "lint": "tslint src/**/*.ts",
-        "watch": "npm run tsc -- -w",
+        "prepublish": "npm run build",
         "start": "npm run watch",
-        "test": "npm test"
+        "test": "npm test",
+        "tsc": "node_modules/typescript/bin/tsc",
+        "tslint": "tslint",
+        "watch": "npm run tsc -- -w"
     },
     "repository": {
         "type": "git",
