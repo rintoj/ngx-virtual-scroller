@@ -16,7 +16,7 @@ var VirtualScrollComponent = (function () {
         this.renderer = renderer;
         this.items = [];
         this.update = new core_1.EventEmitter();
-        this.indexUpdate = new core_1.EventEmitter();
+        this.change = new core_1.EventEmitter();
         this.startupLoop = true;
     }
     VirtualScrollComponent.prototype.ngOnInit = function () {
@@ -102,14 +102,16 @@ var VirtualScrollComponent = (function () {
         this.topPadding = d.childHeight * Math.ceil(start / d.itemsPerRow);
         if (start !== this.previousStart || end !== this.previousEnd) {
             this.update.emit(items.slice(start, end));
-            this.indexUpdate.emit({
-                start: start,
-                end: end
-            });
             this.previousStart = start;
             this.previousEnd = end;
             if (this.startupLoop === true) {
                 this.refresh();
+            }
+            else {
+                this.change.emit({
+                    start: start,
+                    end: end
+                });
             }
         }
         else {
@@ -143,7 +145,7 @@ var VirtualScrollComponent = (function () {
     __decorate([
         core_1.Output(), 
         __metadata('design:type', core_1.EventEmitter)
-    ], VirtualScrollComponent.prototype, "indexUpdate", void 0);
+    ], VirtualScrollComponent.prototype, "change", void 0);
     __decorate([
         core_1.ViewChild('content', { read: core_1.ElementRef }), 
         __metadata('design:type', core_1.ElementRef)

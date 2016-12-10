@@ -16,7 +16,7 @@ import {
 
 import { CommonModule } from '@angular/common';
 
-export interface IndexUpdateEvent {
+export interface ChangeEvent {
     start?: number;
     end?: number;
 }
@@ -69,7 +69,7 @@ export class VirtualScrollComponent implements OnInit, OnDestroy, OnChanges {
     update: EventEmitter<any[]> = new EventEmitter<any[]>();
 
     @Output()
-    indexUpdate: EventEmitter<IndexUpdateEvent> = new EventEmitter<IndexUpdateEvent>();
+    change: EventEmitter<ChangeEvent> = new EventEmitter<ChangeEvent>();
 
     @ViewChild('content', { read: ElementRef })
     protected contentElementRef: ElementRef;
@@ -179,14 +179,15 @@ export class VirtualScrollComponent implements OnInit, OnDestroy, OnChanges {
         this.topPadding = d.childHeight * Math.ceil(start / d.itemsPerRow);
         if (start !== this.previousStart || end !== this.previousEnd) {
             this.update.emit(items.slice(start, end));
-            this.indexUpdate.emit({
-                start: start,
-                end: end
-            });
             this.previousStart = start;
             this.previousEnd = end;
             if (this.startupLoop === true) {
                 this.refresh();
+            } else {
+                this.change.emit({
+                    start: start,
+                    end: end
+                });
             }
         } else {
             this.startupLoop = false;

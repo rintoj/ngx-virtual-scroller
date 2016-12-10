@@ -256,7 +256,7 @@ h2 span {
 
 video {
   width: 100%;
-  background: black;
+  background: #d4d8db;
 }
 
 .footer {
@@ -276,4 +276,9 @@ video {
     background: #3d4f5d;
     color: white;
   }
+}
+
+table th {
+  background: #3d4f5d;
+  color: white;
 }

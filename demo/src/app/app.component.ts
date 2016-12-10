@@ -1,7 +1,8 @@
-import { Component, OnInit, ViewEncapsulation } from '@angular/core';
-
+import { Component } from '@angular/core';
 import { Http } from '@angular/http';
 import { ListItem } from './lists/list-item.component';
+import { OnInit } from '@angular/core';
+import { ViewEncapsulation } from '@angular/core';
 
 @Component({
     selector: 'app-root',
@@ -11,6 +12,12 @@ import { ListItem } from './lists/list-item.component';
 
         <h2>With <span>Multiple Columns</span></h2>
         <multi-col-list [items]="items"></multi-col-list>
+
+        <h2>Loading in <span>Chunks</span></h2>
+        <list-with-api [items]="items"></list-with-api>
+        <p><strong>change</strong> event is fired every time start or end index change.
+        You could use this to load more items at the end of the scroll. See below.</p>
+        <pre><code class="javascript">{{codeListWithApi}}</code></pre>
     `,
     styleUrls: ['./app.component.scss'],
     encapsulation: ViewEncapsulation.None
@@ -18,6 +25,47 @@ import { ListItem } from './lists/list-item.component';
 export class AppComponent implements OnInit {
 
     protected items: ListItem[];
+
+    protected readonly codeListWithApi = `
+        import { ChangeEvent } from '@angular2-virtual-scroll';
+        ...
+
+        @Component({
+            selector: 'list-with-api',
+            template: \`
+                <virtual-scroll [items]="buffer" (update)="scrollItems = $event"
+                    (change)="onListChange($event)">
+
+                    <list-item *ngFor="let item of scrollItems" [item]="item"> </list-item>
+                    <div *ngIf="loading" class="loader">Loading...</div>
+
+                </virtual-scroll>
+            \`
+        })
+        export class ListWithApiComponent implements OnChanges {
+
+            @Input()
+            items: ListItem[];
+
+            protected buffer: ListItem[] = [];
+            protected loading: boolean;
+
+            protected onListChange(event: ChangeEvent) {
+                if (event.end !== this.buffer.length) return;
+                this.loading = true;
+                this.fetchNextChunk(this.buffer.length, 10).then(chunk => {
+                    this.buffer = this.buffer.concat(chunk);
+                    this.loading = false;
+                }, () => this.loading = false);
+            }
+
+            protected fetchNextChunk(skip: number, limit: number): Promise<ListItem[]> {
+                return new Promise((resolve, reject) => {
+                    ....
+                });
+            }
+        }
+    `.replace(/^        /mg, '');
 
     constructor(private http: Http) { }
 

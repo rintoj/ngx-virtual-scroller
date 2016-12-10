@@ -1,5 +1,5 @@
 import { ElementRef, EventEmitter, ModuleWithProviders, OnChanges, OnDestroy, OnInit, Renderer, SimpleChanges } from '@angular/core';
-export interface IndexUpdateEvent {
+export interface ChangeEvent {
     start?: number;
     end?: number;
 }
@@ -12,7 +12,7 @@ export declare class VirtualScrollComponent implements OnInit, OnDestroy, OnChan
     childWidth: number;
     childHeight: number;
     update: EventEmitter<any[]>;
-    indexUpdate: EventEmitter<IndexUpdateEvent>;
+    change: EventEmitter<ChangeEvent>;
     protected contentElementRef: ElementRef;
     private onScrollListener;
     private topPadding;

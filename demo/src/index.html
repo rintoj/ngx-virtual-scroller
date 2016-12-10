@@ -69,13 +69,14 @@
             </header>
             <div class="post-description">
               <p>
-                This module does not render every record in the list at once; instead a small subset of records just enough to fill the viewport
-                are rendered and reused as the user scrolls. Thus displaying an infinitely growing list of items in a viewport
-                of size just about a couple rows in an efficient way is made possible.
+                This module displays a small subset of records just enough to fill the viewport and uses the same DOM elements as the user
+                scrolls. This method is effective because the number of DOM elements are always constant and tiny irrespective
+                of the size of the list. Thus virtual scroll can display infinitely growing list of items in an efficient
+                way.
               </p>
               <ul>
-                <li>Supports multicolumn</li>
                 <li>Angular 2 compatible module</li>
+                <li>Supports multicolumn</li>
                 <li>Easy to use apis</li>
                 <li>OpenSource and available in <a href="https://github.com/rintoj/angular2-virtual-scroll">GitHub</a></li>
               </ul>
@@ -113,25 +114,18 @@ export class AppModule { }</code></pre>
 &lt;/virtual-scroll&gt;</code></pre>
             Input would be <strong>items</strong> and an updated list will be passed on through <strong>update</strong> event
           </section>
-          <section class="post">
-            <h2>Important Note</h2>
-            Items must have fixed height and width for this module to work perfectly. However if your list happen to have items with
-            variable width and height, set
-            <strong>childWidth</strong> and <strong>childHeight</strong> to the smallest possible values manually to make
-            this work.
-          </section>
         </div>
       </div>
       <div class="posts" id="demo">
         <h1 class="content-subhead">Demo</h1>
         <section class="post">
           <header class="post-header">
-            <a class="post-avatar" href="https://youtu.be/6VbstjQmjU8" target="_blank"><img width="30" height="30" src="assets/images/youtube-128.png"></a>
+            <a class="post-avatar" href="https://youtu.be/WKHjvyGF-hM" target="_blank"><img width="30" height="30" src="assets/images/youtube-128.png"></a>
             <h2 class="post-title">Demo</h2>
           </header>
           <div class="post-description">
             <div class="post-images pure-g">
-              <video src="assets/video/scroll.mov" controls loop autoplay></video>
+              <video src="assets/video/video.mp4" controls loop autoplay></video>
             </div>
           </div>
         </section>
@@ -145,6 +139,94 @@ export class AppModule { }</code></pre>
           <div class="post-description">
             <app-root>Loading...</app-root>
           </div>
+        </section>
+      </div>
+      <div class="posts" id="api">
+        <section class="post">
+          <header class="post-header">
+            <h2 class="post-title">API</h2>
+          </header>
+          <table class="pure-table pure-table-striped">
+            <tr>
+              <th>Attribute</th>
+              <th>Type</th>
+              <th>Description</th>
+            </tr>
+            <tr>
+              <td>items</td>
+              <td>any[]</td>
+              <td>The data that builds the templates within the virtual scroll. This is the same data that you'd pass to ngFor.
+                It's important to note that when this data has changed, then the entire virtual scroll is refreshed.</td>
+            </tr>
+            <tr>
+              <td>childWidth</td>
+              <td>number</td>
+              <td>The minimum width of the item template's cell. This dimension is used to help determine how many cells should
+                be created when initialized, and to help calculate the height of the scrollable area. Note that the actual
+                rendered size of the first cell is used by default if not specified.</td>
+            </tr>
+            <tr>
+              <td>childHeight</td>
+              <td>number</td>
+              <td>The minimum height of the item template's cell. This dimension is used to help determine how many cells should
+                be created when initialized, and to help calculate the height of the scrollable area. Note that the actual
+                rendered size of the first cell is used by default if not specified.</td>
+            </tr>
+            <tr>
+              <td>update</td>
+              <td> Event</td>
+              <td>This event is fired every time start or end index change and emits list of items from start to end. The list
+                emitted by this event must be used with *ngFor to render the actual list of items within virtual-scroll
+              </td>
+            </tr>
+            <tr>
+              <td>change</td>
+              <td>Event</td>
+              <td>This event is fired every time start or end index change and emits ChangeEvent which of format: { start: number,
+                end: number }</td>
+            </tr>
+          </table>
+        </section>
+        <section class="post">
+          <h2>Items with variable size</h2>
+          Items must have fixed height and width for this module to work perfectly. However if your list happen to have items with
+          variable width and height, set
+          <strong>childWidth</strong> and <strong>childHeight</strong> to the smallest possible values manually to make this
+          work.
+          <pre><code class="typescript">&lt;virtual-scroll [items]="items" (update)="viewPortItems = $event"
+    [childWidth]="80"
+    [childHeight]="30"&gt;
+    &lt;list-item *ngFor="let item of viewPortItems" [item]="item"&gt;
+    &lt;/list-item&gt;
+&lt;/virtual-scroll&gt;</code></pre>
+        </section>
+        <section class="post">
+          <h2>If container size change</h2>
+          If virtual scroll is used within a dropdown or collapsible menu, virtual scroll needs to know when the container size change.
+          Use <strong>refresh()</strong> function after container is resized (include time for animation as well).
+          <pre><code class="typescript">import { Component, ViewChild } from '@angular/core';
+import { VirtualScrollComponent } from 'angular2-virtual-scroll';
+
+@Component({
+    selector: 'rj-list',
+    template: `
+        &lt;virtual-scroll [items]="items" (update)="scrollList = $event"&gt;
+            &lt;div *ngFor="let item of scrollList; let i = index"&gt; {{i}}: {{item}} &lt;/div&gt;
+        &lt;/virtual-scroll&gt;
+    `
+})
+export class ListComponent {
+
+    protected items = ['Item1', 'Item2', 'Item3'];
+
+    @ViewChild(VirtualScrollComponent)
+    private virtualScroll: VirtualScrollComponent;
+
+    // call this function after resize + animation end
+    afterResize() {
+        this.virtualScroll.refresh();
+    }
+}</code></pre>
         </section>
         <section id="versions">
           <h1>Versions</h1>

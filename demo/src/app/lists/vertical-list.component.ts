@@ -1,5 +1,6 @@
+import { Component, Input } from '@angular/core';
+
 import { ListItem } from './list-item.component';
-import { Input, Component } from '@angular/core';
 
 @Component({
     selector: 'vertical-list',
@@ -14,7 +15,7 @@ import { Input, Component } from '@angular/core';
         <virtual-scroll
             [items]="items"
             (update)="scrollItems = $event"
-            (indexUpdate)="indices = $event">
+            (change)="indices = $event">
 
             <list-item *ngFor="let item of scrollItems" [item]="item"> </list-item>
 

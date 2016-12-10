@@ -15,7 +15,7 @@ import { ListItem } from './list-item.component';
         <virtual-scroll
             [items]="items"
             (update)="scrollItems = $event"
-            (indexUpdate)="indices = $event">
+            (change)="indices = $event">
 
             <list-item *ngFor="let item of scrollItems" [item]="item"> </list-item>
 

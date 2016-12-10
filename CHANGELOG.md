@@ -1,4 +1,8 @@
 
+# v0.0.8
+
+* Feature: [Using virtual scroll with api #4](https://github.com/rintoj/angular2-virtual-scroll/issues/4) & [data from server #7](https://github.com/rintoj/angular2-virtual-scroll/issues/7)
+
 # v0.0.7
 
 * Bug fix: [Multi-column scroll is broken in the demo #6](https://github.com/rintoj/angular2-virtual-scroll/issues/6)

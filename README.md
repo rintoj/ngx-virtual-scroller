@@ -113,6 +113,18 @@ Child component is not a necessity if your item is simple enough. See below.
 </virtual-scroll>
 ```
 
+## API
+
+| Attribute      | Type   | Description
+|----------------|--------|------------
+| items          | any[]  | The data that builds the templates within the virtual scroll. This is the same data that you'd pass to ngFor. It's important to note that when this data has changed, then the entire virtual scroll is refreshed.
+| childWidth     | number | The minimum width of the item template's cell. This dimension is used to help determine how many cells should be created when initialized, and to help calculate the height of the scrollable area. Note that the actual rendered size of the first cell is used by default if not specified.
+| childHeight    | number | The minimum height of the item template's cell. This dimension is used to help determine how many cells should be created when initialized, and to help calculate the height of the scrollable area. Note that the actual rendered size of the first cell is used by default if not specified.
+| update         | Event  | This event is fired every time `start` or `end` index change and emits list of items from `start` to `end`. The list emitted by this event must be used with `*ngFor` to render the actual list of items within `<virtual-scroll>`
+| change         | Event  | This event is fired every time `start` or `end` index change and emits `ChangeEvent` which of format: `{ start: number, end: number }`
+
+
+
 ## Items with variable size
 
 Items must have fixed height and width for this module to work perfectly. However if your list happen to have items with variable width and height, set inputs `childWidth` and `childHeight` to the smallest possible values to make this work.
@@ -127,6 +139,52 @@ Items must have fixed height and width for this module to work perfectly. Howeve
     </list-item>
 
 </virtual-scroll>
+```
+
+## Loading in chunk
+
+`change` event is fired every time `start` or `end` index change. You could use this to load more items at the end of the scroll. See below.
+
+```
+
+import { ChangeEvent } from '@angular2-virtual-scroll';
+...
+
+@Component({
+    selector: 'list-with-api',
+    template: `
+        <virtual-scroll [items]="buffer" (update)="scrollItems = $event"
+            (change)="onListChange($event)">
+
+            <list-item *ngFor="let item of scrollItems" [item]="item"> </list-item>
+            <div *ngIf="loading" class="loader">Loading...</div>
+
+        </virtual-scroll>
+    `
+})
+export class ListWithApiComponent implements OnChanges {
+
+    @Input()
+    items: ListItem[];
+
+    protected buffer: ListItem[] = [];
+    protected loading: boolean;
+
+    protected onListChange(event: ChangeEvent) {
+        if (event.end !== this.buffer.length) return;
+        this.loading = true;
+        this.fetchNextChunk(this.buffer.length, 10).then(chunk => {
+            this.buffer = this.buffer.concat(chunk);
+            this.loading = false;
+        }, () => this.loading = false);
+    }
+
+    protected fetchNextChunk(skip: number, limit: number): Promise<ListItem[]> {
+        return new Promise((resolve, reject) => {
+            ....
+        });
+    }
+}
 ```
 
 ## If container size change
