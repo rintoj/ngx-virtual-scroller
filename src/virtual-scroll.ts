@@ -34,6 +34,7 @@ export interface ChangeEvent {
             overflow: hidden;
             overflow-y: auto;
             position: relative;
+            -webkit-overflow-scrolling: touch;
         }
         .scrollable-content {
             top: 0;

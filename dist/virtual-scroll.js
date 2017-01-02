@@ -154,7 +154,7 @@ var VirtualScrollComponent = (function () {
         core_1.Component({
             selector: 'virtual-scroll',
             template: "\n        <div class=\"total-padding\" [style.height]=\"scrollHeight + 'px'\"></div>\n        <div class=\"scrollable-content\" #content [style.transform]=\"'translateY(' + topPadding + 'px)'\">\n            <ng-content></ng-content>\n        </div>\n    ",
-            styles: ["\n        :host {\n            overflow: hidden;\n            overflow-y: auto;\n            position: relative;\n        }\n        .scrollable-content {\n            top: 0;\n            left: 0;\n            width: 100%;\n            height: 100%;\n            position: absolute;\n        }\n        .total-padding {\n            width: 1px;\n            opacity: 0;\n        }\n    "]
+            styles: ["\n        :host {\n            overflow: hidden;\n            overflow-y: auto;\n            position: relative;\n            -webkit-overflow-scrolling: touch;\n        }\n        .scrollable-content {\n            top: 0;\n            left: 0;\n            width: 100%;\n            height: 100%;\n            position: absolute;\n        }\n        .total-padding {\n            width: 1px;\n            opacity: 0;\n        }\n    "]
         }), 
         __metadata('design:paramtypes', [core_1.ElementRef, core_1.Renderer])
     ], VirtualScrollComponent);
