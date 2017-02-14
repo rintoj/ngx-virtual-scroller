@@ -1,4 +1,8 @@
 
+# v0.1.0
+
+* Feature: [enable AoT #16](https://github.com/rintoj/angular2-virtual-scroll/issues/16)
+
 # v0.0.9
 
 * Feature: [Smooth scroll on webkit (mobile) #13](https://github.com/rintoj/angular2-virtual-scroll/issues/4) & [data from server #7](https://github.com/rintoj/angular2-virtual-scroll/issues/13)
