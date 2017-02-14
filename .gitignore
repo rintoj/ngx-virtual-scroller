@@ -2,4 +2,6 @@ node_modules/
 *.log
 /compiled
 *.map.js
-*.js  # or /src/**/*.js
+*.js
+/src/**/*.js
+angular2-virtual-scroll-*.tgz

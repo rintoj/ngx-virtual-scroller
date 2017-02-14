@@ -4,4 +4,3 @@ demo/
 *.log
 /compiled
 *.ngFactory.ts
-*.ts
