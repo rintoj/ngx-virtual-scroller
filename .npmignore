@@ -2,3 +2,6 @@ src/
 node_modules/
 demo/
 *.log
+/compiled
+*.ngFactory.ts
+*.ts

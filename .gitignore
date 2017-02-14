@@ -1,2 +1,5 @@
 node_modules/
 *.log
+/compiled
+*.map.js
+*.js  # or /src/**/*.js

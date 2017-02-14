@@ -5,14 +5,15 @@
   "main": "dist/virtual-scroll.js",
   "types": "dist/virtual-scroll.d.ts",
   "scripts": {
-    "build": "npm run tsc --",
+    "cleanup": "rimraf dist",
+    "build": "npm run cleanup && npm run ngc",
     "lint": "tslint src/**/*.ts",
     "prepublish": "npm run build",
     "start": "npm run watch",
     "test": "npm test",
-    "tsc": "node_modules/typescript/bin/tsc",
+    "ngc": "ngc",
     "tslint": "tslint",
-    "watch": "npm run tsc -- -w"
+    "watch": "ngc -- -w"
   },
   "repository": {
     "type": "git",
@@ -30,16 +31,22 @@
   },
   "homepage": "https://github.com/rintoj/angular2-virtual-scroll#readme",
   "devDependencies": {
-    "@angular/common": "2.1.1",
-    "@angular/compiler": "2.1.1",
-    "@angular/core": "2.1.1",
-    "@angular/platform-browser": "2.1.1",
-    "@angular/platform-browser-dynamic": "2.1.1",
+    "@angular/common": "~2.4.0",
+    "@angular/compiler": "~2.4.0",
+    "@angular/compiler-cli": "^2.4.1",
+    "@angular/core": "~2.4.0",
+    "@angular/forms": "~2.4.0",
+    "@angular/http": "~2.4.0",
+    "@angular/platform-browser": "~2.4.0",
+    "@angular/platform-browser-dynamic": "~2.4.0",
+    "@angular/router": "~3.4.0",
     "@types/node": "6.0.45",
-    "codelyzer": "1.0.0-beta.2",
-    "rxjs": "5.0.0-beta.12",
-    "tslint": "3.15.1",
-    "typescript": "2.0.6",
-    "zone.js": "0.6.25"
+    "codelyzer": "^2.0.0",
+    "core-js": "^2.4.1",
+    "rimraf": "2.5.4",
+    "rxjs": "5.0.1",
+    "tslint": "^4.4.2",
+    "typescript": "^2.1.6",
+    "zone.js": "^0.7.4"
   }
 }

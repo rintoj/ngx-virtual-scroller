@@ -1,29 +1,33 @@
 {
-    "compilerOptions": {
-        "target": "es5",
-        "module": "commonjs",
-        "moduleResolution": "node",
-        "emitDecoratorMetadata": true,
-        "experimentalDecorators": true,
-        "allowSyntheticDefaultImports": true,
-        "sourceMap": true,
-        "declaration": true,
-        "strictNullChecks": false,
-        "baseUrl": "./src",
-        "outDir": "./dist",
-        "lib": [
-            "dom",
-            "es6"
-        ],
-        "types": [
-            "node"
-        ]
-    },
-    "exclude": [
-        "node_modules",
-        "demo",
-        "dist"
+  "compilerOptions": {
+    "target": "es5",
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "allowSyntheticDefaultImports": true,
+    "sourceMap": true,
+    "declaration": true,
+    "strictNullChecks": false,
+    "baseUrl": "./src",
+    "outDir": "./dist",
+    "lib": [
+      "dom",
+      "es6"
     ],
-    "compileOnSave": false,
-    "buildOnSave": false
+    "types": [
+      "node"
+    ]
+  },
+  "exclude": [
+    "node_modules",
+    "demo",
+    "dist",
+    "compiled"
+  ],
+  "compileOnSave": false,
+  "buildOnSave": false,
+  "angularCompilerOptions": {
+    "genDir": "compiled"
+  }
 }
