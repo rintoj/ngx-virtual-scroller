@@ -71,6 +71,12 @@ export class VirtualScrollComponent implements OnInit, OnDestroy, OnChanges {
   @Output()
   change: EventEmitter<ChangeEvent> = new EventEmitter<ChangeEvent>();
 
+  @Output()
+  start: EventEmitter<ChangeEvent> = new EventEmitter<ChangeEvent>();
+
+  @Output()
+  end: EventEmitter<ChangeEvent> = new EventEmitter<ChangeEvent>();
+
   @ViewChild('content', { read: ElementRef })
   contentElementRef: ElementRef;
 
@@ -172,7 +178,6 @@ export class VirtualScrollComponent implements OnInit, OnDestroy, OnChanges {
       this.element.nativeElement.scrollTop = this.scrollHeight;
     }
 
-    let emitEvent = false;
     let indexByScrollTop = el.scrollTop / this.scrollHeight * d.itemCount / d.itemsPerRow;
     let end = Math.min(d.itemCount, Math.ceil(indexByScrollTop) * d.itemsPerRow + d.itemsPerRow * (d.itemsPerCol + 1));
     let maxStart = Math.max(0, end - d.itemsPerCol * d.itemsPerRow - d.itemsPerRow);
@@ -180,24 +185,32 @@ export class VirtualScrollComponent implements OnInit, OnDestroy, OnChanges {
 
     this.topPadding = d.childHeight * Math.ceil(start / d.itemsPerRow);
     if (start !== this.previousStart || end !== this.previousEnd) {
+
+      // update the scroll list
       this.update.emit(items.slice(start, end));
+
+       // emit 'start' event
+      if (start !== this.previousStart && this.startupLoop === false) {
+        this.start.emit({ start, end });
+      }
+
+      // emit 'end' event
+      if (end !== this.previousEnd && this.startupLoop === false) {
+        this.end.emit({ start, end });
+      }
+
       this.previousStart = start;
       this.previousEnd = end;
+
       if (this.startupLoop === true) {
         this.refresh();
       } else {
-        emitEvent = true;
+        this.change.emit({ start, end });
       }
-    } else {
-      this.startupLoop = false;
-      emitEvent = true;
-    }
 
-    if (emitEvent === true) {
-      this.change.emit({
-        start: start,
-        end: end
-      });
+    } else if (this.startupLoop === true) {
+      this.startupLoop = false;
+      this.refresh();
     }
   }
 }
