@@ -13,6 +13,8 @@ export declare class VirtualScrollComponent implements OnInit, OnDestroy, OnChan
     childHeight: number;
     update: EventEmitter<any[]>;
     change: EventEmitter<ChangeEvent>;
+    start: EventEmitter<ChangeEvent>;
+    end: EventEmitter<ChangeEvent>;
     contentElementRef: ElementRef;
     onScrollListener: Function;
     topPadding: number;

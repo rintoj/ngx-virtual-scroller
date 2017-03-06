@@ -17,6 +17,8 @@ var VirtualScrollComponent = (function () {
         this.items = [];
         this.update = new core_1.EventEmitter();
         this.change = new core_1.EventEmitter();
+        this.start = new core_1.EventEmitter();
+        this.end = new core_1.EventEmitter();
         this.startupLoop = true;
     }
     VirtualScrollComponent.prototype.ngOnInit = function () {
@@ -96,32 +98,34 @@ var VirtualScrollComponent = (function () {
         if (this.element.nativeElement.scrollTop > this.scrollHeight) {
             this.element.nativeElement.scrollTop = this.scrollHeight;
         }
-        var emitEvent = false;
         var indexByScrollTop = el.scrollTop / this.scrollHeight * d.itemCount / d.itemsPerRow;
         var end = Math.min(d.itemCount, Math.ceil(indexByScrollTop) * d.itemsPerRow + d.itemsPerRow * (d.itemsPerCol + 1));
         var maxStart = Math.max(0, end - d.itemsPerCol * d.itemsPerRow - d.itemsPerRow);
         var start = Math.min(maxStart, Math.floor(indexByScrollTop) * d.itemsPerRow);
         this.topPadding = d.childHeight * Math.ceil(start / d.itemsPerRow);
         if (start !== this.previousStart || end !== this.previousEnd) {
+            // update the scroll list
             this.update.emit(items.slice(start, end));
+            // emit 'start' event
+            if (start !== this.previousStart && this.startupLoop === false) {
+                this.start.emit({ start: start, end: end });
+            }
+            // emit 'end' event
+            if (end !== this.previousEnd && this.startupLoop === false) {
+                this.end.emit({ start: start, end: end });
+            }
             this.previousStart = start;
             this.previousEnd = end;
             if (this.startupLoop === true) {
                 this.refresh();
             }
             else {
-                emitEvent = true;
+                this.change.emit({ start: start, end: end });
             }
         }
-        else {
+        else if (this.startupLoop === true) {
             this.startupLoop = false;
-            emitEvent = true;
-        }
-        if (emitEvent === true) {
-            this.change.emit({
-                start: start,
-                end: end
-            });
+            this.refresh();
         }
     };
     return VirtualScrollComponent;
@@ -154,6 +158,14 @@ __decorate([
     core_1.Output(),
     __metadata("design:type", core_1.EventEmitter)
 ], VirtualScrollComponent.prototype, "change", void 0);
+__decorate([
+    core_1.Output(),
+    __metadata("design:type", core_1.EventEmitter)
+], VirtualScrollComponent.prototype, "start", void 0);
+__decorate([
+    core_1.Output(),
+    __metadata("design:type", core_1.EventEmitter)
+], VirtualScrollComponent.prototype, "end", void 0);
 __decorate([
     core_1.ViewChild('content', { read: core_1.ElementRef }),
     __metadata("design:type", core_1.ElementRef)
