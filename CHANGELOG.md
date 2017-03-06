@@ -1,11 +1,17 @@
 
+# v0.1.3
+
+* Feature: Add event "start", to be fired when at the beginning of the list
+* Feature: Add event "end", to be fired when at the end of the list
+* Bug Fix: BUG infinite request on (change) - use "end" instead of "change" [#20](https://github.com/rintoj/angular2-virtual-scroll/issues/20)
+
 # v0.1.2
 
-* Feature: Fire change event after startup [#21]((https://github.com/rintoj/angular2-virtual-scroll/issues/21)
+* Feature: Fire change event after startup [#21](https://github.com/rintoj/angular2-virtual-scroll/issues/21)
 
 # v0.1.1
 
-* Bug Fix: Update to lower amount of Elements, scroll issue, empty space on bottom [#22]((https://github.com/rintoj/angular2-virtual-scroll/issues/22)
+* Bug Fix: Update to lower amount of Elements, scroll issue, empty space on bottom [#22](https://github.com/rintoj/angular2-virtual-scroll/issues/22)
 
 # v0.1.0
 

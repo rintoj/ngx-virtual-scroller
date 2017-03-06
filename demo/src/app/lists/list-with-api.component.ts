@@ -59,14 +59,13 @@ export class ListWithApiComponent implements OnChanges {
 
   protected fetchNextChunk(skip: number, limit: number, event?: any): Promise<ListItem[]> {
     return new Promise((resolve, reject) => {
-      console.log(`fetchNextChunk(${skip}, ${limit})`);
       clearTimeout(this.timer);
       this.timer = setTimeout(() => {
         if (skip < this.items.length) {
           return resolve(this.items.slice(skip, skip + limit));
         }
         reject();
-      }, 100 + Math.random() * 100);
+      }, 1000 + Math.random() * 1000);
     });
   }
 }

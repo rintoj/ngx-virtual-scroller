@@ -13,7 +13,6 @@ This method is effective because the number of DOM elements are always constant 
 * Easy to use apis
 * OpenSource and available in [GitHub](https://github.com/rintoj/angular2-virtual-scroll)
 
-
 ## Demo
 
 [See Demo Here](http://rintoj.github.io/angular2-virtual-scroll)
@@ -123,8 +122,6 @@ Child component is not a necessity if your item is simple enough. See below.
 | update         | Event  | This event is fired every time `start` or `end` index change and emits list of items from `start` to `end`. The list emitted by this event must be used with `*ngFor` to render the actual list of items within `<virtual-scroll>`
 | change         | Event  | This event is fired every time `start` or `end` index change and emits `ChangeEvent` which of format: `{ start: number, end: number }`
 
-
-
 ## Items with variable size
 
 Items must have fixed height and width for this module to work perfectly. However if your list happen to have items with variable width and height, set inputs `childWidth` and `childHeight` to the smallest possible values to make this work.
@@ -143,7 +140,7 @@ Items must have fixed height and width for this module to work perfectly. Howeve
 
 ## Loading in chunk
 
-`change` event is fired every time `start` or `end` index change. You could use this to load more items at the end of the scroll. See below.
+The event `end` is fired every time scroll reaches at the end of the list. You could use this to load more items at the end of the scroll. See below.
 
 ```
 
@@ -154,7 +151,7 @@ import { ChangeEvent } from '@angular2-virtual-scroll';
     selector: 'list-with-api',
     template: `
         <virtual-scroll [items]="buffer" (update)="scrollItems = $event"
-            (change)="onListChange($event)">
+            (end)="fetchMore($event)">
 
             <list-item *ngFor="let item of scrollItems" [item]="item"> </list-item>
             <div *ngIf="loading" class="loader">Loading...</div>
@@ -170,7 +167,7 @@ export class ListWithApiComponent implements OnChanges {
     protected buffer: ListItem[] = [];
     protected loading: boolean;
 
-    protected onListChange(event: ChangeEvent) {
+    protected fetchMore(event: ChangeEvent) {
         if (event.end !== this.buffer.length) return;
         this.loading = true;
         this.fetchNextChunk(this.buffer.length, 10).then(chunk => {
