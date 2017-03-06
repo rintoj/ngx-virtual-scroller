@@ -1,4 +1,8 @@
 
+# v0.1.1
+
+* Bug Fix: Update to lower amount of Elements, scroll issue, empty space on bottom #22
+
 # v0.1.0
 
 * Feature: [enable AoT #16](https://github.com/rintoj/angular2-virtual-scroll/issues/16)
