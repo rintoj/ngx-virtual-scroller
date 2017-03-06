@@ -96,10 +96,13 @@ var VirtualScrollComponent = (function () {
         if (this.element.nativeElement.scrollTop > this.scrollHeight) {
             this.element.nativeElement.scrollTop = this.scrollHeight;
         }
+
+        var emitEvent = false;
         var indexByScrollTop = el.scrollTop / this.scrollHeight * d.itemCount / d.itemsPerRow;
         var end = Math.min(d.itemCount, Math.ceil(indexByScrollTop) * d.itemsPerRow + d.itemsPerRow * (d.itemsPerCol + 1));
         var maxStart = Math.max(0, end - d.itemsPerCol * d.itemsPerRow - d.itemsPerRow);
         var start = Math.min(maxStart, Math.floor(indexByScrollTop) * d.itemsPerRow);
+
         this.topPadding = d.childHeight * Math.ceil(start / d.itemsPerRow);
         if (start !== this.previousStart || end !== this.previousEnd) {
             this.update.emit(items.slice(start, end));
@@ -109,14 +112,18 @@ var VirtualScrollComponent = (function () {
                 this.refresh();
             }
             else {
-                this.change.emit({
-                    start: start,
-                    end: end
-                });
+                emitEvent = true;
             }
         }
         else {
             this.startupLoop = false;
+            emitEvent = true;
+        }
+        if (emitEvent === true) {
+            this.change.emit({
+                start: start,
+                end: end
+            });
         }
     };
     return VirtualScrollComponent;
