@@ -1,7 +1,11 @@
 
+# v0.1.2
+
+* Feature: Fire change event after startup [#21]((https://github.com/rintoj/angular2-virtual-scroll/issues/21)
+
 # v0.1.1
 
-* Bug Fix: Update to lower amount of Elements, scroll issue, empty space on bottom #22
+* Bug Fix: Update to lower amount of Elements, scroll issue, empty space on bottom [#22]((https://github.com/rintoj/angular2-virtual-scroll/issues/22)
 
 # v0.1.0
 
