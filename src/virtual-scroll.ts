@@ -172,8 +172,8 @@ export class VirtualScrollComponent implements OnInit, OnDestroy, OnChanges {
       this.element.nativeElement.scrollTop = this.scrollHeight;
     }
 
+    let emitEvent = false;
     let indexByScrollTop = el.scrollTop / this.scrollHeight * d.itemCount / d.itemsPerRow;
-
     let end = Math.min(d.itemCount, Math.ceil(indexByScrollTop) * d.itemsPerRow + d.itemsPerRow * (d.itemsPerCol + 1));
     let maxStart = Math.max(0, end - d.itemsPerCol * d.itemsPerRow - d.itemsPerRow);
     let start = Math.min(maxStart, Math.floor(indexByScrollTop) * d.itemsPerRow);
@@ -186,13 +186,18 @@ export class VirtualScrollComponent implements OnInit, OnDestroy, OnChanges {
       if (this.startupLoop === true) {
         this.refresh();
       } else {
-        this.change.emit({
-          start: start,
-          end: end
-        });
+        emitEvent = true;
       }
     } else {
       this.startupLoop = false;
+      emitEvent = true;
+    }
+
+    if (emitEvent === true) {
+      this.change.emit({
+        start: start,
+        end: end
+      });
     }
   }
 }
