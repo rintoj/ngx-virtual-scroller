@@ -3,7 +3,6 @@ import {
   ElementRef,
   EventEmitter,
   Input,
-  ModuleWithProviders,
   NgModule,
   OnChanges,
   OnDestroy,
@@ -24,30 +23,30 @@ export interface ChangeEvent {
 @Component({
   selector: 'virtual-scroll',
   template: `
-        <div class="total-padding" [style.height]="scrollHeight + 'px'"></div>
-        <div class="scrollable-content" #content [style.transform]="'translateY(' + topPadding + 'px)'">
-            <ng-content></ng-content>
-        </div>
-    `,
+    <div class="total-padding" [style.height]="scrollHeight + 'px'"></div>
+    <div class="scrollable-content" #content [style.transform]="'translateY(' + topPadding + 'px)'">
+      <ng-content></ng-content>
+    </div>
+  `,
   styles: [`
-        :host {
-            overflow: hidden;
-            overflow-y: auto;
-            position: relative;
-            -webkit-overflow-scrolling: touch;
-        }
-        .scrollable-content {
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            position: absolute;
-        }
-        .total-padding {
-            width: 1px;
-            opacity: 0;
-        }
-    `]
+    :host {
+      overflow: hidden;
+      overflow-y: auto;
+      position: relative;
+      -webkit-overflow-scrolling: touch;
+    }
+    .scrollable-content {
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      position: absolute;
+    }
+    .total-padding {
+      width: 1px;
+      opacity: 0;
+    }
+  `]
 })
 export class VirtualScrollComponent implements OnInit, OnDestroy, OnChanges {
 
@@ -173,10 +172,11 @@ export class VirtualScrollComponent implements OnInit, OnDestroy, OnChanges {
       this.element.nativeElement.scrollTop = this.scrollHeight;
     }
 
-    let start = Math.floor(el.scrollTop / this.scrollHeight * d.itemCount / d.itemsPerRow) * d.itemsPerRow;
-    let end = Math.min(d.itemCount, Math.ceil(el.scrollTop / this.scrollHeight * d.itemCount / d.itemsPerRow) * d.itemsPerRow +
-      d.itemsPerRow * (d.itemsPerCol + 1));
     let emitEvent = false;
+    let indexByScrollTop = el.scrollTop / this.scrollHeight * d.itemCount / d.itemsPerRow;
+    let end = Math.min(d.itemCount, Math.ceil(indexByScrollTop) * d.itemsPerRow + d.itemsPerRow * (d.itemsPerCol + 1));
+    let maxStart = Math.max(0, end - d.itemsPerCol * d.itemsPerRow - d.itemsPerRow);
+    let start = Math.min(maxStart, Math.floor(indexByScrollTop) * d.itemsPerRow);
 
     this.topPadding = d.childHeight * Math.ceil(start / d.itemsPerRow);
     if (start !== this.previousStart || end !== this.previousEnd) {
@@ -207,11 +207,4 @@ export class VirtualScrollComponent implements OnInit, OnDestroy, OnChanges {
   exports: [VirtualScrollComponent],
   declarations: [VirtualScrollComponent]
 })
-export class VirtualScrollModule {
-  // static forRoot(): ModuleWithProviders {
-  //     return {
-  //         ngModule: VirtualScrollModule,
-  //         providers: []
-  //     };
-  // }
-}
+export class VirtualScrollModule { }

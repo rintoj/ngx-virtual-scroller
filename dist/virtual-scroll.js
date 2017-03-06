@@ -96,10 +96,13 @@ var VirtualScrollComponent = (function () {
         if (this.element.nativeElement.scrollTop > this.scrollHeight) {
             this.element.nativeElement.scrollTop = this.scrollHeight;
         }
-        var start = Math.floor(el.scrollTop / this.scrollHeight * d.itemCount / d.itemsPerRow) * d.itemsPerRow;
-        var end = Math.min(d.itemCount, Math.ceil(el.scrollTop / this.scrollHeight * d.itemCount / d.itemsPerRow) * d.itemsPerRow +
-            d.itemsPerRow * (d.itemsPerCol + 1));
+
         var emitEvent = false;
+        var indexByScrollTop = el.scrollTop / this.scrollHeight * d.itemCount / d.itemsPerRow;
+        var end = Math.min(d.itemCount, Math.ceil(indexByScrollTop) * d.itemsPerRow + d.itemsPerRow * (d.itemsPerCol + 1));
+        var maxStart = Math.max(0, end - d.itemsPerCol * d.itemsPerRow - d.itemsPerRow);
+        var start = Math.min(maxStart, Math.floor(indexByScrollTop) * d.itemsPerRow);
+
         this.topPadding = d.childHeight * Math.ceil(start / d.itemsPerRow);
         if (start !== this.previousStart || end !== this.previousEnd) {
             this.update.emit(items.slice(start, end));
@@ -160,8 +163,8 @@ __decorate([
 VirtualScrollComponent = __decorate([
     core_1.Component({
         selector: 'virtual-scroll',
-        template: "\n        <div class=\"total-padding\" [style.height]=\"scrollHeight + 'px'\"></div>\n        <div class=\"scrollable-content\" #content [style.transform]=\"'translateY(' + topPadding + 'px)'\">\n            <ng-content></ng-content>\n        </div>\n    ",
-        styles: ["\n        :host {\n            overflow: hidden;\n            overflow-y: auto;\n            position: relative;\n            -webkit-overflow-scrolling: touch;\n        }\n        .scrollable-content {\n            top: 0;\n            left: 0;\n            width: 100%;\n            height: 100%;\n            position: absolute;\n        }\n        .total-padding {\n            width: 1px;\n            opacity: 0;\n        }\n    "]
+        template: "\n    <div class=\"total-padding\" [style.height]=\"scrollHeight + 'px'\"></div>\n    <div class=\"scrollable-content\" #content [style.transform]=\"'translateY(' + topPadding + 'px)'\">\n      <ng-content></ng-content>\n    </div>\n  ",
+        styles: ["\n    :host {\n      overflow: hidden;\n      overflow-y: auto;\n      position: relative;\n      -webkit-overflow-scrolling: touch;\n    }\n    .scrollable-content {\n      top: 0;\n      left: 0;\n      width: 100%;\n      height: 100%;\n      position: absolute;\n    }\n    .total-padding {\n      width: 1px;\n      opacity: 0;\n    }\n  "]
     }),
     __metadata("design:paramtypes", [core_1.ElementRef, core_1.Renderer])
 ], VirtualScrollComponent);
