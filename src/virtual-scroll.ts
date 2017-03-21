@@ -102,7 +102,13 @@ export class VirtualScrollComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   ngOnDestroy() {
-    this.onScrollListener();
+    // Check that listener has been attached properly:
+    // It may be undefined in some cases, e.g. if an exception is thrown, the component is
+    // not initialized properly but destroy may be called anyways (e.g. in testing).
+    if (this.onScrollListener !== undefined) {
+      // this removes the listener
+      this.onScrollListener();
+    }
   }
 
   refresh() {
