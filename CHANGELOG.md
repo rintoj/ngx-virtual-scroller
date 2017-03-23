@@ -1,4 +1,8 @@
 
+# v0.1.4
+
+* Bug fix: ensure that onScrollListener is actually defined before removing [#25](https://github.com/rintoj/angular2-virtual-scroll/issues/25)
+
 # v0.1.3
 
 * Feature: Add event "start", to be fired when at the beginning of the list
