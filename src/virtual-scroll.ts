@@ -186,16 +186,13 @@ export class VirtualScrollComponent implements OnInit, OnDestroy, OnChanges {
 
     let indexByScrollTop = el.scrollTop / this.scrollHeight * d.itemCount / d.itemsPerRow;
     let end = Math.min(d.itemCount, Math.ceil(indexByScrollTop) * d.itemsPerRow + d.itemsPerRow * (d.itemsPerCol + 1));
-    
+
     let maxStartEnd = end;
     const modEnd = end % d.itemsPerRow;
-    if(modEnd) {
-        maxStartEnd = end + d.itemsPerRow - modEnd;
+    if (modEnd) {
+      maxStartEnd = end + d.itemsPerRow - modEnd;
     }
     let maxStart = Math.max(0, maxStartEnd - d.itemsPerCol * d.itemsPerRow - d.itemsPerRow);
-    let start = Math.min(maxStart, Math.floor(indexByScrollTop) * d.itemsPerRow);
-    
-    let maxStart = Math.max(0, end - d.itemsPerCol * d.itemsPerRow - d.itemsPerRow);
     let start = Math.min(maxStart, Math.floor(indexByScrollTop) * d.itemsPerRow);
 
     this.topPadding = d.childHeight * Math.ceil(start / d.itemsPerRow);
@@ -204,7 +201,7 @@ export class VirtualScrollComponent implements OnInit, OnDestroy, OnChanges {
       // update the scroll list
       this.update.emit(items.slice(start, end));
 
-       // emit 'start' event
+      // emit 'start' event
       if (start !== this.previousStart && this.startupLoop === false) {
         this.start.emit({ start, end });
       }
