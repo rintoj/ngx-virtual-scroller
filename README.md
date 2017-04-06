@@ -223,6 +223,8 @@ Contributions are very welcome! Just send a pull request. Feel free to contact m
 
 **Rinto Jose** (rintoj)
 
+### Hope this module is helpful to you. Please make sure to checkout my other [projects](https://github.com/rintoj) and [articles](https://medium.com/@rintoj). Enjoy coding!
+
 Follow me:
   [GitHub](https://github.com/rintoj)
 | [Facebook](https://www.facebook.com/rinto.jose)

@@ -1,4 +1,8 @@
 
+# v0.1.5
+
+* Bug fix: the data to "jump" once scrolled to the bottom, because maxStart is assumed to be evenly divisible by the number of items in each row. [#32](https://github.com/rintoj/angular2-virtual-scroll/issues/32)
+
 # v0.1.4
 
 * Bug fix: ensure that onScrollListener is actually defined before removing [#25](https://github.com/rintoj/angular2-virtual-scroll/issues/25)
