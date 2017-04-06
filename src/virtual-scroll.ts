@@ -186,6 +186,15 @@ export class VirtualScrollComponent implements OnInit, OnDestroy, OnChanges {
 
     let indexByScrollTop = el.scrollTop / this.scrollHeight * d.itemCount / d.itemsPerRow;
     let end = Math.min(d.itemCount, Math.ceil(indexByScrollTop) * d.itemsPerRow + d.itemsPerRow * (d.itemsPerCol + 1));
+    
+    let maxStartEnd = end;
+    const modEnd = end % d.itemsPerRow;
+    if(modEnd) {
+        maxStartEnd = end + d.itemsPerRow - modEnd;
+    }
+    let maxStart = Math.max(0, maxStartEnd - d.itemsPerCol * d.itemsPerRow - d.itemsPerRow);
+    let start = Math.min(maxStart, Math.floor(indexByScrollTop) * d.itemsPerRow);
+    
     let maxStart = Math.max(0, end - d.itemsPerCol * d.itemsPerRow - d.itemsPerRow);
     let start = Math.min(maxStart, Math.floor(indexByScrollTop) * d.itemsPerRow);
 
