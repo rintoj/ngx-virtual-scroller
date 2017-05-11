@@ -22,6 +22,7 @@ export interface ChangeEvent {
 
 @Component({
   selector: 'virtual-scroll,[virtualScroll]',
+  exportAs: 'virtualScroll',
   template: `
     <div class="total-padding" [style.height]="scrollHeight + 'px'"></div>
     <div class="scrollable-content" #content [style.transform]="'translateY(' + topPadding + 'px)'">
