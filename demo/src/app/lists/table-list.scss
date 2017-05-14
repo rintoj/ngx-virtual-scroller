@@ -1,0 +1,14 @@
+@import '../../variables';
+:host {
+  virtual-scroll {
+    background: #ebf1f5;
+  }
+  table {
+    overflow: hidden;
+    width: 100%;
+    display: block;
+  }
+  td {
+    padding: .5rem;
+  }
+}

@@ -13,6 +13,9 @@ import { ViewEncapsulation } from '@angular/core';
         <h2>With <span>Multiple Columns</span></h2>
         <multi-col-list [items]="items"></multi-col-list>
 
+        <h2>With <span>Table</span></h2>
+        <table-list [items]="items"></table-list>
+
         <h2>Loading in <span>Chunks</span></h2>
         <list-with-api [items]="items"></list-with-api>
         <p><strong>change</strong> event is fired every time start or end index change.
