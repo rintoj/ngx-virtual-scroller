@@ -2,6 +2,7 @@ import {
   Component,
   ElementRef,
   EventEmitter,
+  HostListener,
   Input,
   NgModule,
   OnChanges,
@@ -12,6 +13,7 @@ import {
   SimpleChanges,
   ViewChild,
 } from '@angular/core';
+import { Observable, Subject } from 'rxjs/Rx';
 
 import { CommonModule } from '@angular/common';
 
@@ -80,6 +82,8 @@ export class VirtualScrollComponent implements OnInit, OnDestroy, OnChanges {
   @ViewChild('content', { read: ElementRef })
   contentElementRef: ElementRef;
 
+  scroll$: Subject<Event> = new Subject<Event>();
+
   onScrollListener: Function;
   topPadding: number;
   scrollHeight: number;
@@ -89,8 +93,17 @@ export class VirtualScrollComponent implements OnInit, OnDestroy, OnChanges {
 
   constructor(private element: ElementRef, private renderer: Renderer) { }
 
+  @HostListener('scroll')
+  onScroll(e: Event) {
+    this.scroll$.next();
+  }
+
   ngOnInit() {
-    this.onScrollListener = this.renderer.listen(this.element.nativeElement, 'scroll', this.refresh.bind(this));
+    this.scroll$.switchMap(() => {
+      this.refresh();
+      return Observable.of();
+    }).subscribe();
+
     this.scrollbarWidth = 0; // this.element.nativeElement.offsetWidth - this.element.nativeElement.clientWidth;
     this.scrollbarHeight = 0; // this.element.nativeElement.offsetHeight - this.element.nativeElement.clientHeight;
   }
@@ -112,7 +125,7 @@ export class VirtualScrollComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   refresh() {
-    requestAnimationFrame(this.calculateItems.bind(this));
+    requestAnimationFrame(() => this.calculateItems());
   }
 
   scrollInto(item: any) {
