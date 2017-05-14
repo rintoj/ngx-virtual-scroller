@@ -1,4 +1,5 @@
 import { ElementRef, EventEmitter, OnChanges, OnDestroy, OnInit, Renderer, SimpleChanges } from '@angular/core';
+import { Subject } from 'rxjs/Rx';
 export interface ChangeEvent {
     start?: number;
     end?: number;
@@ -16,6 +17,7 @@ export declare class VirtualScrollComponent implements OnInit, OnDestroy, OnChan
     start: EventEmitter<ChangeEvent>;
     end: EventEmitter<ChangeEvent>;
     contentElementRef: ElementRef;
+    scroll$: Subject<Event>;
     onScrollListener: Function;
     topPadding: number;
     scrollHeight: number;
@@ -23,6 +25,7 @@ export declare class VirtualScrollComponent implements OnInit, OnDestroy, OnChan
     previousEnd: number;
     startupLoop: boolean;
     constructor(element: ElementRef, renderer: Renderer);
+    onScroll(e: Event): void;
     ngOnInit(): void;
     ngOnChanges(changes: SimpleChanges): void;
     ngOnDestroy(): void;
