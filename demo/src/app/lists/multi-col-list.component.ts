@@ -8,6 +8,7 @@ import { ListItem } from './list-item.component';
 
     <button (click)="sortByName()">Sort By Name</button>
     <button (click)="sortByIndex()">Sort By Index</button>
+    <button (click)="reduceListToEmpty()">Reduce to 0 Items</button>
     <button (click)="reduceList()">Reduce to 100 Items</button>
     <button (click)="setToFullList()">Revert to 1000 Items</button>
 
@@ -18,14 +19,14 @@ import { ListItem } from './list-item.component';
       <span>({{scrollItems?.length}} nodes)</span>
       </div>
 
-    <virtual-scroll
+    <div virtualScroll
       [items]="filteredList"
       (update)="scrollItems = $event"
       (change)="indices = $event">
 
       <list-item *ngFor="let item of scrollItems" [item]="item"> </list-item>
 
-    </virtual-scroll>
+    </div>
   `,
   styleUrls: ['./multi-col-list.scss']
 })
@@ -37,6 +38,10 @@ export class MultiColListComponent implements OnChanges {
   indices: any;
 
   filteredList: ListItem[];
+
+  reduceListToEmpty() {
+    this.filteredList = [];
+  }
 
   reduceList() {
     this.filteredList = (this.items || []).slice(0, 100);

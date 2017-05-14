@@ -7,6 +7,7 @@ import { ListItem } from './list-item.component';
   template: `
     <button (click)="sortByName()">Sort By Name</button>
     <button (click)="sortByIndex()">Sort By Index</button>
+    <button (click)="reduceListToEmpty()">Reduce to 0 Items</button>
     <button (click)="reduceList()">Reduce to 100 Items</button>
     <button (click)="setToFullList()">Revert to 1000 Items</button>
 
@@ -34,6 +35,10 @@ export class VerticalListComponent implements OnChanges {
   indices: any;
 
   filteredList: ListItem[];
+
+  reduceListToEmpty() {
+    this.filteredList = [];
+  }
 
   reduceList() {
     this.filteredList = (this.items || []).slice(0, 100);

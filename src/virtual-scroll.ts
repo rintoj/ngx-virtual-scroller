@@ -112,6 +112,10 @@ export class VirtualScrollComponent implements OnInit, OnDestroy, OnChanges {
   ngOnChanges(changes: SimpleChanges) {
     this.previousStart = undefined;
     this.previousEnd = undefined;
+    const items = (changes as any).items || {};
+    if ((changes as any).items != undefined && items.previousValue == undefined || items.previousValue.length === 0) {
+      this.startupLoop = true;
+    }
     this.refresh();
   }
 
@@ -172,7 +176,8 @@ export class VirtualScrollComponent implements OnInit, OnDestroy, OnChanges {
     let itemsPerRow = Math.max(1, this.countItemsPerRow());
     let itemsPerRowByCalc = Math.max(1, Math.floor(viewWidth / childWidth));
     let itemsPerCol = Math.max(1, Math.floor(viewHeight / childHeight));
-    if (itemsPerCol === 1 && Math.floor(el.scrollTop / this.scrollHeight * itemCount) + itemsPerRowByCalc >= itemCount) {
+    let scrollTop = Math.max(0, el.scrollTop);
+    if (itemsPerCol === 1 && Math.floor(scrollTop / this.scrollHeight * itemCount) + itemsPerRowByCalc >= itemCount) {
       itemsPerRow = itemsPerRowByCalc;
     }
 
@@ -198,7 +203,8 @@ export class VirtualScrollComponent implements OnInit, OnDestroy, OnChanges {
       this.element.nativeElement.scrollTop = this.scrollHeight;
     }
 
-    let indexByScrollTop = el.scrollTop / this.scrollHeight * d.itemCount / d.itemsPerRow;
+    let scrollTop = Math.max(0, el.scrollTop);
+    let indexByScrollTop = scrollTop / this.scrollHeight * d.itemCount / d.itemsPerRow;
     let end = Math.min(d.itemCount, Math.ceil(indexByScrollTop) * d.itemsPerRow + d.itemsPerRow * (d.itemsPerCol + 1));
 
     let maxStartEnd = end;
@@ -210,6 +216,9 @@ export class VirtualScrollComponent implements OnInit, OnDestroy, OnChanges {
     let start = Math.min(maxStart, Math.floor(indexByScrollTop) * d.itemsPerRow);
 
     this.topPadding = d.childHeight * Math.ceil(start / d.itemsPerRow);
+
+    start = !isNaN(start) ? start : -1;
+    end = !isNaN(end) ? end : -1;
     if (start !== this.previousStart || end !== this.previousEnd) {
 
       // update the scroll list

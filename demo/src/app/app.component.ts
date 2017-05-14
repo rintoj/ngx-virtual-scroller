@@ -5,8 +5,8 @@ import { OnInit } from '@angular/core';
 import { ViewEncapsulation } from '@angular/core';
 
 @Component({
-    selector: 'app-root',
-    template: `
+  selector: 'app-root',
+  template: `
         <h2>With <span>Single Column</span></h2>
         <vertical-list [items]="items"></vertical-list>
 
@@ -19,14 +19,14 @@ import { ViewEncapsulation } from '@angular/core';
         You could use this to load more items at the end of the scroll. See below.</p>
         <pre><code class="javascript">{{codeListWithApi}}</code></pre>
     `,
-    styleUrls: ['./app.component.scss'],
-    encapsulation: ViewEncapsulation.None
+  styleUrls: ['./app.component.scss'],
+  encapsulation: ViewEncapsulation.None
 })
 export class AppComponent implements OnInit {
 
-    protected items: ListItem[];
+  protected items: ListItem[];
 
-    protected readonly codeListWithApi = `
+  protected readonly codeListWithApi = `
         import { ChangeEvent } from '@angular2-virtual-scroll';
         ...
 
@@ -67,11 +67,11 @@ export class AppComponent implements OnInit {
         }
     `.replace(/^        /mg, '');
 
-    constructor(private http: Http) { }
+  constructor(private http: Http) { }
 
-    ngOnInit() {
-        this.http.get('assets/data/items.json')
-            .map(response => response.json())
-            .subscribe(data => this.items = data);
-    }
+  ngOnInit() {
+    this.http.get('assets/data/items.json')
+      .map(response => response.json())
+      .subscribe(data => this.items = data);
+  }
 }

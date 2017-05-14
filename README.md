@@ -19,7 +19,7 @@ This method is effective because the number of DOM elements are always constant 
 
 ## Usage
 
-```
+```html
 <virtual-scroll [items]="items" (update)="viewPortItems = $event">
 
     <list-item *ngFor="let item of viewPortItems" [item]="item">
@@ -28,17 +28,28 @@ This method is effective because the number of DOM elements are always constant 
 </virtual-scroll>
 ```
 
+alternatively
+
+```html
+<div virtualScroll [items]="items" (update)="viewPortItems = $event">
+
+    <list-item *ngFor="let item of viewPortItems" [item]="item">
+    </list-item>
+
+</div>
+```
+
 ## Get Started
 
 **Step 1:** Install angular2-virtual-scroll
 
-```
+```sh
 npm install angular2-virtual-scroll --save
 ```
 
 **Step 2:** Import virtual scroll module into your app module
 
-```
+```ts
 ....
 import { VirtualScrollModule } from 'angular2-virtual-scroll';
 
@@ -57,7 +68,7 @@ export class AppModule { }
 
 **Step 3:** Wrap virtual-scroll tag around list items;
 
-```
+```ts
 <virtual-scroll [items]="items" (update)="viewPortItems = $event">
 
     <list-item *ngFor="let item of viewPortItems" [item]="item">
@@ -70,7 +81,7 @@ export class AppModule { }
 
 'list-item' must a custom angular2 component, outside of this library. A sample list item is give below or check the [demo app](https://github.com/rintoj/angular2-virtual-scroll/tree/master/demo) for [list-item.component.ts](https://github.com/rintoj/angular2-virtual-scroll/blob/master/demo/src/app/lists/list-item.component.ts).
 
-```
+```ts
 import { Component, Input } from '@angular/core';
 
 export interface ListItem {
@@ -106,7 +117,7 @@ export class ListItemComponent {
 
 Child component is not a necessity if your item is simple enough. See below.
 
-```
+```html
 <virtual-scroll [items]="items" (update)="viewPortItems = $event">
     <div *ngFor="let item of viewPortItems">{{item?.name}}</div>
 </virtual-scroll>
@@ -126,7 +137,7 @@ Child component is not a necessity if your item is simple enough. See below.
 
 Items must have fixed height and width for this module to work perfectly. However if your list happen to have items with variable width and height, set inputs `childWidth` and `childHeight` to the smallest possible values to make this work.
 
-```
+```html
 <virtual-scroll [items]="items"
     [childWidth]="80"
     [childHeight]="30"
@@ -142,7 +153,7 @@ Items must have fixed height and width for this module to work perfectly. Howeve
 
 The event `end` is fired every time scroll reaches at the end of the list. You could use this to load more items at the end of the scroll. See below.
 
-```
+```ts
 
 import { ChangeEvent } from '@angular2-virtual-scroll';
 ...
@@ -188,7 +199,7 @@ export class ListWithApiComponent implements OnChanges {
 
 If virtual scroll is used within a dropdown or collapsible menu, virtual scroll needs to know when the container size change. Use `refresh()` function after container is resized (include time for animation as well).
 
-```
+```ts
 import { Component, ViewChild } from '@angular/core';
 import { VirtualScrollComponent } from 'angular2-virtual-scroll';
 
@@ -211,6 +222,16 @@ export class ListComponent {
     afterResize() {
         this.virtualScroll.refresh();
     }
+}
+```
+
+## Sorting Items
+
+Always be sure to send an immutable copy of items to virtual scroll to avoid unintended behavior. You need to be careful when doing non-immutable operations such as sorting:
+
+```ts
+sort() {
+  this.items = [].concat(this.items || []).sort()
 }
 ```
 
