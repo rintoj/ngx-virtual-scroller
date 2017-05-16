@@ -1,3 +1,6 @@
+import 'rxjs/add/operator/switchMap';
+import 'rxjs/add/observable/of';
+
 import {
   Component,
   ElementRef,
@@ -13,9 +16,10 @@ import {
   SimpleChanges,
   ViewChild,
 } from '@angular/core';
-import { Observable, Subject } from 'rxjs/Rx';
 
 import { CommonModule } from '@angular/common';
+import { Observable } from 'rxjs/Observable';
+import { Subject } from 'rxjs/Subject';
 
 export interface ChangeEvent {
   start?: number;

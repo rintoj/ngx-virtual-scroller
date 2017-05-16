@@ -1,5 +1,7 @@
+import 'rxjs/add/operator/switchMap';
+import 'rxjs/add/observable/of';
 import { ElementRef, EventEmitter, OnChanges, OnDestroy, OnInit, Renderer, SimpleChanges } from '@angular/core';
-import { Subject } from 'rxjs/Rx';
+import { Subject } from 'rxjs/Subject';
 export interface ChangeEvent {
     start?: number;
     end?: number;

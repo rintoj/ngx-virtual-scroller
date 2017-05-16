@@ -8,9 +8,12 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
+require("rxjs/add/operator/switchMap");
+require("rxjs/add/observable/of");
 var core_1 = require("@angular/core");
-var Rx_1 = require("rxjs/Rx");
 var common_1 = require("@angular/common");
+var Observable_1 = require("rxjs/Observable");
+var Subject_1 = require("rxjs/Subject");
 var VirtualScrollComponent = (function () {
     function VirtualScrollComponent(element, renderer) {
         this.element = element;
@@ -20,7 +23,7 @@ var VirtualScrollComponent = (function () {
         this.change = new core_1.EventEmitter();
         this.start = new core_1.EventEmitter();
         this.end = new core_1.EventEmitter();
-        this.scroll$ = new Rx_1.Subject();
+        this.scroll$ = new Subject_1.Subject();
         this.startupLoop = true;
     }
     VirtualScrollComponent.prototype.onScroll = function (e) {
@@ -30,7 +33,7 @@ var VirtualScrollComponent = (function () {
         var _this = this;
         this.scroll$.switchMap(function () {
             _this.refresh();
-            return Rx_1.Observable.of();
+            return Observable_1.Observable.of();
         }).subscribe();
         this.scrollbarWidth = 0; // this.element.nativeElement.offsetWidth - this.element.nativeElement.clientWidth;
         this.scrollbarHeight = 0; // this.element.nativeElement.offsetHeight - this.element.nativeElement.clientHeight;

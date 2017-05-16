@@ -1,4 +1,8 @@
 
+# v0.1.7
+
+* import rxjs operators and object needed instead of RxJS library itself
+
 # v0.1.6
 
 * improve performance by using Observables for scroll event
