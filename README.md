@@ -225,6 +225,36 @@ export class ListComponent {
 }
 ```
 
+## Focus on an item
+
+You could use `scrollInto(item)` api to scroll into an item in the list. See below:
+
+```ts
+import { Component, ViewChild } from '@angular/core';
+import { VirtualScrollComponent } from 'angular2-virtual-scroll';
+
+@Component({
+    selector: 'rj-list',
+    template: `
+        <virtual-scroll [items]="items" (update)="scrollList = $event">
+            <div *ngFor="let item of scrollList; let i = index"> {{i}}: {{item}} </div>
+        </virtual-scroll>
+    `
+})
+export class ListComponent {
+
+    protected items = ['Item1', 'Item2', 'Item3'];
+
+    @ViewChild(VirtualScrollComponent)
+    private virtualScroll: VirtualScrollComponent;
+
+    // call this function whenever you have to focus on second item
+    focusOnAnItem() {
+        this.virtualScroll.scrollInto(items[1]);
+    }
+}
+```
+
 ## Sorting Items
 
 Always be sure to send an immutable copy of items to virtual scroll to avoid unintended behavior. You need to be careful when doing non-immutable operations such as sorting:
