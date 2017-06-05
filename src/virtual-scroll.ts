@@ -1,6 +1,3 @@
-import 'rxjs/add/operator/switchMap';
-import 'rxjs/add/observable/of';
-
 import {
   Component,
   ElementRef,
@@ -9,7 +6,6 @@ import {
   Input,
   NgModule,
   OnChanges,
-  OnDestroy,
   OnInit,
   Output,
   Renderer,
@@ -18,8 +14,6 @@ import {
 } from '@angular/core';
 
 import { CommonModule } from '@angular/common';
-import { Observable } from 'rxjs/Observable';
-import { Subject } from 'rxjs/Subject';
 
 export interface ChangeEvent {
   start?: number;
@@ -55,7 +49,7 @@ export interface ChangeEvent {
     }
   `]
 })
-export class VirtualScrollComponent implements OnInit, OnDestroy, OnChanges {
+export class VirtualScrollComponent implements OnInit, OnChanges {
 
   @Input()
   items: any[] = [];
@@ -87,9 +81,6 @@ export class VirtualScrollComponent implements OnInit, OnDestroy, OnChanges {
   @ViewChild('content', { read: ElementRef })
   contentElementRef: ElementRef;
 
-  scroll$: Subject<Event> = new Subject<Event>();
-
-  onScrollListener: Function;
   topPadding: number;
   scrollHeight: number;
   previousStart: number;
@@ -100,15 +91,10 @@ export class VirtualScrollComponent implements OnInit, OnDestroy, OnChanges {
 
   @HostListener('scroll')
   onScroll(e: Event) {
-    this.scroll$.next();
+    this.refresh();
   }
 
   ngOnInit() {
-    this.scroll$.switchMap(() => {
-      this.refresh();
-      return Observable.of();
-    }).subscribe();
-
     this.scrollbarWidth = 0; // this.element.nativeElement.offsetWidth - this.element.nativeElement.clientWidth;
     this.scrollbarHeight = 0; // this.element.nativeElement.offsetHeight - this.element.nativeElement.clientHeight;
   }
@@ -121,16 +107,6 @@ export class VirtualScrollComponent implements OnInit, OnDestroy, OnChanges {
       this.startupLoop = true;
     }
     this.refresh();
-  }
-
-  ngOnDestroy() {
-    // Check that listener has been attached properly:
-    // It may be undefined in some cases, e.g. if an exception is thrown, the component is
-    // not initialized properly but destroy may be called anyways (e.g. in testing).
-    if (this.onScrollListener !== undefined) {
-      // this removes the listener
-      this.onScrollListener();
-    }
   }
 
   refresh() {
