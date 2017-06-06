@@ -72,6 +72,9 @@ export class VirtualScrollComponent implements OnInit, OnDestroy, OnChanges {
   @Input()
   childHeight: number;
 
+  @Input()
+  bufferAmount: number = 0;
+
   @Output()
   update: EventEmitter<any[]> = new EventEmitter<any[]>();
 
@@ -223,6 +226,10 @@ export class VirtualScrollComponent implements OnInit, OnDestroy, OnChanges {
 
     start = !isNaN(start) ? start : -1;
     end = !isNaN(end) ? end : -1;
+    start -= this.bufferAmount;
+    start = Math.max(0, start);
+    end += this.bufferAmount;
+    end = Math.min(items.length, end);
     if (start !== this.previousStart || end !== this.previousEnd) {
 
       // update the scroll list
