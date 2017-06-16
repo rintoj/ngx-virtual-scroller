@@ -8,6 +8,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
+Object.defineProperty(exports, "__esModule", { value: true });
 require("rxjs/add/operator/switchMap");
 require("rxjs/add/observable/of");
 var core_1 = require("@angular/core");
@@ -65,8 +66,7 @@ var VirtualScrollComponent = (function () {
         if (index < 0 || index >= (this.items || []).length)
             return;
         var d = this.calculateDimensions();
-        this.element.nativeElement.scrollTop = Math.floor(index / d.itemsPerRow) *
-            d.childHeight - Math.max(0, (d.itemsPerCol - 1)) * d.childHeight;
+        this.element.nativeElement.scrollTop = Math.floor(index / d.itemsPerRow) * d.childHeight;
         this.refresh();
     };
     VirtualScrollComponent.prototype.countItemsPerRow = function () {
