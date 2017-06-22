@@ -50,12 +50,18 @@ var VirtualScrollComponent = (function () {
         else {
             this.previousStart = undefined;
             this.previousEnd = undefined;
-            this.refresh();
+            this.refresh(false, 0, false);
         }
     };
-    VirtualScrollComponent.prototype.refresh = function (byIndex, itemNumDiff) {
+    VirtualScrollComponent.prototype.refresh = function (byIndex, itemNumDiff, animationFrame) {
         var _this = this;
-        requestAnimationFrame(function () { return _this.calculateItems(byIndex, itemNumDiff); });
+        if (animationFrame === void 0) { animationFrame = true; }
+        if (animationFrame) {
+            requestAnimationFrame(function () { return _this.calculateItems(byIndex, itemNumDiff); });
+        }
+        else {
+            this.calculateItems(byIndex, itemNumDiff);
+        }
     };
     VirtualScrollComponent.prototype.scrollInto = function (item) {
         var index = (this.items || []).indexOf(item);
@@ -229,8 +235,8 @@ VirtualScrollComponent = __decorate([
     core_1.Component({
         selector: 'virtual-scroll,[virtualScroll]',
         exportAs: 'virtualScroll',
-        template: "\n    <div class=\"total-padding\" [style.height]=\"scrollHeight + 'px'\"></div>\n    <div class=\"scrollable-content\" #content [style.transform]=\"'translateY(' + topPadding + 'px)'\">\n      <ng-content></ng-content>\n    </div>\n  ",
-        styles: ["\n    :host {\n      overflow: hidden;\n      overflow-y: auto;\n      position: relative;\n      -webkit-overflow-scrolling: touch;\n    }\n    .scrollable-content {\n      top: 0;\n      left: 0;\n      width: 100%;\n      height: 100%;\n      position: absolute;\n    }\n    .total-padding {\n      width: 1px;\n      opacity: 0;\n    }\n  "]
+        template: "\n      <div class=\"total-padding\" [style.height]=\"scrollHeight + 'px'\"></div>\n      <div class=\"scrollable-content\" #content [style.transform]=\"'translateY(' + topPadding + 'px)'\">\n          <ng-content></ng-content>\n      </div>\n  ",
+        styles: ["\n      :host {\n          overflow: hidden;\n          overflow-y: auto;\n          position: relative;\n          -webkit-overflow-scrolling: touch;\n      }\n      .scrollable-content {\n          top: 0;\n          left: 0;\n          width: 100%;\n          height: 100%;\n          position: absolute;\n      }\n      .total-padding {\n          width: 1px;\n          opacity: 0;\n      }\n  "]
     }),
     __metadata("design:paramtypes", [core_1.ElementRef, core_1.Renderer])
 ], VirtualScrollComponent);

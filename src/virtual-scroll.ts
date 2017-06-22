@@ -24,29 +24,29 @@ export interface ChangeEvent {
   selector: 'virtual-scroll,[virtualScroll]',
   exportAs: 'virtualScroll',
   template: `
-    <div class="total-padding" [style.height]="scrollHeight + 'px'"></div>
-    <div class="scrollable-content" #content [style.transform]="'translateY(' + topPadding + 'px)'">
-      <ng-content></ng-content>
-    </div>
+      <div class="total-padding" [style.height]="scrollHeight + 'px'"></div>
+      <div class="scrollable-content" #content [style.transform]="'translateY(' + topPadding + 'px)'">
+          <ng-content></ng-content>
+      </div>
   `,
   styles: [`
-    :host {
-      overflow: hidden;
-      overflow-y: auto;
-      position: relative;
-      -webkit-overflow-scrolling: touch;
-    }
-    .scrollable-content {
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      position: absolute;
-    }
-    .total-padding {
-      width: 1px;
-      opacity: 0;
-    }
+      :host {
+          overflow: hidden;
+          overflow-y: auto;
+          position: relative;
+          -webkit-overflow-scrolling: touch;
+      }
+      .scrollable-content {
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          position: absolute;
+      }
+      .total-padding {
+          width: 1px;
+          opacity: 0;
+      }
   `]
 })
 export class VirtualScrollComponent implements OnInit, OnChanges {
@@ -125,12 +125,16 @@ export class VirtualScrollComponent implements OnInit, OnChanges {
     }else {
       this.previousStart = undefined;
       this.previousEnd = undefined;
-      this.refresh();
+      this.refresh(false, 0 , false);
     }
   }
 
-  refresh(byIndex?: boolean, itemNumDiff?: number) {
-    requestAnimationFrame(() => this.calculateItems(byIndex, itemNumDiff));
+  refresh(byIndex?: boolean, itemNumDiff?: number, animationFrame: boolean = true) {
+    if (animationFrame) {
+      requestAnimationFrame(() => this.calculateItems(byIndex, itemNumDiff));
+    } else {
+      this.calculateItems(byIndex, itemNumDiff);
+    }
   }
 
   scrollInto(item: any) {
