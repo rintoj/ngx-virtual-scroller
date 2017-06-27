@@ -121,8 +121,7 @@ export class VirtualScrollComponent implements OnInit, OnChanges {
     if (index < 0 || index >= (this.items || []).length) return;
 
     let d = this.calculateDimensions();
-    this.element.nativeElement.scrollTop = Math.floor(index / d.itemsPerRow) *
-      d.childHeight - Math.max(0, (d.itemsPerCol - 1)) * d.childHeight;
+    this.element.nativeElement.scrollTop = Math.floor(index / d.itemsPerRow) * d.childHeight;
     this.refresh();
   }
 
