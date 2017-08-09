@@ -26,7 +26,8 @@ export interface ChangeEvent {
   exportAs: 'virtualScroll',
   template: `
     <div class="total-padding" [style.height]="scrollHeight + 'px'"></div>
-    <div class="scrollable-content" #content [style.transform]="'translateY(' + topPadding + 'px)'">
+    <div class="scrollable-content" #content [style.transform]="'translateY(' + topPadding + 'px)'"
+     [style.webkitTransform]="'translateY(' + topPadding + 'px)'">
       <ng-content></ng-content>
     </div>
   `,
@@ -152,7 +153,8 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
     if (index < 0 || index >= (this.items || []).length) return;
 
     let d = this.calculateDimensions();
-    el.scrollTop = Math.floor(index / d.itemsPerRow) * d.childHeight + offsetTop;
+    el.scrollTop = (Math.floor(index / d.itemsPerRow) * d.childHeight)
+      - (d.childHeight * Math.min(index, this.bufferAmount));
     this.refresh();
   }
 
@@ -260,7 +262,7 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
     let maxStart = Math.max(0, maxStartEnd - d.itemsPerCol * d.itemsPerRow - d.itemsPerRow);
     let start = Math.min(maxStart, Math.floor(indexByScrollTop) * d.itemsPerRow);
 
-    this.topPadding = d.childHeight * Math.ceil(start / d.itemsPerRow);
+    this.topPadding = d.childHeight * Math.ceil(start / d.itemsPerRow) - (d.childHeight * Math.min(start, this.bufferAmount)); ;
 
     start = !isNaN(start) ? start : -1;
     end = !isNaN(end) ? end : -1;
