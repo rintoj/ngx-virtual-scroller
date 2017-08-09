@@ -62,7 +62,8 @@ var VirtualScrollComponent = (function () {
         if (index < 0 || index >= (this.items || []).length)
             return;
         var d = this.calculateDimensions();
-        el.scrollTop = Math.floor(index / d.itemsPerRow) * d.childHeight + offsetTop;
+        el.scrollTop = (Math.floor(index / d.itemsPerRow) * d.childHeight)
+            - (d.childHeight * Math.min(index, this.bufferAmount));
         this.refresh();
     };
     VirtualScrollComponent.prototype.addParentEventHandlers = function (parentScroll) {
@@ -158,7 +159,8 @@ var VirtualScrollComponent = (function () {
         }
         var maxStart = Math.max(0, maxStartEnd - d.itemsPerCol * d.itemsPerRow - d.itemsPerRow);
         var start = Math.min(maxStart, Math.floor(indexByScrollTop) * d.itemsPerRow);
-        this.topPadding = d.childHeight * Math.ceil(start / d.itemsPerRow);
+        this.topPadding = d.childHeight * Math.ceil(start / d.itemsPerRow) - (d.childHeight * Math.min(start, this.bufferAmount));
+        ;
         start = !isNaN(start) ? start : -1;
         end = !isNaN(end) ? end : -1;
         start -= this.bufferAmount;
@@ -194,7 +196,7 @@ var VirtualScrollComponent = (function () {
         { type: core_1.Component, args: [{
                     selector: 'virtual-scroll,[virtualScroll]',
                     exportAs: 'virtualScroll',
-                    template: "\n    <div class=\"total-padding\" [style.height]=\"scrollHeight + 'px'\"></div>\n    <div class=\"scrollable-content\" #content [style.transform]=\"'translateY(' + topPadding + 'px)'\">\n      <ng-content></ng-content>\n    </div>\n  ",
+                    template: "\n    <div class=\"total-padding\" [style.height]=\"scrollHeight + 'px'\"></div>\n    <div class=\"scrollable-content\" #content [style.transform]=\"'translateY(' + topPadding + 'px)'\"\n     [style.webkitTransform]=\"'translateY(' + topPadding + 'px)'\">\n      <ng-content></ng-content>\n    </div>\n  ",
                     host: {
                         "[style.overflow-y]": "parentScroll ? 'hidden' : 'auto'"
                     },
