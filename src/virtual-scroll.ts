@@ -1,14 +1,15 @@
 import {
   Component,
+  ContentChild,
   ElementRef,
   EventEmitter,
   HostListener,
   Input,
   NgModule,
   OnChanges,
+  OnDestroy,
   OnInit,
   Output,
-  Renderer,
   SimpleChanges,
   ViewChild,
 } from '@angular/core';
@@ -29,11 +30,14 @@ export interface ChangeEvent {
       <ng-content></ng-content>
     </div>
   `,
+  host: {
+    "[style.overflow-y]": "parentScroll ? 'hidden' : 'auto'"
+  },
   styles: [`
     :host {
       overflow: hidden;
-      overflow-y: auto;
       position: relative;
+	  display: block;
       -webkit-overflow-scrolling: touch;
     }
     .scrollable-content {
@@ -49,7 +53,7 @@ export interface ChangeEvent {
     }
   `]
 })
-export class VirtualScrollComponent implements OnInit, OnChanges {
+export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
 
   @Input()
   items: any[] = [];
@@ -69,9 +73,30 @@ export class VirtualScrollComponent implements OnInit, OnChanges {
   @Input()
   bufferAmount: number = 0;
 
+  private refreshHandler = () => {
+    this.refresh();
+  };
+  _parentScroll: Element | Window;
+  @Input()
+  set parentScroll(element: Element | Window) {
+    if (this._parentScroll === element) {
+      return;
+    }
+    this.removeParentEventHandlers(this._parentScroll);
+    this._parentScroll = element;
+    this.addParentEventHandlers(this._parentScroll);
+  }
+
+  get parentScroll(): Element | Window {
+    return this._parentScroll;
+  }
+  
   @Output()
   update: EventEmitter<any[]> = new EventEmitter<any[]>();
 
+  @Output()
+  offset: EventEmitter<number> = new EventEmitter<number>();
+	
   @Output()
   change: EventEmitter<ChangeEvent> = new EventEmitter<ChangeEvent>();
 
@@ -84,16 +109,19 @@ export class VirtualScrollComponent implements OnInit, OnChanges {
   @ViewChild('content', { read: ElementRef })
   contentElementRef: ElementRef;
 
+  @ContentChild('container')
+  containerElementRef: ElementRef;
+
   topPadding: number;
   scrollHeight: number;
   previousStart: number;
   previousEnd: number;
   startupLoop: boolean = true;
 
-  constructor(private element: ElementRef, private renderer: Renderer) { }
+  constructor(private element: ElementRef) { }
 
   @HostListener('scroll')
-  onScroll(e: Event) {
+  onScroll() {
     this.refresh();
   }
 
@@ -102,6 +130,10 @@ export class VirtualScrollComponent implements OnInit, OnChanges {
     this.scrollbarHeight = 0; // this.element.nativeElement.offsetHeight - this.element.nativeElement.clientHeight;
   }
 
+  ngOnDestroy() {
+    this.removeParentEventHandlers(this.parentScroll);
+  }
+  
   ngOnChanges(changes: SimpleChanges) {
     this.previousStart = undefined;
     this.previousEnd = undefined;
@@ -117,12 +149,32 @@ export class VirtualScrollComponent implements OnInit, OnChanges {
   }
 
   scrollInto(item: any) {
+    let el: Element = this.parentScroll instanceof Window ? document.body : this.parentScroll || this.element.nativeElement;
+    let offsetTop = this.getElementsOffset();
     let index: number = (this.items || []).indexOf(item);
     if (index < 0 || index >= (this.items || []).length) return;
 
     let d = this.calculateDimensions();
-    this.element.nativeElement.scrollTop = Math.floor(index / d.itemsPerRow) * d.childHeight;
+    el.scrollTop = Math.floor(index / d.itemsPerRow) * d.childHeight + offsetTop;
     this.refresh();
+  }
+
+  private addParentEventHandlers(parentScroll: Element | Window) {
+    if (parentScroll) {
+      parentScroll.addEventListener("scroll", this.refreshHandler);
+      if (parentScroll instanceof Window) {
+        parentScroll.addEventListener("resize", this.refreshHandler);
+      }
+    }
+  }
+
+  private removeParentEventHandlers(parentScroll: Element | Window) {
+    if (parentScroll) {
+      parentScroll.removeEventListener("scroll", this.refreshHandler);
+      if (parentScroll instanceof Window) {
+        parentScroll.removeEventListener("resize", this.refreshHandler);
+      }
+    }
   }
 
   private countItemsPerRow() {
@@ -136,17 +188,30 @@ export class VirtualScrollComponent implements OnInit, OnChanges {
     return itemsPerRow;
   }
 
-  private calculateDimensions() {
-    let el = this.element.nativeElement;
-    let content = this.contentElementRef.nativeElement;
+  private getElementsOffset(): number {
+    let offsetTop = 0;
+    if (this.containerElementRef && this.containerElementRef.nativeElement) {
+      offsetTop += this.containerElementRef.nativeElement.offsetTop;
+    }
+    if (this.parentScroll) {
+      offsetTop += this.element.nativeElement.offsetTop;
+    }
+    return offsetTop;
+  }
 
-    let items = this.items || [];
+  private calculateDimensions() {
+    let el: Element = this.parentScroll instanceof Window ? document.body : this.parentScroll || this.element.nativeElement;
+	let items = this.items || [];
     let itemCount = items.length;
     let viewWidth = el.clientWidth - this.scrollbarWidth;
     let viewHeight = el.clientHeight - this.scrollbarHeight;
 
     let contentDimensions;
     if (this.childWidth == undefined || this.childHeight == undefined) {
+      let content = this.contentElementRef.nativeElement;
+      if (this.containerElementRef && this.containerElementRef.nativeElement) {
+        content = this.containerElementRef.nativeElement;
+      }
       contentDimensions = content.children[0] ? content.children[0].getBoundingClientRect() : {
         width: viewWidth,
         height: viewHeight
@@ -176,16 +241,17 @@ export class VirtualScrollComponent implements OnInit, OnChanges {
   }
 
   private calculateItems() {
-    let el = this.element.nativeElement;
+    let el = this.parentScroll instanceof Window ? document.body : this.parentScroll || this.element.nativeElement;
 
     let d = this.calculateDimensions();
     let items = this.items || [];
+	let offsetTop = this.getElementsOffset();
     this.scrollHeight = d.childHeight * d.itemCount / d.itemsPerRow;
-    if (this.element.nativeElement.scrollTop > this.scrollHeight) {
-      this.element.nativeElement.scrollTop = this.scrollHeight;
+    if (el.scrollTop > this.scrollHeight) {
+      el.scrollTop = this.scrollHeight + offsetTop;
     }
 
-    let scrollTop = Math.max(0, el.scrollTop);
+    let scrollTop = Math.max(0, el.scrollTop - offsetTop);
     let indexByScrollTop = scrollTop / this.scrollHeight * d.itemCount / d.itemsPerRow;
     let end = Math.min(d.itemCount, Math.ceil(indexByScrollTop) * d.itemsPerRow + d.itemsPerRow * (d.itemsPerCol + 1));
 
@@ -209,6 +275,7 @@ export class VirtualScrollComponent implements OnInit, OnChanges {
 
       // update the scroll list
       this.update.emit(items.slice(start, end));
+      this.offset.emit(start);
 
       // emit 'start' event
       if (start !== this.previousStart && this.startupLoop === false) {
