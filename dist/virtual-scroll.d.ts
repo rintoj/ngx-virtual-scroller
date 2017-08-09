@@ -1,12 +1,9 @@
-import 'rxjs/add/operator/switchMap';
-import 'rxjs/add/observable/of';
-import { ElementRef, EventEmitter, OnChanges, OnDestroy, OnInit, Renderer, SimpleChanges } from '@angular/core';
-import { Subject } from 'rxjs/Subject';
+import { ElementRef, EventEmitter, OnChanges, OnInit, Renderer, SimpleChanges } from '@angular/core';
 export interface ChangeEvent {
     start?: number;
     end?: number;
 }
-export declare class VirtualScrollComponent implements OnInit, OnDestroy, OnChanges {
+export declare class VirtualScrollComponent implements OnInit, OnChanges {
     private element;
     private renderer;
     items: any[];
@@ -14,13 +11,12 @@ export declare class VirtualScrollComponent implements OnInit, OnDestroy, OnChan
     scrollbarHeight: number;
     childWidth: number;
     childHeight: number;
+    bufferAmount: number;
     update: EventEmitter<any[]>;
     change: EventEmitter<ChangeEvent>;
     start: EventEmitter<ChangeEvent>;
     end: EventEmitter<ChangeEvent>;
     contentElementRef: ElementRef;
-    scroll$: Subject<Event>;
-    onScrollListener: Function;
     topPadding: number;
     scrollHeight: number;
     previousStart: number;
@@ -30,7 +26,6 @@ export declare class VirtualScrollComponent implements OnInit, OnDestroy, OnChan
     onScroll(e: Event): void;
     ngOnInit(): void;
     ngOnChanges(changes: SimpleChanges): void;
-    ngOnDestroy(): void;
     refresh(): void;
     scrollInto(item: any): void;
     private countItemsPerRow();
