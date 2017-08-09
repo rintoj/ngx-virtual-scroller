@@ -1,4 +1,9 @@
 
+# v0.1.8
+
+* fixes [#74](https://github.com/rintoj/angular2-virtual-scroll/issues/74)
+* fix buffer for scroll to top amount [#71](https://github.com/rintoj/angular2-virtual-scroll/issues/71)
+
 # v0.1.7
 
 * import rxjs operators and object needed instead of RxJS library itself
