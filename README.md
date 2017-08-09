@@ -1,7 +1,14 @@
 
-# angular2-virtual-scroll
+# ngx-virtual-scroll-plus
 
 Virtual Scroll displays a virtual, "infinite" list. Supports multi-column.
+
+Fork of original https://github.com/rintoj/angular2-virtual-scroll
+
+## New features:
+
+* Added ability to put other elements inside of scroll (Need to wrap list itself in @ContentChild('container'))
+* Added ability to use any parent with scrollbar instead of this element (@Input() parentScroll)
 
 ## About
 
@@ -11,7 +18,7 @@ This method is effective because the number of DOM elements are always constant 
 * Angular 2 compatible module
 * Supports multi-column
 * Easy to use apis
-* OpenSource and available in [GitHub](https://github.com/rintoj/angular2-virtual-scroll)
+* OpenSource and available in GitHub
 
 ## Demo
 
@@ -41,17 +48,17 @@ alternatively
 
 ## Get Started
 
-**Step 1:** Install angular2-virtual-scroll
+**Step 1:** Install ngx-virtual-scroll-plus
 
 ```sh
-npm install angular2-virtual-scroll --save
+npm install ngx-virtual-scroll-plus --save
 ```
 
 **Step 2:** Import virtual scroll module into your app module
 
 ```ts
 ....
-import { VirtualScrollModule } from 'angular2-virtual-scroll';
+import { VirtualScrollModule } from 'ngx-virtual-scroll-plus';
 
 ....
 
@@ -79,7 +86,7 @@ export class AppModule { }
 
 **Step 4:** Create 'list-item' component.
 
-'list-item' must a custom angular2 component, outside of this library. A sample list item is give below or check the [demo app](https://github.com/rintoj/angular2-virtual-scroll/tree/master/demo) for [list-item.component.ts](https://github.com/rintoj/angular2-virtual-scroll/blob/master/demo/src/app/lists/list-item.component.ts).
+'list-item' must a custom angular2 component, outside of this library. A sample list item is give below or check the [demo app](https://github.com/rintoj/ngx-virtual-scroll-plus/tree/master/demo) for [list-item.component.ts](https://github.com/rintoj/ngx-virtual-scroll-plus/blob/master/demo/src/app/lists/list-item.component.ts).
 
 ```ts
 import { Component, Input } from '@angular/core';
@@ -131,8 +138,67 @@ Child component is not a necessity if your item is simple enough. See below.
 | childWidth     | number | The minimum width of the item template's cell. This dimension is used to help determine how many cells should be created when initialized, and to help calculate the height of the scrollable area. Note that the actual rendered size of the first cell is used by default if not specified.
 | childHeight    | number | The minimum height of the item template's cell. This dimension is used to help determine how many cells should be created when initialized, and to help calculate the height of the scrollable area. Note that the actual rendered size of the first cell is used by default if not specified.
 | bufferAmount   | number | The the number of elements to be rendered outside of the current container's viewport. Useful when not all elements are the same dimensions.
+| parentScroll   | Element / Window | Element (or window), which will have scrollbar. This element must be one of the parents of virtual-scroll
 | update         | Event  | This event is fired every time `start` or `end` index change and emits list of items from `start` to `end`. The list emitted by this event must be used with `*ngFor` to render the actual list of items within `<virtual-scroll>`
 | change         | Event  | This event is fired every time `start` or `end` index change and emits `ChangeEvent` which of format: `{ start: number, end: number }`
+
+
+## Additional elements in scroll
+
+If inside of content of virtual scroll element you want to show also additional elements except list itself (e.g. search field), you need to specify block with list using id "container".
+
+```html
+<virtual-scroll [items]="items"
+    (update)="viewPortItems = $event">
+    <input type="search">
+    <div #container>
+        <list-item *ngFor="let item of viewPortItems" [item]="item">
+        </list-item>
+    </div>
+</virtual-scroll>
+```
+
+## Use scrollbar of parent block
+
+If you want to use scrollbar of parent block, instead of scrolling block, set `parentScroll`. 
+
+```html
+<div #scrollingBlock>
+    <virtual-scroll [items]="items"
+        [parentScroll]="scrollingBlock.nativeElement"
+        (update)="viewPortItems = $event">
+        <input type="search">
+        <div #container>
+            <list-item *ngFor="let item of viewPortItems" [item]="item">
+            </list-item>
+        </div>
+    </virtual-scroll>
+</div>
+```
+
+## Use scrollbar of window
+
+If you want to use scrollbar of window, instead of scrolling block, set `parentScroll`. 
+
+```html
+<virtual-scroll [items]="items"
+    [parentScroll]="window"
+    (update)="viewPortItems = $event">
+    <input type="search">
+    <div #container>
+        <list-item *ngFor="let item of viewPortItems" [item]="item">
+        </list-item>
+    </div>
+</virtual-scroll>
+```
+
+```ts
+...
+export class MyComponent { 
+...
+window: window;
+...
+```
 
 ## Items with variable size
 
@@ -156,7 +222,7 @@ The event `end` is fired every time scroll reaches at the end of the list. You c
 
 ```ts
 
-import { ChangeEvent } from '@angular2-virtual-scroll';
+import { ChangeEvent } from '@ngx-virtual-scroll-plus';
 ...
 
 @Component({
@@ -202,7 +268,7 @@ If virtual scroll is used within a dropdown or collapsible menu, virtual scroll 
 
 ```ts
 import { Component, ViewChild } from '@angular/core';
-import { VirtualScrollComponent } from 'angular2-virtual-scroll';
+import { VirtualScrollComponent } from 'ngx-virtual-scroll-plus';
 
 @Component({
     selector: 'rj-list',
@@ -232,7 +298,7 @@ You could use `scrollInto(item)` api to scroll into an item in the list. See bel
 
 ```ts
 import { Component, ViewChild } from '@angular/core';
-import { VirtualScrollComponent } from 'angular2-virtual-scroll';
+import { VirtualScrollComponent } from 'ngx-virtual-scroll-plus';
 
 @Component({
     selector: 'rj-list',
@@ -274,6 +340,7 @@ Contributions are very welcome! Just send a pull request. Feel free to contact m
 ## Author
 
 **Rinto Jose** (rintoj)
+**Pavel Kukushkin** (kykint)
 
 ### Hope this module is helpful to you. Please make sure to checkout my other [projects](https://github.com/rintoj) and [articles](https://medium.com/@rintoj). Enjoy coding!
 
@@ -285,7 +352,7 @@ Follow me:
 | [Youtube](https://youtube.com/+RintoJoseMankudy)
 
 ## Versions
-[Check CHANGELOG](https://github.com/rintoj/angular2-virtual-scroll/blob/master/CHANGELOG.md)
+[Check CHANGELOG](https://github.com/kykint/ngx-virtual-scroll-plus/blob/master/CHANGELOG.md)
 
 ## License
 ```
