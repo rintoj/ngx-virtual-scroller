@@ -3,7 +3,7 @@
 
 Virtual Scroll displays a virtual, "infinite" list. Supports multi-column.
 
-Fork of original https://github.com/rintoj/ng-virtual-scroll
+Fork of original https://github.com/rintoj/angular2-virtual-scroll
 
 ## New features:
 
@@ -340,6 +340,7 @@ Contributions are very welcome! Just send a pull request. Feel free to contact m
 ## Author
 
 **Rinto Jose** (rintoj)
+**Pavel Kukushkin** (kykint)
 
 ### Hope this module is helpful to you. Please make sure to checkout my other [projects](https://github.com/rintoj) and [articles](https://medium.com/@rintoj). Enjoy coding!
 
@@ -351,7 +352,7 @@ Follow me:
 | [Youtube](https://youtube.com/+RintoJoseMankudy)
 
 ## Versions
-[Check CHANGELOG](https://github.com/rintoj/ng-virtual-scroll/blob/master/CHANGELOG.md)
+[Check CHANGELOG](https://github.com/kykint/ng-virtual-scroll/blob/master/CHANGELOG.md)
 
 ## License
 ```
