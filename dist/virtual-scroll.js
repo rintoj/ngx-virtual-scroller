@@ -12,7 +12,6 @@ var VirtualScrollComponent = (function () {
             _this.refresh();
         };
         this.update = new core_1.EventEmitter();
-        this.offset = new core_1.EventEmitter();
         this.change = new core_1.EventEmitter();
         this.start = new core_1.EventEmitter();
         this.end = new core_1.EventEmitter();
@@ -169,7 +168,6 @@ var VirtualScrollComponent = (function () {
         if (start !== this.previousStart || end !== this.previousEnd) {
             // update the scroll list
             this.update.emit(items.slice(start, end));
-            this.offset.emit(start);
             // emit 'start' event
             if (start !== this.previousStart && this.startupLoop === false) {
                 this.start.emit({ start: start, end: end });
@@ -216,7 +214,6 @@ var VirtualScrollComponent = (function () {
         'bufferAmount': [{ type: core_1.Input },],
         'parentScroll': [{ type: core_1.Input },],
         'update': [{ type: core_1.Output },],
-        'offset': [{ type: core_1.Output },],
         'change': [{ type: core_1.Output },],
         'start': [{ type: core_1.Output },],
         'end': [{ type: core_1.Output },],

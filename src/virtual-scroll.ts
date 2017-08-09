@@ -93,9 +93,6 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
   
   @Output()
   update: EventEmitter<any[]> = new EventEmitter<any[]>();
-
-  @Output()
-  offset: EventEmitter<number> = new EventEmitter<number>();
 	
   @Output()
   change: EventEmitter<ChangeEvent> = new EventEmitter<ChangeEvent>();
@@ -275,7 +272,6 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
 
       // update the scroll list
       this.update.emit(items.slice(start, end));
-      this.offset.emit(start);
 
       // emit 'start' event
       if (start !== this.previousStart && this.startupLoop === false) {
