@@ -3,6 +3,15 @@
 
 Virtual Scroll displays a virtual, "infinite" list. Supports multi-column.
 
+Fork of original https://github.com/rintoj/angular2-virtual-scroll
+
+## New features:
+
+* Added ability to put other elements inside of scroll (Need to wrap list itself in @ContentChild('container'))
+* Added ability to use any parent with scrollbar instead of this element (@Input() parentScroll)
+* Emitting offset - number of the first visible element
+
+
 ## About
 
 This module displays a small subset of records just enough to fill the viewport and uses the same DOM elements as the user scrolls.
@@ -133,6 +142,64 @@ Child component is not a necessity if your item is simple enough. See below.
 | bufferAmount   | number | The the number of elements to be rendered outside of the current container's viewport. Useful when not all elements are the same dimensions.
 | update         | Event  | This event is fired every time `start` or `end` index change and emits list of items from `start` to `end`. The list emitted by this event must be used with `*ngFor` to render the actual list of items within `<virtual-scroll>`
 | change         | Event  | This event is fired every time `start` or `end` index change and emits `ChangeEvent` which of format: `{ start: number, end: number }`
+| parentScroll   | Element / Window | Element (or window), which will have scrollbar. This element must be one of the parents of virtual-scroll
+
+## Additional elements in scroll
+
+If inside of content of virtual scroll element you want to show also additional elements except list itself (e.g. search field), you need to specify block with list using id "container".
+
+```html
+<virtual-scroll [items]="items"
+    (update)="viewPortItems = $event">
+    <input type="search">
+    <div #container>
+        <list-item *ngFor="let item of viewPortItems" [item]="item">
+        </list-item>
+    </div>
+</virtual-scroll>
+```
+
+## Use scrollbar of parent block
+
+If you want to use scrollbar of parent block, instead of scrolling block, set `parentScroll`. 
+
+```html
+<div #scrollingBlock>
+    <virtual-scroll [items]="items"
+        [parentScroll]="scrollingBlock.nativeElement"
+        (update)="viewPortItems = $event">
+        <input type="search">
+        <div #container>
+            <list-item *ngFor="let item of viewPortItems" [item]="item">
+            </list-item>
+        </div>
+    </virtual-scroll>
+</div>
+```
+
+## Use scrollbar of window
+
+If you want to use scrollbar of window, instead of scrolling block, set `parentScroll`. 
+
+```html
+<virtual-scroll [items]="items"
+    [parentScroll]="window"
+    (update)="viewPortItems = $event">
+    <input type="search">
+    <div #container>
+        <list-item *ngFor="let item of viewPortItems" [item]="item">
+        </list-item>
+    </div>
+</virtual-scroll>
+```
+
+```ts
+...
+export class MyComponent { 
+...
+window: window;
+...
+```
 
 ## Items with variable size
 
