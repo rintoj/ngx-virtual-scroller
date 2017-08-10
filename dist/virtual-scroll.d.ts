@@ -3,7 +3,7 @@ export interface ChangeEvent {
     start?: number;
     end?: number;
 }
-export declare class VirtualScrollComponent implements OnInit, OnChanges {
+export declare class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
     private element;
     items: any[];
     scrollbarWidth: number;

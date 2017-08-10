@@ -3,13 +3,6 @@
 
 Virtual Scroll displays a virtual, "infinite" list. Supports multi-column.
 
-Fork of original https://github.com/rintoj/angular2-virtual-scroll
-
-## New features:
-
-* Added ability to put other elements inside of scroll (Need to wrap list itself in @ContentChild('container'))
-* Added ability to use any parent with scrollbar instead of this element (@Input() parentScroll)
-
 ## About
 
 This module displays a small subset of records just enough to fill the viewport and uses the same DOM elements as the user scrolls.
@@ -19,6 +12,11 @@ This method is effective because the number of DOM elements are always constant 
 * Supports multi-column
 * Easy to use apis
 * OpenSource and available in GitHub
+
+## New features:
+
+* Added ability to put other elements inside of scroll (Need to wrap list itself in @ContentChild('container'))
+* Added ability to use any parent with scrollbar instead of this element (@Input() parentScroll)
 
 ## Demo
 
@@ -142,7 +140,6 @@ Child component is not a necessity if your item is simple enough. See below.
 | update         | Event  | This event is fired every time `start` or `end` index change and emits list of items from `start` to `end`. The list emitted by this event must be used with `*ngFor` to render the actual list of items within `<virtual-scroll>`
 | change         | Event  | This event is fired every time `start` or `end` index change and emits `ChangeEvent` which of format: `{ start: number, end: number }`
 
-
 ## Additional elements in scroll
 
 If inside of content of virtual scroll element you want to show also additional elements except list itself (e.g. search field), you need to specify block with list using id "container".
@@ -160,7 +157,7 @@ If inside of content of virtual scroll element you want to show also additional 
 
 ## Use scrollbar of parent block
 
-If you want to use scrollbar of parent block, instead of scrolling block, set `parentScroll`. 
+If you want to use scrollbar of parent block, instead of scrolling block, set `parentScroll`.
 
 ```html
 <div #scrollingBlock>
@@ -178,7 +175,7 @@ If you want to use scrollbar of parent block, instead of scrolling block, set `p
 
 ## Use scrollbar of window
 
-If you want to use scrollbar of window, instead of scrolling block, set `parentScroll`. 
+If you want to use scrollbar of window, instead of scrolling block, set `parentScroll`.
 
 ```html
 <virtual-scroll [items]="items"
@@ -194,7 +191,7 @@ If you want to use scrollbar of window, instead of scrolling block, set `parentS
 
 ```ts
 ...
-export class MyComponent { 
+export class MyComponent {
 ...
 window: window;
 ...
