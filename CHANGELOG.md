@@ -1,4 +1,9 @@
 
+# v0.2.0
+
+* Added ability to put other elements inside of scroll (Need to wrap list itself in @ContentChild('container'))
+* Added ability to use any parent with scrollbar instead of this element (@input() parentScroll)
+
 # v0.1.8
 
 * fixes [#74](https://github.com/rintoj/angular2-virtual-scroll/issues/74)
