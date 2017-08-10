@@ -4,6 +4,11 @@
 * Added ability to put other elements inside of scroll (Need to wrap list itself in @ContentChild('container'))
 * Added ability to use any parent with scrollbar instead of this element (@input() parentScroll)
 
+# v0.1.8
+
+* fixes [#74](https://github.com/rintoj/angular2-virtual-scroll/issues/74)
+* fix buffer for scroll to top amount [#71](https://github.com/rintoj/angular2-virtual-scroll/issues/71)
+
 # v0.1.7
 
 * import rxjs operators and object needed instead of RxJS library itself
