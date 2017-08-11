@@ -75,7 +75,7 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
   private refreshHandler = () => {
     this.refresh();
   };
-  _parentScroll: Element | Window;
+  private _parentScroll: Element | Window;
   @Input()
   set parentScroll(element: Element | Window) {
     if (this._parentScroll === element) {
@@ -92,6 +92,7 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
 
   @Output()
   update: EventEmitter<any[]> = new EventEmitter<any[]>();
+  viewPortItems: any[];
 
   @Output()
   change: EventEmitter<ChangeEvent> = new EventEmitter<ChangeEvent>();
@@ -271,7 +272,8 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
     if (start !== this.previousStart || end !== this.previousEnd) {
 
       // update the scroll list
-      this.update.emit(items.slice(start, end));
+	  this.viewPortItems = items.slice(start, end);
+      this.update.emit(this.viewPortItems);
 
       // emit 'start' event
       if (start !== this.previousStart && this.startupLoop === false) {
