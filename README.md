@@ -206,7 +206,7 @@ If you want to use scrollbar of window, instead of scrolling block, set `parentS
 <virtual-scroll 
     #scroll
     [items]="items"
-    [parentScroll]="window">
+    [parentScroll]="scroll.window">
     <input type="search">
     <div #container>
         <list-item *ngFor="let item of scroll.viewPortItems" [item]="item">
