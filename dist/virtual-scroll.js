@@ -190,6 +190,14 @@ var VirtualScrollComponent = (function () {
             this.startupLoop = false;
             this.refresh();
         }
+        if (end === items.length) {
+            var contentHeight = this.contentElementRef.nativeElement.offsetHeight;
+            var delta = contentHeight - (d.childHeight * (end - start));
+            //console.log('jkdelta', this.topPadding, contentHeight, this.scrollHeight + delta, this.scrollHeight, delta);
+            if (delta !== 0) {
+                this.scrollHeight += delta;
+            }
+        }
     };
     VirtualScrollComponent.decorators = [
         { type: core_1.Component, args: [{
