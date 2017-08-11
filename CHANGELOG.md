@@ -1,4 +1,8 @@
 
+# v0.2.1
+
+* using actual height of scrollable-content in scrollHeight calculation to fix clipping of items in case of variable height items
+
 # v0.2.0
 
 * Added ability to put other elements inside of scroll (Need to wrap list itself in @ContentChild('container'))
