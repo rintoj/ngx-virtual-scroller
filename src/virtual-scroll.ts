@@ -273,7 +273,7 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
     if (start !== this.previousStart || end !== this.previousEnd) {
 
       // update the scroll list
-	  this.viewPortItems = items.slice(start, end);
+      this.viewPortItems = items.slice(start, end);
       this.update.emit(this.viewPortItems);
 
       // emit 'start' event
