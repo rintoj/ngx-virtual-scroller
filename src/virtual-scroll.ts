@@ -140,20 +140,37 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
     this.refresh();
   }
 
-  refresh() {
-    requestAnimationFrame(() => this.calculateItems());
+  refresh(callback: Function = undefined) {
+    requestAnimationFrame(() => {
+      this.calculateItems();
+      if (callback) {
+        callback();
+      }
+    });
   }
 
-  scrollInto(item: any) {
+  scrollInto(item: any, doRefresh: boolean = true) {
     let el: Element = this.parentScroll instanceof Window ? document.body : this.parentScroll || this.element.nativeElement;
-    let offsetTop = this.getElementsOffset();
     let index: number = (this.items || []).indexOf(item);
     if (index < 0 || index >= (this.items || []).length) return;
 
     let d = this.calculateDimensions();
-    el.scrollTop = (Math.floor(index / d.itemsPerRow) * d.childHeight)
-      - (d.childHeight * Math.min(index, this.bufferAmount));
-    this.refresh();
+    if (index >= this.previousStart && index <= this.previousEnd) {
+      //can accurately scroll to a rendered item using its offsetTop
+      var itemElem = document.getElementById(item.id);
+      el.scrollTop = this.topPadding + itemElem.offsetTop;
+      if (doRefresh) {
+        this.refresh(() => {
+          setTimeout(() => this.scrollInto(item, false), 0);
+        });
+      }
+    } else {
+      el.scrollTop = (Math.floor(index / d.itemsPerRow) * d.childHeight)
+        - (d.childHeight * Math.min(index, this.bufferAmount));
+      if (doRefresh) {
+        this.refresh();
+      }
+    }
   }
 
   private addParentEventHandlers(parentScroll: Element | Window) {

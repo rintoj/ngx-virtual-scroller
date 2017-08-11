@@ -1,7 +1,8 @@
 
 # v0.2.1
 
-* using actual height of scrollable-content in scrollHeight calculation to fix clipping of items in case of variable height items
+* using actual height of scrollable-content in scrollHeight calculation to fix clipping of last item in case of variable height items
+* in scrollInto(), if the item is rendered, scroll to it accurately using its offsetTop
 
 # v0.2.0
 

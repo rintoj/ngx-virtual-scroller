@@ -50,20 +50,41 @@ var VirtualScrollComponent = (function () {
         }
         this.refresh();
     };
-    VirtualScrollComponent.prototype.refresh = function () {
+    VirtualScrollComponent.prototype.refresh = function (callback) {
         var _this = this;
-        requestAnimationFrame(function () { return _this.calculateItems(); });
+        if (callback === void 0) { callback = undefined; }
+        requestAnimationFrame(function () {
+            _this.calculateItems();
+            if (callback) {
+                callback();
+            }
+        });
     };
-    VirtualScrollComponent.prototype.scrollInto = function (item) {
+    VirtualScrollComponent.prototype.scrollInto = function (item, doRefresh) {
+        var _this = this;
+        if (doRefresh === void 0) { doRefresh = true; }
         var el = this.parentScroll instanceof Window ? document.body : this.parentScroll || this.element.nativeElement;
-        var offsetTop = this.getElementsOffset();
         var index = (this.items || []).indexOf(item);
         if (index < 0 || index >= (this.items || []).length)
             return;
         var d = this.calculateDimensions();
-        el.scrollTop = (Math.floor(index / d.itemsPerRow) * d.childHeight)
-            - (d.childHeight * Math.min(index, this.bufferAmount));
-        this.refresh();
+        if (index >= this.previousStart && index <= this.previousEnd) {
+            //can accurately scroll to a rendered item using its offsetTop
+            var itemElem = document.getElementById(item.id);
+            el.scrollTop = this.topPadding + itemElem.offsetTop;
+            if (doRefresh) {
+                this.refresh(function () {
+                    setTimeout(function () { return _this.scrollInto(item, false); }, 0);
+                });
+            }
+        }
+        else {
+            el.scrollTop = (Math.floor(index / d.itemsPerRow) * d.childHeight)
+                - (d.childHeight * Math.min(index, this.bufferAmount));
+            if (doRefresh) {
+                this.refresh();
+            }
+        }
     };
     VirtualScrollComponent.prototype.addParentEventHandlers = function (parentScroll) {
         if (parentScroll) {
