@@ -114,7 +114,6 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
   previousStart: number;
   previousEnd: number;
   startupLoop: boolean = true;
-  window = window;
 
   constructor(private element: ElementRef) { }
 

@@ -2,7 +2,6 @@
 # v0.2.1
 
 * Added ability to get viewPortItems as a field instead of event
-* Added easier ability of using window scrollbar
 
 # v0.2.0
 
