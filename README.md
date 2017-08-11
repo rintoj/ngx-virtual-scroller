@@ -36,6 +36,17 @@ This method is effective because the number of DOM elements are always constant 
 alternatively
 
 ```html
+<virtual-scroll #scroll [items]="items">
+
+    <list-item *ngFor="let item of scroll.viewPortItems" [item]="item">
+    </list-item>
+
+</virtual-scroll>
+```
+
+alternatively
+
+```html
 <div virtualScroll [items]="items" (update)="viewPortItems = $event">
 
     <list-item *ngFor="let item of viewPortItems" [item]="item">
@@ -140,6 +151,20 @@ Child component is not a necessity if your item is simple enough. See below.
 | update         | Event  | This event is fired every time `start` or `end` index change and emits list of items from `start` to `end`. The list emitted by this event must be used with `*ngFor` to render the actual list of items within `<virtual-scroll>`
 | change         | Event  | This event is fired every time `start` or `end` index change and emits `ChangeEvent` which of format: `{ start: number, end: number }`
 
+## Getting view port items without events
+
+If you are using AOT compilation (hope you do it) then in classic usage (with listening to `update` event) it is required to create field `viewPortItems` in your component.
+There is a way how to avoid it.
+
+```html
+<virtual-scroll #scroll [items]="items">
+
+    <list-item *ngFor="let item of scroll.viewPortItems" [item]="item">
+    </list-item>
+
+</virtual-scroll>
+```
+
 ## Additional elements in scroll
 
 If inside of content of virtual scroll element you want to show also additional elements except list itself (e.g. search field), you need to specify block with list using id "container".
@@ -178,23 +203,16 @@ If you want to use scrollbar of parent block, instead of scrolling block, set `p
 If you want to use scrollbar of window, instead of scrolling block, set `parentScroll`.
 
 ```html
-<virtual-scroll [items]="items"
-    [parentScroll]="window"
-    (update)="viewPortItems = $event">
+<virtual-scroll 
+    #scroll
+    [items]="items"
+    [parentScroll]="scroll.window">
     <input type="search">
     <div #container>
-        <list-item *ngFor="let item of viewPortItems" [item]="item">
+        <list-item *ngFor="let item of scroll.viewPortItems" [item]="item">
         </list-item>
     </div>
 </virtual-scroll>
-```
-
-```ts
-...
-export class MyComponent {
-...
-window: window;
-...
 ```
 
 ## Items with variable size
