@@ -1,6 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 var core_1 = require("@angular/core");
+var $ = require("jquery");
+var SCROLL_INTO_ANIM_DURATION = 400;
 var VirtualScrollComponent = (function () {
     function VirtualScrollComponent(element) {
         var _this = this;
@@ -64,6 +66,7 @@ var VirtualScrollComponent = (function () {
         var _this = this;
         if (doRefresh === void 0) { doRefresh = true; }
         var el = this.parentScroll instanceof Window ? document.body : this.parentScroll || this.element.nativeElement;
+        var $el = $(el);
         var index = (this.items || []).indexOf(item);
         if (index < 0 || index >= (this.items || []).length)
             return;
@@ -71,19 +74,20 @@ var VirtualScrollComponent = (function () {
         if (index >= this.previousStart && index <= this.previousEnd) {
             //can accurately scroll to a rendered item using its offsetTop
             var itemElem = document.getElementById(item.id);
-            el.scrollTop = this.topPadding + itemElem.offsetTop;
             if (doRefresh) {
-                this.refresh(function () {
-                    setTimeout(function () { return _this.scrollInto(item, false); }, 0);
+                var scrollTop = this.topPadding + itemElem.offsetTop;
+                $el.animate({ scrollTop: scrollTop }, SCROLL_INTO_ANIM_DURATION, function () {
+                    _this.scrollInto(item, false);
                 });
+            }
+            else {
+                $el.scrollTop(this.topPadding + itemElem.offsetTop);
             }
         }
         else {
-            el.scrollTop = (Math.floor(index / d.itemsPerRow) * d.childHeight)
+            var scrollTop = (Math.floor(index / d.itemsPerRow) * d.childHeight)
                 - (d.childHeight * Math.min(index, this.bufferAmount));
-            if (doRefresh) {
-                this.refresh();
-            }
+            $el.animate({ scrollTop: scrollTop }, SCROLL_INTO_ANIM_DURATION);
         }
     };
     VirtualScrollComponent.prototype.addParentEventHandlers = function (parentScroll) {

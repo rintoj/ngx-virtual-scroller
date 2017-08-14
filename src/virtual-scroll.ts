@@ -14,10 +14,14 @@ import {
   ViewChild,
 } from '@angular/core';
 
+import * as $ from 'jquery';
+
 export interface ChangeEvent {
   start?: number;
   end?: number;
 }
+
+const SCROLL_INTO_ANIM_DURATION = 400;
 
 @Component({
   selector: 'virtual-scroll,[virtualScroll]',
@@ -151,6 +155,7 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
 
   scrollInto(item: any, doRefresh: boolean = true) {
     let el: Element = this.parentScroll instanceof Window ? document.body : this.parentScroll || this.element.nativeElement;
+    let $el = $(el);
     let index: number = (this.items || []).indexOf(item);
     if (index < 0 || index >= (this.items || []).length) return;
 
@@ -158,18 +163,19 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
     if (index >= this.previousStart && index <= this.previousEnd) {
       //can accurately scroll to a rendered item using its offsetTop
       var itemElem = document.getElementById(item.id);
-      el.scrollTop = this.topPadding + itemElem.offsetTop;
       if (doRefresh) {
-        this.refresh(() => {
-          setTimeout(() => this.scrollInto(item, false), 0);
+        let scrollTop = this.topPadding + itemElem.offsetTop;
+        $el.animate({ scrollTop: scrollTop }, SCROLL_INTO_ANIM_DURATION, () => {
+          this.scrollInto(item, false);
         });
       }
-    } else {
-      el.scrollTop = (Math.floor(index / d.itemsPerRow) * d.childHeight)
-        - (d.childHeight * Math.min(index, this.bufferAmount));
-      if (doRefresh) {
-        this.refresh();
+      else {
+        $el.scrollTop(this.topPadding + itemElem.offsetTop);
       }
+    } else {
+      let scrollTop = (Math.floor(index / d.itemsPerRow) * d.childHeight)
+        - (d.childHeight * Math.min(index, this.bufferAmount));
+      $el.animate({ scrollTop: scrollTop }, SCROLL_INTO_ANIM_DURATION);
     }
   }
 
