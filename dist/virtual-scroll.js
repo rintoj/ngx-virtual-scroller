@@ -62,8 +62,9 @@ var VirtualScrollComponent = (function () {
             }
         });
     };
-    VirtualScrollComponent.prototype.scrollInto = function (item, doRefresh) {
+    VirtualScrollComponent.prototype.scrollInto = function (item, scrollEndCallback, doRefresh) {
         var _this = this;
+        if (scrollEndCallback === void 0) { scrollEndCallback = undefined; }
         if (doRefresh === void 0) { doRefresh = true; }
         var el = this.parentScroll instanceof Window ? document.body : this.parentScroll || this.element.nativeElement;
         var $el = $(el);
@@ -77,17 +78,22 @@ var VirtualScrollComponent = (function () {
             if (doRefresh) {
                 var scrollTop = this.topPadding + itemElem.offsetTop;
                 $el.animate({ scrollTop: scrollTop }, SCROLL_INTO_ANIM_DURATION, function () {
-                    _this.scrollInto(item, false);
+                    _this.scrollInto(item, scrollEndCallback, false);
                 });
             }
             else {
                 $el.scrollTop(this.topPadding + itemElem.offsetTop);
+                if (scrollEndCallback) {
+                    setTimeout(scrollEndCallback, 0);
+                }
             }
         }
         else {
-            var scrollTop = (Math.floor(index / d.itemsPerRow) * d.childHeight)
-                - (d.childHeight * Math.min(index, this.bufferAmount));
-            $el.animate({ scrollTop: scrollTop }, SCROLL_INTO_ANIM_DURATION);
+            var scrollTop = (Math.floor(index / d.itemsPerRow) * d.childHeight);
+            //- (d.childHeight * Math.min(index, this.bufferAmount));
+            $el.animate({ scrollTop: scrollTop }, SCROLL_INTO_ANIM_DURATION, function () {
+                _this.scrollInto(item, scrollEndCallback, false);
+            });
         }
     };
     VirtualScrollComponent.prototype.addParentEventHandlers = function (parentScroll) {

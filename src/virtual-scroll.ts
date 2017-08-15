@@ -153,7 +153,7 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
     });
   }
 
-  scrollInto(item: any, doRefresh: boolean = true) {
+  scrollInto(item: any, scrollEndCallback: Function = undefined, doRefresh: boolean = true) {
     let el: Element = this.parentScroll instanceof Window ? document.body : this.parentScroll || this.element.nativeElement;
     let $el = $(el);
     let index: number = (this.items || []).indexOf(item);
@@ -166,16 +166,21 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
       if (doRefresh) {
         let scrollTop = this.topPadding + itemElem.offsetTop;
         $el.animate({ scrollTop: scrollTop }, SCROLL_INTO_ANIM_DURATION, () => {
-          this.scrollInto(item, false);
+          this.scrollInto(item, scrollEndCallback, false);
         });
       }
       else {
         $el.scrollTop(this.topPadding + itemElem.offsetTop);
+        if (scrollEndCallback) {
+          setTimeout(scrollEndCallback, 0);
+        }
       }
     } else {
       let scrollTop = (Math.floor(index / d.itemsPerRow) * d.childHeight)
-        - (d.childHeight * Math.min(index, this.bufferAmount));
-      $el.animate({ scrollTop: scrollTop }, SCROLL_INTO_ANIM_DURATION);
+        //- (d.childHeight * Math.min(index, this.bufferAmount));
+      $el.animate({ scrollTop: scrollTop }, SCROLL_INTO_ANIM_DURATION, () => {
+        this.scrollInto(item, scrollEndCallback, false);
+      });
     }
   }
 
