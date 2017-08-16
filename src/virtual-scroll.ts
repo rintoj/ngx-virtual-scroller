@@ -203,14 +203,15 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   private countItemsPerRow() {
-    let offsetTop;
+    return 1;
+    /*let offsetTop;
     let itemsPerRow;
     let children = this.contentElementRef.nativeElement.children;
     for (itemsPerRow = 0; itemsPerRow < children.length; itemsPerRow++) {
       if (offsetTop != undefined && offsetTop !== children[itemsPerRow].offsetTop) break;
       offsetTop = children[itemsPerRow].offsetTop;
     }
-    return itemsPerRow;
+    return itemsPerRow;*/
   }
 
   private getElementsOffset(): number {
@@ -267,8 +268,20 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
 
   private calculateItems() {
     let el = this.parentScroll instanceof Window ? document.body : this.parentScroll || this.element.nativeElement;
-
     let d = this.calculateDimensions();
+
+    // Optimization: do not update start and end indexes until scroll reaches the end of list
+    if (this.previousStart !== undefined && this.previousEnd !== undefined) {
+      let A = el.scrollTop;
+      let B = this.topPadding;
+      let C = this.topPadding + ((this.previousEnd - this.previousStart) * d.childHeight);
+      let D = el.scrollTop + d.viewHeight;
+      let H = d.childHeight * 1;
+      if (A - B > H && C - D > H) {
+        return;
+      }
+    }
+
     let items = this.items || [];
     let offsetTop = this.getElementsOffset();
     this.scrollHeight = d.childHeight * d.itemCount / d.itemsPerRow;

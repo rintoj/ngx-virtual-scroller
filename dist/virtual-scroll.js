@@ -113,15 +113,15 @@ var VirtualScrollComponent = (function () {
         }
     };
     VirtualScrollComponent.prototype.countItemsPerRow = function () {
-        var offsetTop;
-        var itemsPerRow;
-        var children = this.contentElementRef.nativeElement.children;
+        return 1;
+        /*let offsetTop;
+        let itemsPerRow;
+        let children = this.contentElementRef.nativeElement.children;
         for (itemsPerRow = 0; itemsPerRow < children.length; itemsPerRow++) {
-            if (offsetTop != undefined && offsetTop !== children[itemsPerRow].offsetTop)
-                break;
-            offsetTop = children[itemsPerRow].offsetTop;
+          if (offsetTop != undefined && offsetTop !== children[itemsPerRow].offsetTop) break;
+          offsetTop = children[itemsPerRow].offsetTop;
         }
-        return itemsPerRow;
+        return itemsPerRow;*/
     };
     VirtualScrollComponent.prototype.getElementsOffset = function () {
         var offsetTop = 0;
@@ -173,6 +173,17 @@ var VirtualScrollComponent = (function () {
     VirtualScrollComponent.prototype.calculateItems = function () {
         var el = this.parentScroll instanceof Window ? document.body : this.parentScroll || this.element.nativeElement;
         var d = this.calculateDimensions();
+        // Optimization: do not update start and end indexes until scroll reaches the end of list
+        if (this.previousStart !== undefined && this.previousEnd !== undefined) {
+            var A = el.scrollTop;
+            var B = this.topPadding;
+            var C = this.topPadding + ((this.previousEnd - this.previousStart) * d.childHeight);
+            var D = el.scrollTop + d.viewHeight;
+            var H = d.childHeight * 1;
+            if (A - B > H && C - D > H) {
+                return;
+            }
+        }
         var items = this.items || [];
         var offsetTop = this.getElementsOffset();
         this.scrollHeight = d.childHeight * d.itemCount / d.itemsPerRow;
