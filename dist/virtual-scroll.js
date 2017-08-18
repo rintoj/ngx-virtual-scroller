@@ -15,6 +15,7 @@ var VirtualScrollComponent = (function () {
         this.start = new core_1.EventEmitter();
         this.end = new core_1.EventEmitter();
         this.startupLoop = true;
+        this.window = window;
     }
     Object.defineProperty(VirtualScrollComponent.prototype, "parentScroll", {
         get: function () {
@@ -168,7 +169,8 @@ var VirtualScrollComponent = (function () {
         end = Math.min(items.length, end);
         if (start !== this.previousStart || end !== this.previousEnd) {
             // update the scroll list
-            this.update.emit(items.slice(start, end));
+            this.viewPortItems = items.slice(start, end);
+            this.update.emit(this.viewPortItems);
             // emit 'start' event
             if (start !== this.previousStart && this.startupLoop === false) {
                 this.start.emit({ start: start, end: end });
