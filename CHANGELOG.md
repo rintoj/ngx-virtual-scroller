@@ -1,4 +1,9 @@
 
+# v0.2.1
+
+* Added ability to get viewPortItems as a field instead of event
+* Added easier ability of using window scrollbar
+
 # v0.2.0
 
 * Added ability to put other elements inside of scroll (Need to wrap list itself in @ContentChild('container'))
