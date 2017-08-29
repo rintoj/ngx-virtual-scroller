@@ -222,7 +222,10 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
     let itemsPerRow = Math.max(1, this.countItemsPerRow());
     let itemsPerRowByCalc = Math.max(1, Math.floor(viewWidth / childWidth));
     let itemsPerCol = Math.max(1, Math.floor(viewHeight / childHeight));
-    let scrollTop = Math.max(0, el.scrollTop);
+    let elScrollTop = this.parentScroll instanceof Window
+      ? (window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || 0)
+      : el.scrollTop;
+    let scrollTop = Math.max(0, elScrollTop);
     if (itemsPerCol === 1 && Math.floor(scrollTop / this.scrollHeight * itemCount) + itemsPerRowByCalc >= itemCount) {
       itemsPerRow = itemsPerRowByCalc;
     }
@@ -245,12 +248,15 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
     let d = this.calculateDimensions();
     let items = this.items || [];
     let offsetTop = this.getElementsOffset();
+    let elScrollTop = this.parentScroll instanceof Window
+      ? (window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || 0)
+      : el.scrollTop;
     this.scrollHeight = d.childHeight * d.itemCount / d.itemsPerRow;
-    if (el.scrollTop > this.scrollHeight) {
-      el.scrollTop = this.scrollHeight + offsetTop;
+    if (elScrollTop > this.scrollHeight) {
+      elScrollTop = this.scrollHeight + offsetTop;
     }
 
-    let scrollTop = Math.max(0, el.scrollTop - offsetTop);
+    let scrollTop = Math.max(0, elScrollTop - offsetTop);
     let indexByScrollTop = scrollTop / this.scrollHeight * d.itemCount / d.itemsPerRow;
     let end = Math.min(d.itemCount, Math.ceil(indexByScrollTop) * d.itemsPerRow + d.itemsPerRow * (d.itemsPerCol + 1));
 
