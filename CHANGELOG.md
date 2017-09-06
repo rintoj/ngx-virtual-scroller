@@ -1,4 +1,8 @@
 
+# v0.2.2
+
+* Fixes #94
+
 # v0.2.1
 
 * Added ability to get viewPortItems as a field instead of event
