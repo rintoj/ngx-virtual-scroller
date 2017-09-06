@@ -93,6 +93,23 @@ export class AppModule { }
 </virtual-scroll>
 ```
 
+You must also define width and height for the container and for it's children.
+
+```css
+virtual-scroll {
+  display: block;
+  width: 350px;
+  height: 200px;
+}
+
+list-item {
+  display: block;
+  width: 100%;
+  height: 30px;
+}
+
+```
+
 **Step 4:** Create 'list-item' component.
 
 'list-item' must a custom angular2 component, outside of this library. A sample list item is give below or check the [demo app](https://github.com/rintoj/angular2-virtual-scroll/tree/master/demo) for [list-item.component.ts](https://github.com/rintoj/angular2-virtual-scroll/blob/master/demo/src/app/lists/list-item.component.ts).
@@ -203,7 +220,7 @@ If you want to use scrollbar of parent block, instead of scrolling block, set `p
 If you want to use scrollbar of window, instead of scrolling block, set `parentScroll`.
 
 ```html
-<virtual-scroll 
+<virtual-scroll
     #scroll
     [items]="items"
     [parentScroll]="scroll.window">
