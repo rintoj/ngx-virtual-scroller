@@ -1,4 +1,8 @@
 
+# v0.3.0
+
+* Add smooth scroll for `scrollInto` function.
+
 # v0.2.2
 
 * Fixes #94
