@@ -3,7 +3,7 @@ export interface ChangeEvent {
     start?: number;
     end?: number;
 }
-export declare class VirtualScrollComponent implements OnInit, OnChanges {
+export declare class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
     private element;
     items: any[];
     scrollbarWidth: number;
@@ -12,9 +12,10 @@ export declare class VirtualScrollComponent implements OnInit, OnChanges {
     childHeight: number;
     bufferAmount: number;
     private refreshHandler;
-    _parentScroll: Element | Window;
+    private _parentScroll;
     parentScroll: Element | Window;
     update: EventEmitter<any[]>;
+    viewPortItems: any[];
     change: EventEmitter<ChangeEvent>;
     start: EventEmitter<ChangeEvent>;
     end: EventEmitter<ChangeEvent>;
@@ -25,6 +26,7 @@ export declare class VirtualScrollComponent implements OnInit, OnChanges {
     previousStart: number;
     previousEnd: number;
     startupLoop: boolean;
+    window: Window;
     constructor(element: ElementRef);
     onScroll(): void;
     ngOnInit(): void;
