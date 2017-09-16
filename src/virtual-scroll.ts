@@ -6,6 +6,7 @@ import {
   HostListener,
   Input,
   NgModule,
+  NgZone,
   OnChanges,
   OnDestroy,
   OnInit,
@@ -87,6 +88,7 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
       return;
     }
     this.removeParentEventHandlers(this._parentScroll);
+    this.removeParentEventHandlers(this.element.nativeElement);
     this._parentScroll = element;
     this.addParentEventHandlers(this._parentScroll);
   }
@@ -122,20 +124,23 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
   currentTween: any;
   window = window;
 
-  constructor(private element: ElementRef) { }
-
-  @HostListener('scroll')
-  onScroll() {
-    this.refresh();
-  }
+  constructor(private readonly element: ElementRef, private readonly zone: NgZone) {}
 
   ngOnInit() {
     this.scrollbarWidth = 0; // this.element.nativeElement.offsetWidth - this.element.nativeElement.clientWidth;
     this.scrollbarHeight = 0; // this.element.nativeElement.offsetHeight - this.element.nativeElement.clientHeight;
+
+    if (!this.parentScroll) {
+      this.addParentEventHandlers(this.element.nativeElement);
+    }
   }
 
   ngOnDestroy() {
-    this.removeParentEventHandlers(this.parentScroll);
+    if (this.parentScroll) {
+      this.removeParentEventHandlers(this.parentScroll);
+    } else {
+      this.removeParentEventHandlers(this.element.nativeElement);
+    }
   }
 
   ngOnChanges(changes: SimpleChanges) {
@@ -149,7 +154,9 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   refresh() {
-    requestAnimationFrame(() => this.calculateItems());
+    this.zone.runOutsideAngular(() => {
+      requestAnimationFrame(() => this.calculateItems());
+    });
   }
 
   scrollInto(item: any) {
@@ -182,10 +189,12 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
 
   private addParentEventHandlers(parentScroll: Element | Window) {
     if (parentScroll) {
-      parentScroll.addEventListener('scroll', this.refreshHandler);
-      if (parentScroll instanceof Window) {
-        parentScroll.addEventListener('resize', this.refreshHandler);
-      }
+      this.zone.runOutsideAngular(() => {
+        parentScroll.addEventListener('scroll', this.refreshHandler);
+        if (parentScroll instanceof Window) {
+          parentScroll.addEventListener('resize', this.refreshHandler);
+        }
+      });
     }
   }
 
@@ -265,6 +274,7 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   private calculateItems() {
+    NgZone.assertNotInAngularZone();
     let el = this.parentScroll instanceof Window ? document.body : this.parentScroll || this.element.nativeElement;
 
     let d = this.calculateDimensions();
@@ -300,28 +310,31 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
     end = Math.min(items.length, end);
     if (start !== this.previousStart || end !== this.previousEnd) {
 
-      // update the scroll list
-      this.viewPortItems = items.slice(start, end);
-      this.update.emit(this.viewPortItems);
+      this.zone.run(() => {
+        // update the scroll list
+        this.viewPortItems = items.slice(start, end);
+        this.update.emit(this.viewPortItems);
 
-      // emit 'start' event
-      if (start !== this.previousStart && this.startupLoop === false) {
-        this.start.emit({ start, end });
-      }
 
-      // emit 'end' event
-      if (end !== this.previousEnd && this.startupLoop === false) {
-        this.end.emit({ start, end });
-      }
+        // emit 'start' event
+        if (start !== this.previousStart && this.startupLoop === false) {
+          this.start.emit({ start, end });
+        }
 
-      this.previousStart = start;
-      this.previousEnd = end;
+        // emit 'end' event
+        if (end !== this.previousEnd && this.startupLoop === false) {
+          this.end.emit({ start, end });
+        }
 
-      if (this.startupLoop === true) {
-        this.refresh();
-      } else {
-        this.change.emit({ start, end });
-      }
+        this.previousStart = start;
+        this.previousEnd = end;
+
+        if (this.startupLoop === true) {
+          this.refresh();
+        } else {
+          this.change.emit({ start, end });
+        }
+      });
 
     } else if (this.startupLoop === true) {
       this.startupLoop = false;
