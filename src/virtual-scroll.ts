@@ -147,7 +147,7 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   scrollInto(item: any, additionalOffset?: number) {
-    let el: Element = this.parentScroll instanceof Window ? document.body : this.parentScroll || this.element.nativeElement;
+    let el: Element = this.getElement();
     let offsetTop = this.getElementsOffset();
     let index: number = (this.items || []).indexOf(item);
     if (index < 0 || index >= (this.items || []).length) return;
@@ -156,6 +156,13 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
     el.scrollTop = (Math.floor(index / d.itemsPerRow) * d.childHeight)
       - (d.childHeight * Math.min(index, this.bufferAmount)) + offsetTop + (additionalOffset ? additionalOffset : 0);
     this.refresh();
+  }
+
+  private getElement(): Element{
+    if (this.parentScroll instanceof Window) {
+      return document.scrollingElement || document.documentElement;
+    }
+    return this.parentScroll || this.element.nativeElement;
   }
 
   private addParentEventHandlers(parentScroll: Element | Window) {
@@ -189,7 +196,7 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
 
   private getElementsOffset(): number {
     let offsetTop = 0;
-    let scrollElement: Element = this.parentScroll instanceof Window ? document.body : this.parentScroll || this.element.nativeElement;
+    let scrollElement: Element = this.getElement();
 
     if (this.containerElementRef && this.containerElementRef.nativeElement) {
       offsetTop += this.containerElementRef.nativeElement.offsetTop;
@@ -201,7 +208,7 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   private calculateDimensions() {
-    let el: Element = this.parentScroll instanceof Window ? document.body : this.parentScroll || this.element.nativeElement;
+    let el: Element = this.getElement();
     let items = this.items || [];
     let itemCount = items.length;
     let viewWidth = el.clientWidth - this.scrollbarWidth;
@@ -247,7 +254,7 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   private calculateItems() {
-    let el = this.parentScroll instanceof Window ? document.body : this.parentScroll || this.element.nativeElement;
+    let el = this.getElement();
 
     let d = this.calculateDimensions();
     let items = this.items || [];
