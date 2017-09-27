@@ -88,7 +88,6 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
     if (this._parentScroll === element) {
       return;
     }
-    this.removeParentEventHandlers();
     this._parentScroll = element;
     this.addParentEventHandlers(this._parentScroll);
   }
@@ -194,6 +193,7 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   private addParentEventHandlers(parentScroll: Element | Window) {
+    this.removeParentEventHandlers();
     if (parentScroll) {
       this.zone.runOutsideAngular(() => {
         this.disposeScrollHandler =
