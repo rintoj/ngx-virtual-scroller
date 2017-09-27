@@ -11,6 +11,7 @@ import {
   OnDestroy,
   OnInit,
   Output,
+  Renderer2,
   SimpleChanges,
   ViewChild,
 } from '@angular/core';
@@ -124,7 +125,10 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
   currentTween: any;
   window = window;
 
-  constructor(private readonly element: ElementRef, private readonly zone: NgZone) {}
+  constructor(
+      private readonly element: ElementRef,
+      private readonly renderer: Renderer2,
+      private readonly zone: NgZone) {}
 
   ngOnInit() {
     this.scrollbarWidth = 0; // this.element.nativeElement.offsetWidth - this.element.nativeElement.clientWidth;
@@ -181,7 +185,11 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
 
     const animate = (time?) => {
       this.currentTween.update(time);
-      if (this.currentTween._object.scrollTop !== scrollTop) window.requestAnimationFrame(animate);
+      if (this.currentTween._object.scrollTop !== scrollTop) {
+        this.zone.runOutsideAngular(() => {
+          requestAnimationFrame(animate);
+        });
+      }
     }
 
     animate()
@@ -190,9 +198,9 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
   private addParentEventHandlers(parentScroll: Element | Window) {
     if (parentScroll) {
       this.zone.runOutsideAngular(() => {
-        parentScroll.addEventListener('scroll', this.refreshHandler);
+        this.renderer.listen(parentScroll, 'scroll', this.refreshHandler);
         if (parentScroll instanceof Window) {
-          parentScroll.addEventListener('resize', this.refreshHandler);
+          this.renderer.listen('window', 'resize', this.refreshHandler);
         }
       });
     }
