@@ -88,8 +88,7 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
     if (this._parentScroll === element) {
       return;
     }
-    this.removeParentEventHandlers(this._parentScroll);
-    this.removeParentEventHandlers(this.element.nativeElement);
+    this.removeParentEventHandlers();
     this._parentScroll = element;
     this.addParentEventHandlers(this._parentScroll);
   }
@@ -125,6 +124,9 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
   currentTween: any;
   window = window;
 
+  private disposeScrollHandler: () => void | undefined;
+  private disposeResizeHandler: () => void | undefined;
+
   constructor(
       private readonly element: ElementRef,
       private readonly renderer: Renderer2,
@@ -140,11 +142,7 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   ngOnDestroy() {
-    if (this.parentScroll) {
-      this.removeParentEventHandlers(this.parentScroll);
-    } else {
-      this.removeParentEventHandlers(this.element.nativeElement);
-    }
+    this.removeParentEventHandlers();
   }
 
   ngOnChanges(changes: SimpleChanges) {
@@ -178,8 +176,8 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
       .to({ scrollTop }, this.scrollAnimationTime)
       .easing(tween.Easing.Quadratic.Out)
       .onUpdate((data) => {
-        el.scrollTop = data.scrollTop
-        this.refresh()
+        this.renderer.setProperty(el, 'scrollTop', data.scrollTop);
+        this.refresh();
       })
       .start();
 
@@ -198,20 +196,24 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
   private addParentEventHandlers(parentScroll: Element | Window) {
     if (parentScroll) {
       this.zone.runOutsideAngular(() => {
-        this.renderer.listen(parentScroll, 'scroll', this.refreshHandler);
+        this.disposeScrollHandler =
+          this.renderer.listen(parentScroll, 'scroll', this.refreshHandler);
         if (parentScroll instanceof Window) {
-          this.renderer.listen('window', 'resize', this.refreshHandler);
+          this.disposeScrollHandler =
+            this.renderer.listen('window', 'resize', this.refreshHandler);
         }
       });
     }
   }
 
-  private removeParentEventHandlers(parentScroll: Element | Window) {
-    if (parentScroll) {
-      parentScroll.removeEventListener('scroll', this.refreshHandler);
-      if (parentScroll instanceof Window) {
-        parentScroll.removeEventListener('resize', this.refreshHandler);
-      }
+  private removeParentEventHandlers() {
+    if (this.disposeScrollHandler) {
+      this.disposeScrollHandler();
+      this.disposeScrollHandler = undefined;
+    }
+    if (this.disposeResizeHandler) {
+      this.disposeResizeHandler();
+      this.disposeResizeHandler = undefined;
     }
   }
 
