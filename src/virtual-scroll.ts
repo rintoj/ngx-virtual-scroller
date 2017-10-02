@@ -125,6 +125,12 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
   private disposeScrollHandler: () => void | undefined;
   private disposeResizeHandler: () => void | undefined;
 
+  /** Cache of the last scroll height to prevent setting CSS when not needed. */
+  private lastScrollHeight = -1;
+
+  /** Cache of the last top padding to prevent setting CSS when not needed. */
+  private lastTopPadding = -1;
+
   constructor(
       private readonly element: ElementRef,
       private readonly renderer: Renderer2,
@@ -271,6 +277,11 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
       itemsPerRow = itemsPerRowByCalc;
     }
 
+    if (scrollHeight !== this.lastScrollHeight) {
+      this.renderer.setStyle(this.shimElementRef.nativeElement, 'height', `${scrollHeight}px`);
+      this.lastScrollHeight = scrollHeight;
+    }
+
     return {
       itemCount: itemCount,
       viewWidth: viewWidth,
@@ -313,9 +324,11 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
 
     const topPadding = d.childHeight * Math.ceil(start / d.itemsPerRow) - (d.childHeight * Math.min(start, this.bufferAmount));;
 
-    this.renderer.setStyle(this.shimElementRef.nativeElement, 'height', `${d.scrollHeight}px`);
-    this.renderer.setStyle(this.contentElementRef.nativeElement, 'transform', `translateY(${topPadding}px)`);
-    this.renderer.setStyle(this.contentElementRef.nativeElement, 'webkitTransform', `translateY(${topPadding}px)`);
+    if (topPadding !== this.lastTopPadding) {
+      this.renderer.setStyle(this.contentElementRef.nativeElement, 'transform', `translateY(${topPadding}px)`);
+      this.renderer.setStyle(this.contentElementRef.nativeElement, 'webkitTransform', `translateY(${topPadding}px)`);
+      this.lastTopPadding = topPadding;
+    }
 
     start = !isNaN(start) ? start : -1;
     end = !isNaN(end) ? end : -1;
