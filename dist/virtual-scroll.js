@@ -1,12 +1,14 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 var core_1 = require("@angular/core");
+var tween = require("@tweenjs/tween.js");
 var VirtualScrollComponent = (function () {
     function VirtualScrollComponent(element) {
         var _this = this;
         this.element = element;
         this.items = [];
         this.bufferAmount = 0;
+        this.scrollAnimationTime = 1500;
         this.refreshHandler = function () {
             _this.refresh();
         };
@@ -56,15 +58,31 @@ var VirtualScrollComponent = (function () {
         requestAnimationFrame(function () { return _this.calculateItems(); });
     };
     VirtualScrollComponent.prototype.scrollInto = function (item) {
+        var _this = this;
         var el = this.parentScroll instanceof Window ? document.body : this.parentScroll || this.element.nativeElement;
         var offsetTop = this.getElementsOffset();
         var index = (this.items || []).indexOf(item);
         if (index < 0 || index >= (this.items || []).length)
             return;
         var d = this.calculateDimensions();
-        el.scrollTop = (Math.floor(index / d.itemsPerRow) * d.childHeight)
+        var scrollTop = (Math.floor(index / d.itemsPerRow) * d.childHeight)
             - (d.childHeight * Math.min(index, this.bufferAmount));
-        this.refresh();
+        if (this.currentTween != undefined)
+            this.currentTween.stop();
+        this.currentTween = new tween.Tween({ scrollTop: el.scrollTop })
+            .to({ scrollTop: scrollTop }, this.scrollAnimationTime)
+            .easing(tween.Easing.Quadratic.Out)
+            .onUpdate(function (data) {
+            el.scrollTop = data.scrollTop;
+            _this.refresh();
+        })
+            .start();
+        var animate = function (time) {
+            _this.currentTween.update(time);
+            if (_this.currentTween._object.scrollTop !== scrollTop)
+                window.requestAnimationFrame(animate);
+        };
+        animate();
     };
     VirtualScrollComponent.prototype.addParentEventHandlers = function (parentScroll) {
         if (parentScroll) {
@@ -222,6 +240,7 @@ var VirtualScrollComponent = (function () {
         'childWidth': [{ type: core_1.Input },],
         'childHeight': [{ type: core_1.Input },],
         'bufferAmount': [{ type: core_1.Input },],
+        'scrollAnimationTime': [{ type: core_1.Input },],
         'parentScroll': [{ type: core_1.Input },],
         'update': [{ type: core_1.Output },],
         'change': [{ type: core_1.Output },],

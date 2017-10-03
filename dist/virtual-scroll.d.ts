@@ -11,6 +11,7 @@ export declare class VirtualScrollComponent implements OnInit, OnChanges, OnDest
     childWidth: number;
     childHeight: number;
     bufferAmount: number;
+    scrollAnimationTime: number;
     private refreshHandler;
     private _parentScroll;
     parentScroll: Element | Window;
@@ -26,6 +27,7 @@ export declare class VirtualScrollComponent implements OnInit, OnChanges, OnDest
     previousStart: number;
     previousEnd: number;
     startupLoop: boolean;
+    currentTween: any;
     window: Window;
     constructor(element: ElementRef);
     onScroll(): void;

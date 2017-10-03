@@ -14,6 +14,8 @@ import {
   ViewChild,
 } from '@angular/core';
 
+import * as tween from '@tweenjs/tween.js'
+
 export interface ChangeEvent {
   start?: number;
   end?: number;
@@ -72,6 +74,9 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
   @Input()
   bufferAmount: number = 0;
 
+  @Input()
+  scrollAnimationTime: number = 1500;
+
   private refreshHandler = () => {
     this.refresh();
   };
@@ -114,6 +119,7 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
   previousStart: number;
   previousEnd: number;
   startupLoop: boolean = true;
+  currentTween: any;
   window = window;
 
   constructor(private element: ElementRef) { }
@@ -153,9 +159,25 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
     if (index < 0 || index >= (this.items || []).length) return;
 
     let d = this.calculateDimensions();
-    el.scrollTop = (Math.floor(index / d.itemsPerRow) * d.childHeight)
+    let scrollTop = (Math.floor(index / d.itemsPerRow) * d.childHeight)
       - (d.childHeight * Math.min(index, this.bufferAmount));
-    this.refresh();
+
+    if (this.currentTween != undefined) this.currentTween.stop()
+    this.currentTween = new tween.Tween({ scrollTop: el.scrollTop })
+      .to({ scrollTop }, this.scrollAnimationTime)
+      .easing(tween.Easing.Quadratic.Out)
+      .onUpdate((data) => {
+        el.scrollTop = data.scrollTop
+        this.refresh()
+      })
+      .start();
+
+    const animate = (time?) => {
+      this.currentTween.update(time);
+      if (this.currentTween._object.scrollTop !== scrollTop) window.requestAnimationFrame(animate);
+    }
+
+    animate()
   }
 
   private addParentEventHandlers(parentScroll: Element | Window) {
