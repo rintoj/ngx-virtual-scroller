@@ -132,9 +132,9 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
   private lastTopPadding = -1;
 
   constructor(
-      private readonly element: ElementRef,
-      private readonly renderer: Renderer2,
-      private readonly zone: NgZone) {}
+    private readonly element: ElementRef,
+    private readonly renderer: Renderer2,
+    private readonly zone: NgZone) { }
 
   ngOnInit() {
     this.scrollbarWidth = 0; // this.element.nativeElement.offsetWidth - this.element.nativeElement.clientWidth;
@@ -322,7 +322,7 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
     let maxStart = Math.max(0, maxStartEnd - d.itemsPerCol * d.itemsPerRow - d.itemsPerRow);
     let start = Math.min(maxStart, Math.floor(indexByScrollTop) * d.itemsPerRow);
 
-    const topPadding = d.childHeight * Math.ceil(start / d.itemsPerRow) - (d.childHeight * Math.min(start, this.bufferAmount));;
+    const topPadding = (items == null || items.length === 0) ? 0 : (d.childHeight * Math.ceil(start / d.itemsPerRow) - (d.childHeight * Math.min(start, this.bufferAmount)));
 
     if (topPadding !== this.lastTopPadding) {
       this.renderer.setStyle(this.contentElementRef.nativeElement, 'transform', `translateY(${topPadding}px)`);
@@ -342,7 +342,6 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
         // update the scroll list
         this.viewPortItems = items.slice(start, end);
         this.update.emit(this.viewPortItems);
-
 
         // emit 'start' event
         if (start !== this.previousStart && this.startupLoop === false) {
