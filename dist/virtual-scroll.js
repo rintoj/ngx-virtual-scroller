@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 var core_1 = require("@angular/core");
 var $ = require("jquery");
+var throttle = require('lodash.throttle');
 var SCROLL_INTO_ANIM_DURATION = 400;
 var VirtualScrollComponent = (function () {
     function VirtualScrollComponent(element) {
@@ -9,6 +10,7 @@ var VirtualScrollComponent = (function () {
         this.element = element;
         this.items = [];
         this.bufferAmount = 0;
+        this.throttleTime = 170;
         this.refreshHandler = function () {
             _this.refresh();
         };
@@ -17,6 +19,8 @@ var VirtualScrollComponent = (function () {
         this.start = new core_1.EventEmitter();
         this.end = new core_1.EventEmitter();
         this.startupLoop = true;
+        this.refreshThrottled = null;
+        this.refreshThrottled = throttle(this.refresh, this.throttleTime, { trailing: true });
     }
     Object.defineProperty(VirtualScrollComponent.prototype, "parentScroll", {
         get: function () {
@@ -34,7 +38,7 @@ var VirtualScrollComponent = (function () {
         configurable: true
     });
     VirtualScrollComponent.prototype.onScroll = function () {
-        this.refresh();
+        this.refreshThrottled();
     };
     VirtualScrollComponent.prototype.ngOnInit = function () {
         this.scrollbarWidth = 0; // this.element.nativeElement.offsetWidth - this.element.nativeElement.clientWidth;
@@ -263,6 +267,7 @@ var VirtualScrollComponent = (function () {
         'childWidth': [{ type: core_1.Input },],
         'childHeight': [{ type: core_1.Input },],
         'bufferAmount': [{ type: core_1.Input },],
+        'throttleTime': [{ type: core_1.Input },],
         'parentScroll': [{ type: core_1.Input },],
         'update': [{ type: core_1.Output },],
         'change': [{ type: core_1.Output },],

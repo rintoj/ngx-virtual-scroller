@@ -50,5 +50,8 @@
     "tslint": "^5.5.0",
     "typescript": "2.4.1",
     "zone.js": "^0.8.13"
+  },
+  "dependencies": {
+    "lodash.throttle": "^4.1.1"
   }
 }

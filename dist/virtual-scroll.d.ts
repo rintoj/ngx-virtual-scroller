@@ -11,6 +11,7 @@ export declare class VirtualScrollComponent implements OnInit, OnChanges, OnDest
     childWidth: number;
     childHeight: number;
     bufferAmount: number;
+    throttleTime: number;
     private refreshHandler;
     _parentScroll: Element | Window;
     parentScroll: Element | Window;
@@ -25,6 +26,7 @@ export declare class VirtualScrollComponent implements OnInit, OnChanges, OnDest
     previousStart: number;
     previousEnd: number;
     startupLoop: boolean;
+    refreshThrottled: any;
     constructor(element: ElementRef);
     onScroll(): void;
     ngOnInit(): void;

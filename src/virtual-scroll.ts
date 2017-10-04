@@ -15,7 +15,7 @@ import {
 } from '@angular/core';
 
 import * as $ from 'jquery';
-
+var throttle = require('lodash.throttle');
 export interface ChangeEvent {
   start?: number;
   end?: number;
@@ -76,6 +76,9 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
   @Input()
   bufferAmount: number = 0;
 
+  @Input()
+  throttleTime: number = 170;
+
   private refreshHandler = () => {
     this.refresh();
   };
@@ -117,12 +120,15 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
   previousStart: number;
   previousEnd: number;
   startupLoop: boolean = true;
+  refreshThrottled = null;
 
-  constructor(private element: ElementRef) { }
+  constructor(private element: ElementRef) {
+    this.refreshThrottled = throttle(this.refresh, this.throttleTime, {trailing:true});
+  }
 
   @HostListener('scroll')
   onScroll() {
-    this.refresh();
+    this.refreshThrottled();
   }
 
   ngOnInit() {
