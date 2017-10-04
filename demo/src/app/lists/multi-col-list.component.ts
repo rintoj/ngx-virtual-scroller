@@ -1,6 +1,7 @@
-import { Component, Input, OnChanges } from '@angular/core';
+import { Component, Input, OnChanges, ViewChild } from '@angular/core';
 
 import { ListItem } from './list-item.component';
+import { VirtualScrollComponent } from 'angular2-virtual-scroll';
 
 @Component({
   selector: 'multi-col-list',
@@ -11,6 +12,7 @@ import { ListItem } from './list-item.component';
     <button (click)="reduceListToEmpty()">Reduce to 0 Items</button>
     <button (click)="reduceList()">Reduce to 100 Items</button>
     <button (click)="setToFullList()">Revert to 1000 Items</button>
+    <button (click)="scrollTo()">Scroll to 50</button>
 
     <div class="status">
         Showing <span class="badge">{{indices?.start + 1}}</span>
@@ -35,9 +37,14 @@ export class MultiColListComponent implements OnChanges {
   @Input()
   items: ListItem[];
 
+  scrollItems: ListItem[];
+
   indices: any;
 
   filteredList: ListItem[];
+
+  @ViewChild(VirtualScrollComponent)
+  virtualScroll: VirtualScrollComponent;
 
   reduceListToEmpty() {
     this.filteredList = [];
@@ -57,6 +64,10 @@ export class MultiColListComponent implements OnChanges {
 
   setToFullList() {
     this.filteredList = (this.items || []).slice();
+  }
+
+  scrollTo() {
+    this.virtualScroll.scrollInto(this.items[50]);
   }
 
   ngOnChanges() {

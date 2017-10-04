@@ -1,4 +1,4 @@
-import { ChangeEvent } from '../../../../src/virtual-scroll';
+import { ChangeEvent } from 'angular2-virtual-scroll';
 import { Component } from '@angular/core';
 import { Input } from '@angular/core';
 import { ListItem } from './list-item.component';
@@ -24,29 +24,30 @@ import { SimpleChanges } from '@angular/core';
       <div *ngIf="loading" class="loader">Loading...</div>
 
     </virtual-scroll>
-    `,
+  `,
   styleUrls: ['./list-with-api.scss']
 })
 export class ListWithApiComponent implements OnChanges {
 
   @Input()
   items: ListItem[];
+  scrollItems: ListItem[];
 
-  protected indices: ChangeEvent;
-  protected buffer: ListItem[] = [];
-  protected readonly bufferSize: number = 10;
-  protected timer;
-  protected loading: boolean;
+  indices: ChangeEvent;
+  buffer: ListItem[] = [];
+  readonly bufferSize: number = 10;
+  timer;
+  loading: boolean;
 
   ngOnChanges(changes: SimpleChanges) {
     this.reset();
   }
 
-  protected reset() {
+  reset() {
     this.fetchNextChunk(0, this.bufferSize, {}).then(chunk => this.buffer = chunk);
   }
 
-  protected fetchMore(event: ChangeEvent) {
+  fetchMore(event: ChangeEvent) {
     this.indices = event;
     if (event.end === this.buffer.length) {
       this.loading = true;
@@ -57,7 +58,7 @@ export class ListWithApiComponent implements OnChanges {
     }
   }
 
-  protected fetchNextChunk(skip: number, limit: number, event?: any): Promise<ListItem[]> {
+  fetchNextChunk(skip: number, limit: number, event?: any): Promise<ListItem[]> {
     return new Promise((resolve, reject) => {
       clearTimeout(this.timer);
       this.timer = setTimeout(() => {
