@@ -202,7 +202,7 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
       offsetTop += this.containerElementRef.nativeElement.offsetTop;
     }
     if (this.parentScroll) {
-      offsetTop += this.element.nativeElement.getBoundingClientRect().top + scrollElement.scrollTop;
+      offsetTop += this.element.nativeElement.getBoundingClientRect().top - scrollElement.getBoundingClientRect().top + scrollElement.scrollTop;
     }
     return offsetTop;
   }
