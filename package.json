@@ -49,5 +49,8 @@
     "tslint": "^5.5.0",
     "typescript": "2.4.1",
     "zone.js": "^0.8.13"
+  },
+  "dependencies": {
+    "@tweenjs/tween.js": "^17.1.0"
   }
 }

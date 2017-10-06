@@ -1,7 +1,14 @@
+# v0.3.2
+
+* Added ability to use virtual scroll with different heights of elements
 
 # v0.3.1
 
-* Added ability to use virtual scroll with different heights of elements
+* Merge PR [!117](https://github.com/rintoj/angular2-virtual-scroll/pull/117) - Run scroll and frame handlers outside of angular zone for performance
+
+# v0.3.0
+
+* Add smooth scroll for `scrollInto` function.
 
 # v0.2.2
 

@@ -27,10 +27,10 @@ import { ViewEncapsulation } from '@angular/core';
 })
 export class AppComponent implements OnInit {
 
-  protected items: ListItem[];
+  items: ListItem[];
 
-  protected readonly codeListWithApi = `
-        import { ChangeEvent } from '@angular2-virtual-scroll';
+  readonly codeListWithApi = `
+        import { ChangeEvent } from 'angular2-virtual-scroll';
         ...
 
         @Component({
@@ -50,10 +50,10 @@ export class AppComponent implements OnInit {
             @Input()
             items: ListItem[];
 
-            protected buffer: ListItem[] = [];
-            protected loading: boolean;
+            buffer: ListItem[] = [];
+            loading: boolean;
 
-            protected onListChange(event: ChangeEvent) {
+            onListChange(event: ChangeEvent) {
                 if (event.end !== this.buffer.length) return;
                 this.loading = true;
                 this.fetchNextChunk(this.buffer.length, 10).then(chunk => {
@@ -62,7 +62,7 @@ export class AppComponent implements OnInit {
                 }, () => this.loading = false);
             }
 
-            protected fetchNextChunk(skip: number, limit: number): Promise<ListItem[]> {
+            fetchNextChunk(skip: number, limit: number): Promise<ListItem[]> {
                 return new Promise((resolve, reject) => {
                     ....
                 });
