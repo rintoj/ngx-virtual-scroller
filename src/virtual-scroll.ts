@@ -189,7 +189,7 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
     if (this.currentTween != undefined) this.currentTween.stop();
     let scrollObj = {scrollTop: el.scrollTop};
 
-    this.currentTween = new tween.Tween(scrollObj)
+    let currentTween = new tween.Tween(scrollObj)
       .to({scrollTop}, this.scrollAnimationTime)
       .easing(tween.Easing.Quadratic.Out)
       .onUpdate((data) => {
@@ -199,7 +199,7 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
       .start();
 
     const animate = (time?: number) => {
-      this.currentTween.update(time);
+      currentTween.update(time);
       if (scrollObj.scrollTop !== scrollTop) {
         this.zone.runOutsideAngular(() => {
           requestAnimationFrame(animate);
@@ -208,6 +208,7 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
     };
 
     animate();
+    this.currentTween = currentTween;
   }
 
   private getElement(): Element {
