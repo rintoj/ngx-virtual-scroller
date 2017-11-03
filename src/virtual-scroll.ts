@@ -390,7 +390,7 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
       this.topPadding = 0;
       this.previousStart = 0;
     } else {
-      if (this.previousChildHeight && this.previousScrollNumberElements) {
+      if (this.previousChildHeight && this.previousScrollNumberElements && childrenContent[this.previousScrollNumberElements - 1]) {
         this.topPadding -= childrenContent[this.previousScrollNumberElements - 1].getBoundingClientRect().bottom - childrenContent[0].getBoundingClientRect().top - this.previousChildHeight;
         this.previousChildHeight = 0;
         this.previousScrollNumberElements = 0;
