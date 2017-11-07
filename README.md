@@ -350,6 +350,7 @@ export class ListComponent {
 
     // call this function whenever you have to focus on second item
     focusOnAnItem() {
+        this.virtualScroll.items = this.items;
         this.virtualScroll.scrollInto(items[1]);
     }
 }
