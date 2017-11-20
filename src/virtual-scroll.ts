@@ -116,7 +116,7 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
   @ViewChild('shim', {read: ElementRef})
   shimElementRef: ElementRef;
 
-  @ContentChild('container')
+  @ContentChild('container', {read: ElementRef})
   containerElementRef: ElementRef;
 
   topPadding: number = 0;
@@ -415,9 +415,10 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
       this.lastTopPadding = this.topPadding;
     }
     if (start !== this.previousStart || end !== this.previousEnd) {
-      this.previousStart = start;
-      this.previousEnd = end;
       this.zone.run(() => {
+        this.previousStart = start;
+        this.previousEnd = end;
+
         // update the scroll list
         this.viewPortItems = items.slice(start, end);
         this.update.emit(this.viewPortItems);
