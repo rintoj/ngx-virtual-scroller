@@ -78,6 +78,9 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
   @Input()
   scrollAnimationTime: number = 1500;
 
+  @Input()
+  doNotCheckAngularZone: boolean = false;
+
   private refreshHandler = () => {
     this.refresh();
   };
@@ -296,7 +299,10 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   private calculateItems() {
-    NgZone.assertNotInAngularZone();
+    // sometimes in IE 11 this throw exception even it was run in runOutsideAngular function
+    if (!this.doNotCheckAngularZone) {
+      NgZone.assertNotInAngularZone();
+    }
     let el = this.parentScroll instanceof Window ? document.body : this.parentScroll || this.element.nativeElement;
 
     let d = this.calculateDimensions();
