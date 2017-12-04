@@ -143,12 +143,9 @@ var VirtualScrollComponent = (function () {
         var items = this.items || [];
         var itemCount = items.length;
         var paddingHorizontal = 0, paddingVertical = 0;
-        /* If padding area should be considered when calculate view width and view height */
+        /* If scrollable content padding area should be considered when calculate view width and view height */
         if (this.shouldConsiderPadding) {
-            var nodeList = Array.from(el.children);
-            var scrollableContent = nodeList.filter(function (node) {
-                return node.className == "scrollable-content";
-            })[0];
+            var scrollableContent = el.getElementsByClassName("scrollable-content")[0];
             var styles = window.getComputedStyle(scrollableContent);
             paddingHorizontal =
                 parseFloat(styles.paddingLeft) +
