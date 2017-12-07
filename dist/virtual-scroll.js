@@ -142,8 +142,20 @@ var VirtualScrollComponent = (function () {
         var el = this.parentScroll instanceof Window ? document.body : this.parentScroll || this.element.nativeElement;
         var items = this.items || [];
         var itemCount = items.length;
-        var viewWidth = el.clientWidth - this.scrollbarWidth;
-        var viewHeight = el.clientHeight - this.scrollbarHeight;
+        var paddingHorizontal = 0, paddingVertical = 0;
+        /* If scrollable content padding area should be considered when calculate view width and view height */
+        if (this.shouldConsiderPadding) {
+            var scrollableContent = el.getElementsByClassName("scrollable-content")[0];
+            var styles = window.getComputedStyle(scrollableContent);
+            paddingHorizontal =
+                parseFloat(styles.paddingLeft) +
+                    parseFloat(styles.paddingRight);
+            paddingVertical =
+                parseFloat(styles.paddingTop) +
+                    parseFloat(styles.paddingBottom);
+        }
+        var viewWidth = el.clientWidth - this.scrollbarWidth - (paddingHorizontal);
+        var viewHeight = el.clientHeight - this.scrollbarHeight - (paddingVertical);
         var contentDimensions;
         if (this.childWidth == undefined || this.childHeight == undefined) {
             var content = this.contentElementRef.nativeElement;
@@ -272,6 +284,7 @@ var VirtualScrollComponent = (function () {
         'childHeight': [{ type: core_1.Input },],
         'bufferAmount': [{ type: core_1.Input },],
         'scrollAnimationTime': [{ type: core_1.Input },],
+        'shouldConsiderPadding': [{ type: core_1.Input },],
         'parentScroll': [{ type: core_1.Input },],
         'update': [{ type: core_1.Output },],
         'change': [{ type: core_1.Output },],

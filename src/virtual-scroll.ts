@@ -78,6 +78,9 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
   @Input()
   scrollAnimationTime: number = 1500;
 
+  @Input()
+  shouldConsiderPadding: boolean;
+
   private refreshHandler = () => {
     this.refresh();
   };
@@ -248,8 +251,20 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
     let el: Element = this.parentScroll instanceof Window ? document.body : this.parentScroll || this.element.nativeElement;
     let items = this.items || [];
     let itemCount = items.length;
-    let viewWidth = el.clientWidth - this.scrollbarWidth;
-    let viewHeight = el.clientHeight - this.scrollbarHeight;
+    let paddingHorizontal = 0, paddingVertical = 0;
+    /* If scrollable content padding area should be considered when calculate view width and view height */
+    if (this.shouldConsiderPadding) {
+      let scrollableContent = el.getElementsByClassName("scrollable-content")[0];
+      let styles = window.getComputedStyle(scrollableContent);
+      paddingHorizontal =
+          parseFloat(styles.paddingLeft) +
+          parseFloat(styles.paddingRight);
+      paddingVertical =
+          parseFloat(styles.paddingTop) +
+          parseFloat(styles.paddingBottom);
+    }
+    let viewWidth = el.clientWidth - this.scrollbarWidth - (paddingHorizontal);
+    let viewHeight = el.clientHeight - this.scrollbarHeight - (paddingVertical);
 
     let contentDimensions;
     if (this.childWidth == undefined || this.childHeight == undefined) {
