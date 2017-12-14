@@ -176,6 +176,14 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
       - (d.childHeight * Math.min(index, this.bufferAmount));
 
     if (this.currentTween != undefined) this.currentTween.stop()
+	
+    // totally disable animate
+    if(!this.scrollAnimationTime){
+        el.scrollTop = scrollTop;
+        return;
+    }  
+	  
+	  
     this.currentTween = new tween.Tween({ scrollTop: el.scrollTop })
       .to({ scrollTop }, this.scrollAnimationTime)
       .easing(tween.Easing.Quadratic.Out)
