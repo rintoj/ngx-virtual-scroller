@@ -180,6 +180,9 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
       .to({ scrollTop }, this.scrollAnimationTime)
       .easing(tween.Easing.Quadratic.Out)
       .onUpdate((data) => {
+        if (isNaN(data.scrollTop)) {
+          return;
+        }
         this.renderer.setProperty(el, 'scrollTop', data.scrollTop);
         this.refresh();
       })

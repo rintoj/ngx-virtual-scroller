@@ -79,6 +79,9 @@ var VirtualScrollComponent = (function () {
             .to({ scrollTop: scrollTop }, this.scrollAnimationTime)
             .easing(tween.Easing.Quadratic.Out)
             .onUpdate(function (data) {
+            if (isNaN(data.scrollTop)) {
+                return;
+            }
             _this.renderer.setProperty(el, 'scrollTop', data.scrollTop);
             _this.refresh();
         })
