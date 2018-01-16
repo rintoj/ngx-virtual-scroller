@@ -1,7 +1,7 @@
 {
-  "name": "angular2-virtual-scroll",
-  "version": "0.3.1",
-  "description": "Angular 2 module for virtual -infinite- list. Supports multi-column",
+  "name": "angular2-virtual-scroll-plus",
+  "version": "0.3.2",
+  "description": "Angular 2 module for virtual -infinite- list. Supports multi-column. Allow sync scrollTop multiple VirtualScroll",
   "main": "dist/virtual-scroll.js",
   "types": "dist/virtual-scroll.d.ts",
   "scripts": {
@@ -17,19 +17,19 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/rintoj/angular2-virtual-scroll.git"
+    "url": "git+https://github.com/phattranky/angular2-virtual-scroll.git"
   },
   "keywords": [
     "virtual scroll",
     "scroll",
     "angular 2"
   ],
-  "author": "Rinto Jose",
+  "author": "Rinto Jose, Phat Tran",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/rintoj/angular2-virtual-scroll/issues"
+    "url": "https://github.com/phattranky/angular2-virtual-scroll/issues"
   },
-  "homepage": "https://github.com/rintoj/angular2-virtual-scroll#readme",
+  "homepage": "https://github.com/phattranky/angular2-virtual-scroll#readme",
   "devDependencies": {
     "@angular/cli": "^1.3.0",
     "@angular/common": "^4.3.0",
