@@ -21,6 +21,7 @@ import * as tween from '@tweenjs/tween.js'
 export interface ChangeEvent {
   start?: number;
   end?: number;
+  scrollTop?: number;
 }
 
 @Component({
@@ -33,7 +34,7 @@ export interface ChangeEvent {
     </div>
   `,
   host: {
-    '[style.overflow-y]': "parentScroll ? 'hidden' : 'auto'"
+    '[style.overflow-y]': "hiddenScroll || parentScroll ? 'hidden' : 'auto'"
   },
   styles: [`
     :host {
@@ -74,6 +75,12 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
 
   @Input()
   bufferAmount: number = 0;
+
+  @Input()
+  hiddenScroll: boolean = false;
+
+  @Input()
+  disableAnimation: boolean = false;
 
   @Input()
   scrollAnimationTime: number = 1500;
@@ -175,26 +182,36 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
     let scrollTop = (Math.floor(index / d.itemsPerRow) * d.childHeight)
       - (d.childHeight * Math.min(index, this.bufferAmount));
 
+    this.scrollTop(scrollTop);
+  }
+
+  scrollTop(scrollTop: number) {
+    let el: Element = this.parentScroll instanceof Window ? document.body : this.parentScroll || this.element.nativeElement;
     if (this.currentTween != undefined) this.currentTween.stop()
-    this.currentTween = new tween.Tween({ scrollTop: el.scrollTop })
-      .to({ scrollTop }, this.scrollAnimationTime)
-      .easing(tween.Easing.Quadratic.Out)
-      .onUpdate((data) => {
-        this.renderer.setProperty(el, 'scrollTop', data.scrollTop);
-        this.refresh();
-      })
-      .start();
 
-    const animate = (time?) => {
-      this.currentTween.update(time);
-      if (this.currentTween._object.scrollTop !== scrollTop) {
-        this.zone.runOutsideAngular(() => {
-          requestAnimationFrame(animate);
-        });
+    if (this.disableAnimation) {
+      this.renderer.setProperty(el, 'scrollTop', scrollTop);
+    } else {
+      this.currentTween = new tween.Tween({ scrollTop: el.scrollTop })
+        .to({ scrollTop }, this.scrollAnimationTime)
+        .easing(tween.Easing.Quadratic.Out)
+        .onUpdate((data) => {
+          this.renderer.setProperty(el, 'scrollTop', data.scrollTop);
+          this.refresh();
+        })
+        .start();
+
+      const animate = (time?) => {
+        this.currentTween.update(time);
+        if (this.currentTween._object.scrollTop !== scrollTop) {
+          this.zone.runOutsideAngular(() => {
+            requestAnimationFrame(animate);
+          });
+        }
       }
-    }
 
-    animate()
+      animate()
+    }
   }
 
   private addParentEventHandlers(parentScroll: Element | Window) {
@@ -345,12 +362,12 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
 
         // emit 'start' event
         if (start !== this.previousStart && this.startupLoop === false) {
-          this.start.emit({ start, end });
+          this.start.emit({ start, end, scrollTop });
         }
 
         // emit 'end' event
         if (end !== this.previousEnd && this.startupLoop === false) {
-          this.end.emit({ start, end });
+          this.end.emit({ start, end, scrollTop });
         }
 
         this.previousStart = start;
@@ -359,7 +376,7 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
         if (this.startupLoop === true) {
           this.refresh();
         } else {
-          this.change.emit({ start, end });
+          this.change.emit({ start, end, scrollTop });
         }
       });
 
