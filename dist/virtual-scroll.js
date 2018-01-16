@@ -10,6 +10,8 @@ var VirtualScrollComponent = (function () {
         this.zone = zone;
         this.items = [];
         this.bufferAmount = 0;
+        this.hiddenScroll = false;
+        this.disableAnimation = false;
         this.scrollAnimationTime = 1500;
         this.refreshHandler = function () {
             _this.refresh();
@@ -64,7 +66,6 @@ var VirtualScrollComponent = (function () {
         });
     };
     VirtualScrollComponent.prototype.scrollInto = function (item) {
-        var _this = this;
         var el = this.parentScroll instanceof Window ? document.body : this.parentScroll || this.element.nativeElement;
         var offsetTop = this.getElementsOffset();
         var index = (this.items || []).indexOf(item);
@@ -73,25 +74,35 @@ var VirtualScrollComponent = (function () {
         var d = this.calculateDimensions();
         var scrollTop = (Math.floor(index / d.itemsPerRow) * d.childHeight)
             - (d.childHeight * Math.min(index, this.bufferAmount));
+        this.scrollTop(scrollTop);
+    };
+    VirtualScrollComponent.prototype.scrollTop = function (scrollTop) {
+        var _this = this;
+        var el = this.parentScroll instanceof Window ? document.body : this.parentScroll || this.element.nativeElement;
         if (this.currentTween != undefined)
             this.currentTween.stop();
-        this.currentTween = new tween.Tween({ scrollTop: el.scrollTop })
-            .to({ scrollTop: scrollTop }, this.scrollAnimationTime)
-            .easing(tween.Easing.Quadratic.Out)
-            .onUpdate(function (data) {
-            _this.renderer.setProperty(el, 'scrollTop', data.scrollTop);
-            _this.refresh();
-        })
-            .start();
-        var animate = function (time) {
-            _this.currentTween.update(time);
-            if (_this.currentTween._object.scrollTop !== scrollTop) {
-                _this.zone.runOutsideAngular(function () {
-                    requestAnimationFrame(animate);
-                });
-            }
-        };
-        animate();
+        if (this.disableAnimation) {
+            this.renderer.setProperty(el, 'scrollTop', scrollTop);
+        }
+        else {
+            this.currentTween = new tween.Tween({ scrollTop: el.scrollTop })
+                .to({ scrollTop: scrollTop }, this.scrollAnimationTime)
+                .easing(tween.Easing.Quadratic.Out)
+                .onUpdate(function (data) {
+                _this.renderer.setProperty(el, 'scrollTop', data.scrollTop);
+                _this.refresh();
+            })
+                .start();
+            var animate_1 = function (time) {
+                _this.currentTween.update(time);
+                if (_this.currentTween._object.scrollTop !== scrollTop) {
+                    _this.zone.runOutsideAngular(function () {
+                        requestAnimationFrame(animate_1);
+                    });
+                }
+            };
+            animate_1();
+        }
     };
     VirtualScrollComponent.prototype.addParentEventHandlers = function (parentScroll) {
         var _this = this;
@@ -226,11 +237,11 @@ var VirtualScrollComponent = (function () {
                 _this.update.emit(_this.viewPortItems);
                 // emit 'start' event
                 if (start !== _this.previousStart && _this.startupLoop === false) {
-                    _this.start.emit({ start: start, end: end });
+                    _this.start.emit({ start: start, end: end, scrollTop: scrollTop });
                 }
                 // emit 'end' event
                 if (end !== _this.previousEnd && _this.startupLoop === false) {
-                    _this.end.emit({ start: start, end: end });
+                    _this.end.emit({ start: start, end: end, scrollTop: scrollTop });
                 }
                 _this.previousStart = start;
                 _this.previousEnd = end;
@@ -238,7 +249,7 @@ var VirtualScrollComponent = (function () {
                     _this.refresh();
                 }
                 else {
-                    _this.change.emit({ start: start, end: end });
+                    _this.change.emit({ start: start, end: end, scrollTop: scrollTop });
                 }
             });
         }
@@ -253,7 +264,7 @@ var VirtualScrollComponent = (function () {
                     exportAs: 'virtualScroll',
                     template: "\n    <div class=\"total-padding\" #shim></div>\n    <div class=\"scrollable-content\" #content>\n      <ng-content></ng-content>\n    </div>\n  ",
                     host: {
-                        '[style.overflow-y]': "parentScroll ? 'hidden' : 'auto'"
+                        '[style.overflow-y]': "hiddenScroll || parentScroll ? 'hidden' : 'auto'"
                     },
                     styles: ["\n    :host {\n      overflow: hidden;\n      position: relative;\n\t  display: block;\n      -webkit-overflow-scrolling: touch;\n    }\n    .scrollable-content {\n      top: 0;\n      left: 0;\n      width: 100%;\n      height: 100%;\n      position: absolute;\n    }\n    .total-padding {\n      width: 1px;\n      opacity: 0;\n    }\n  "]
                 },] },
@@ -271,6 +282,8 @@ var VirtualScrollComponent = (function () {
         'childWidth': [{ type: core_1.Input },],
         'childHeight': [{ type: core_1.Input },],
         'bufferAmount': [{ type: core_1.Input },],
+        'hiddenScroll': [{ type: core_1.Input },],
+        'disableAnimation': [{ type: core_1.Input },],
         'scrollAnimationTime': [{ type: core_1.Input },],
         'parentScroll': [{ type: core_1.Input },],
         'update': [{ type: core_1.Output },],

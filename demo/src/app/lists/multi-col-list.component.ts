@@ -13,6 +13,7 @@ import { VirtualScrollComponent } from 'angular2-virtual-scroll';
     <button (click)="reduceList()">Reduce to 100 Items</button>
     <button (click)="setToFullList()">Revert to 1000 Items</button>
     <button (click)="scrollTo()">Scroll to 50</button>
+    <button (click)="scrollTop()">Scroll top 3500</button>
 
     <div class="status">
         Showing <span class="badge">{{indices?.start + 1}}</span>
@@ -24,7 +25,7 @@ import { VirtualScrollComponent } from 'angular2-virtual-scroll';
     <div virtualScroll
       [items]="filteredList"
       (update)="scrollItems = $event"
-      (change)="indices = $event">
+      (change)="handleChange($event)">
 
       <list-item *ngFor="let item of scrollItems" [item]="item"> </list-item>
 
@@ -70,7 +71,15 @@ export class MultiColListComponent implements OnChanges {
     this.virtualScroll.scrollInto(this.items[50]);
   }
 
+  scrollTop() {
+    this.virtualScroll.scrollTop(3500);
+  }
+
   ngOnChanges() {
     this.setToFullList();
+  }
+
+  handleChange($event: any) {
+    this.indices = $event;
   }
 }

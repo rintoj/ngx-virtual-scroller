@@ -2,6 +2,7 @@ import { ElementRef, EventEmitter, NgZone, OnChanges, OnDestroy, OnInit, Rendere
 export interface ChangeEvent {
     start?: number;
     end?: number;
+    scrollTop?: number;
 }
 export declare class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
     private readonly element;
@@ -13,6 +14,8 @@ export declare class VirtualScrollComponent implements OnInit, OnChanges, OnDest
     childWidth: number;
     childHeight: number;
     bufferAmount: number;
+    hiddenScroll: boolean;
+    disableAnimation: boolean;
     scrollAnimationTime: number;
     private refreshHandler;
     private _parentScroll;
@@ -41,6 +44,7 @@ export declare class VirtualScrollComponent implements OnInit, OnChanges, OnDest
     ngOnChanges(changes: SimpleChanges): void;
     refresh(): void;
     scrollInto(item: any): void;
+    scrollTop(scrollTop: number): void;
     private addParentEventHandlers(parentScroll);
     private removeParentEventHandlers();
     private countItemsPerRow();
