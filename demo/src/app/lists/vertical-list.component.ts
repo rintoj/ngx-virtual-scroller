@@ -33,6 +33,7 @@ export class VerticalListComponent implements OnChanges {
 
   @Input()
   items: ListItem[];
+  scrollItems: ListItem[];
   indices: any;
 
   filteredList: ListItem[];
