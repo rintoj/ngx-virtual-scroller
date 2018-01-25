@@ -74,21 +74,28 @@ var VirtualScrollComponent = (function () {
         var d = this.calculateDimensions();
         var scrollTop = (Math.floor(index / d.itemsPerRow) * d.childHeight)
             - (d.childHeight * Math.min(index, this.bufferAmount));
+        var animationRequest;
         if (this.currentTween != undefined)
             this.currentTween.stop();
         this.currentTween = new tween.Tween({ scrollTop: el.scrollTop })
             .to({ scrollTop: scrollTop }, this.scrollAnimationTime)
             .easing(tween.Easing.Quadratic.Out)
             .onUpdate(function (data) {
+            if (isNaN(data.scrollTop)) {
+                return;
+            }
             _this.renderer.setProperty(el, 'scrollTop', data.scrollTop);
             _this.refresh();
+        })
+            .onStop(function () {
+            cancelAnimationFrame(animationRequest);
         })
             .start();
         var animate = function (time) {
             _this.currentTween.update(time);
             if (_this.currentTween._object.scrollTop !== scrollTop) {
                 _this.zone.runOutsideAngular(function () {
-                    requestAnimationFrame(animate);
+                    animationRequest = requestAnimationFrame(animate);
                 });
             }
         };
