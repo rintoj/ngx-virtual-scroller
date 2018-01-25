@@ -159,9 +159,9 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
     this.refresh();
   }
 
-  refresh() {
+  refresh(forceViewportUpdate: boolean = false) {
     this.zone.runOutsideAngular(() => {
-      requestAnimationFrame(() => this.calculateItems());
+      requestAnimationFrame(() => this.calculateItems(forceViewportUpdate));
     });
   }
 
@@ -295,7 +295,7 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
     };
   }
 
-  private calculateItems() {
+  private calculateItems(forceViewportUpdate: boolean = false) {
     NgZone.assertNotInAngularZone();
     let el = this.parentScroll instanceof Window ? document.body : this.parentScroll || this.element.nativeElement;
 
@@ -336,7 +336,7 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
     start = Math.max(0, start);
     end += this.bufferAmount;
     end = Math.min(items.length, end);
-    if (start !== this.previousStart || end !== this.previousEnd) {
+    if (start !== this.previousStart || end !== this.previousEnd || forceViewportUpdate === true) {
 
       this.zone.run(() => {
         // update the scroll list

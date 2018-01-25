@@ -39,14 +39,14 @@ export declare class VirtualScrollComponent implements OnInit, OnChanges, OnDest
     ngOnInit(): void;
     ngOnDestroy(): void;
     ngOnChanges(changes: SimpleChanges): void;
-    refresh(): void;
+    refresh(forceViewportUpdate?: boolean): void;
     scrollInto(item: any): void;
     private addParentEventHandlers(parentScroll);
     private removeParentEventHandlers();
     private countItemsPerRow();
     private getElementsOffset();
     private calculateDimensions();
-    private calculateItems();
+    private calculateItems(forceViewportUpdate?);
 }
 export declare class VirtualScrollModule {
 }
