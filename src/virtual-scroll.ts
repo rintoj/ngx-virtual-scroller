@@ -340,7 +340,8 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
 
       this.zone.run(() => {
         // update the scroll list
-        this.viewPortItems = items.slice(start, end);
+        let _end = end >= 0 ? end : 0; // To prevent from accidentally selecting the entire array with a negative 1 (-1) in the end position. 
+        this.viewPortItems = items.slice(start, _end);
         this.update.emit(this.viewPortItems);
 
         // emit 'start' event
