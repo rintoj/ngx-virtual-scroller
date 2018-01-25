@@ -162,9 +162,9 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
     this.refresh();
   }
 
-  refresh() {
+  refresh(forceViewportUpdate: boolean = false) {
     this.zone.runOutsideAngular(() => {
-      requestAnimationFrame(() => this.calculateItems());
+      requestAnimationFrame(() => this.calculateItems(forceViewportUpdate));
     });
   }
 
@@ -178,13 +178,29 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
     let scrollTop = (Math.floor(index / d.itemsPerRow) * d.childHeight)
       - (d.childHeight * Math.min(index, this.bufferAmount));
 
+    let animationRequest;
+
     if (this.currentTween != undefined) this.currentTween.stop()
+	
+    // totally disable animate
+    if(!this.scrollAnimationTime){
+        el.scrollTop = scrollTop;
+        return;
+    }  
+	  
+	  
     this.currentTween = new tween.Tween({ scrollTop: el.scrollTop })
       .to({ scrollTop }, this.scrollAnimationTime)
       .easing(tween.Easing.Quadratic.Out)
       .onUpdate((data) => {
+        if (isNaN(data.scrollTop)) {
+          return;
+        }
         this.renderer.setProperty(el, 'scrollTop', data.scrollTop);
         this.refresh();
+      })
+      .onStop(() => {
+        cancelAnimationFrame(animationRequest);
       })
       .start();
 
@@ -192,7 +208,7 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
       this.currentTween.update(time);
       if (this.currentTween._object.scrollTop !== scrollTop) {
         this.zone.runOutsideAngular(() => {
-          requestAnimationFrame(animate);
+            animationRequest = requestAnimationFrame(animate);
         });
       }
     }
@@ -298,8 +314,7 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
     };
   }
 
-  private calculateItems() {
-    // sometimes in IE 11 this throw exception even it was run in runOutsideAngular function
+  private calculateItems(forceViewportUpdate: boolean = false) {
     if (!this.doNotCheckAngularZone) {
       NgZone.assertNotInAngularZone();
     }
@@ -342,11 +357,12 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
     start = Math.max(0, start);
     end += this.bufferAmount;
     end = Math.min(items.length, end);
-    if (start !== this.previousStart || end !== this.previousEnd) {
+    if (start !== this.previousStart || end !== this.previousEnd || forceViewportUpdate === true) {
 
       this.zone.run(() => {
         // update the scroll list
-        this.viewPortItems = items.slice(start, end);
+        let _end = end >= 0 ? end : 0; // To prevent from accidentally selecting the entire array with a negative 1 (-1) in the end position. 
+        this.viewPortItems = items.slice(start, _end);
         this.update.emit(this.viewPortItems);
 
         // emit 'start' event
