@@ -11,6 +11,7 @@ var VirtualScrollComponent = (function () {
         this.items = [];
         this.bufferAmount = 0;
         this.scrollAnimationTime = 1500;
+        this.doNotCheckAngularZone = false;
         this.refreshHandler = function () {
             _this.refresh();
         };
@@ -77,6 +78,11 @@ var VirtualScrollComponent = (function () {
         var animationRequest;
         if (this.currentTween != undefined)
             this.currentTween.stop();
+        // totally disable animate
+        if (!this.scrollAnimationTime) {
+            el.scrollTop = scrollTop;
+            return;
+        }
         this.currentTween = new tween.Tween({ scrollTop: el.scrollTop })
             .to({ scrollTop: scrollTop }, this.scrollAnimationTime)
             .easing(tween.Easing.Quadratic.Out)
@@ -172,7 +178,7 @@ var VirtualScrollComponent = (function () {
             ? (window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || 0)
             : el.scrollTop;
         var scrollTop = Math.max(0, elScrollTop);
-        var scrollHeight = childHeight * itemCount / itemsPerRow;
+        var scrollHeight = childHeight * Math.ceil(itemCount / itemsPerRow);
         if (itemsPerCol === 1 && Math.floor(scrollTop / scrollHeight * itemCount) + itemsPerRowByCalc >= itemCount) {
             itemsPerRow = itemsPerRowByCalc;
         }
@@ -195,7 +201,9 @@ var VirtualScrollComponent = (function () {
     VirtualScrollComponent.prototype.calculateItems = function (forceViewportUpdate) {
         var _this = this;
         if (forceViewportUpdate === void 0) { forceViewportUpdate = false; }
-        core_1.NgZone.assertNotInAngularZone();
+        if (!this.doNotCheckAngularZone) {
+            core_1.NgZone.assertNotInAngularZone();
+        }
         var el = this.parentScroll instanceof Window ? document.body : this.parentScroll || this.element.nativeElement;
         var d = this.calculateDimensions();
         var items = this.items || [];
@@ -231,7 +239,8 @@ var VirtualScrollComponent = (function () {
         if (start !== this.previousStart || end !== this.previousEnd || forceViewportUpdate === true) {
             this.zone.run(function () {
                 // update the scroll list
-                _this.viewPortItems = items.slice(start, end);
+                var _end = end >= 0 ? end : 0; // To prevent from accidentally selecting the entire array with a negative 1 (-1) in the end position. 
+                _this.viewPortItems = items.slice(start, _end);
                 _this.update.emit(_this.viewPortItems);
                 // emit 'start' event
                 if (start !== _this.previousStart && _this.startupLoop === false) {
@@ -281,6 +290,7 @@ var VirtualScrollComponent = (function () {
         'childHeight': [{ type: core_1.Input },],
         'bufferAmount': [{ type: core_1.Input },],
         'scrollAnimationTime': [{ type: core_1.Input },],
+        'doNotCheckAngularZone': [{ type: core_1.Input },],
         'parentScroll': [{ type: core_1.Input },],
         'update': [{ type: core_1.Output },],
         'change': [{ type: core_1.Output },],

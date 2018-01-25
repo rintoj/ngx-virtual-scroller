@@ -1,4 +1,8 @@
 
+# v0.3.2
+
+* Merge PR [!159](https://github.com/rintoj/angular2-virtual-scroll/pull/159), [!165](https://github.com/rintoj/angular2-virtual-scroll/pull/165), [!167](https://github.com/rintoj/angular2-virtual-scroll/pull/167), [!168](https://github.com/rintoj/angular2-virtual-scroll/pull/168)
+
 # v0.3.1
 
 * Merge PR [!117](https://github.com/rintoj/angular2-virtual-scroll/pull/117) - Run scroll and frame handlers outside of angular zone for performance
