@@ -80,6 +80,9 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
   @Input()
   scrollAnimationTime: number = 300;
 
+  @Input()
+  doNotCheckAngularZone: boolean = false;
+
   private refreshHandler = () => {
     this.refresh();
   };
@@ -171,9 +174,9 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
     this.refresh();
   }
 
-  refresh() {
+  refresh(forceViewportUpdate: boolean = false) {
     this.zone.runOutsideAngular(() => {
-      requestAnimationFrame(() => this.calculateItems());
+      requestAnimationFrame(() => this.calculateItems(forceViewportUpdate));
     });
   }
 
@@ -186,15 +189,29 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
     let d = this.calculateDimensions();
     let scrollTop = (Math.floor(index / d.itemsPerRow) * d.childHeight) + offsetTop + (additionalOffset ? additionalOffset : 0);
 
-    if (this.currentTween != undefined) this.currentTween.stop();
-    let scrollObj = {scrollTop: el.scrollTop};
+    let animationRequest;
 
+    if (this.currentTween != undefined) this.currentTween.stop()
+	
+    // totally disable animate
+    if(!this.scrollAnimationTime){
+        el.scrollTop = scrollTop;
+        return;
+    }  
+	  
+    let scrollObj = {scrollTop: el.scrollTop};
     let currentTween = new tween.Tween(scrollObj)
-      .to({scrollTop}, this.scrollAnimationTime)
+      .to({ scrollTop }, this.scrollAnimationTime)
       .easing(tween.Easing.Quadratic.Out)
       .onUpdate((data) => {
+        if (isNaN(data.scrollTop)) {
+          return;
+        }
         this.renderer.setProperty(el, 'scrollTop', data.scrollTop);
         this.refresh();
+      })
+      .onStop(() => {
+        cancelAnimationFrame(animationRequest);
       })
       .start();
 
@@ -202,7 +219,7 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
       currentTween.update(time);
       if (scrollObj.scrollTop !== scrollTop) {
         this.zone.runOutsideAngular(() => {
-          requestAnimationFrame(animate);
+            animationRequest = requestAnimationFrame(animate);
         });
       }
     };
@@ -303,8 +320,12 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
     let itemsPerRow = Math.max(1, this.countItemsPerRow());
     let itemsPerRowByCalc = Math.max(1, Math.floor(viewWidth / childWidth));
     let itemsPerCol = Math.max(1, Math.floor(viewHeight / childHeight));
+    let elScrollTop = this.parentScroll instanceof Window
+      ? (window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || 0)
+      : el.scrollTop;
+
     let scrollTop = Math.max(0, el.scrollTop);
-    const scrollHeight = (childHeight * (itemCount - this.previousEnd) + this.topPadding + sumOfCurrentChildHeight) / itemsPerRow;
+    const scrollHeight = Math.ceil((childHeight * (itemCount - this.previousEnd) + this.topPadding + sumOfCurrentChildHeight) / itemsPerRow);
     if (itemsPerCol === 1 && Math.floor(scrollTop / scrollHeight * itemCount) + itemsPerRowByCalc >= itemCount) {
       itemsPerRow = itemsPerRowByCalc;
     }
@@ -328,8 +349,10 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
     };
   }
 
-  private calculateItems() {
-    NgZone.assertNotInAngularZone();
+  private calculateItems(forceViewportUpdate: boolean = false) {
+    if (!this.doNotCheckAngularZone) {
+      NgZone.assertNotInAngularZone();
+    }
     let el = this.getElement();
 
     let d = this.calculateDimensions();
@@ -414,13 +437,14 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
       this.renderer.setStyle(this.contentElementRef.nativeElement, 'webkitTransform', `translateY(${this.topPadding}px)`);
       this.lastTopPadding = this.topPadding;
     }
-    if (start !== this.previousStart || end !== this.previousEnd) {
+    if (start !== this.previousStart || end !== this.previousEnd || forceViewportUpdate === true) {
       this.zone.run(() => {
         this.previousStart = start;
         this.previousEnd = end;
 
         // update the scroll list
-        this.viewPortItems = items.slice(start, end);
+        let _end = end >= 0 ? end : 0; // To prevent from accidentally selecting the entire array with a negative 1 (-1) in the end position. 
+        this.viewPortItems = items.slice(start, _end);
         this.update.emit(this.viewPortItems);
 
         // emit 'start' event
