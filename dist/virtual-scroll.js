@@ -262,6 +262,7 @@ var VirtualScrollComponent = (function () {
         }
         else if (this.startupLoop === true) {
             this.startupLoop = false;
+            this.change.emit({ start: start, end: end });
             this.refresh();
         }
     };
