@@ -146,11 +146,6 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
         private readonly zone: NgZone) {
   }
 
-  @HostListener('window:resize')
-  onResize() {
-    this.refresh();
-  }
-
   ngOnInit() {
     this.scrollbarWidth = 0; // this.element.nativeElement.offsetWidth - this.element.nativeElement.clientWidth;
     this.scrollbarHeight = 0; // this.element.nativeElement.offsetHeight - this.element.nativeElement.clientHeight;
