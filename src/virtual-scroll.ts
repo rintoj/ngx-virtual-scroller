@@ -323,9 +323,6 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
 
     let itemsPerRowByCalc = Math.max(1, Math.floor(viewWidth / childWidth));
     let itemsPerCol = Math.max(1, Math.floor(viewHeight / childHeight));
-    let elScrollTop = this.parentScroll instanceof Window
-      ? (window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || 0)
-      : el.scrollTop;
     let scrollTop = Math.max(0, el.scrollTop);
     const scrollHeight = Math.ceil((childHeight * (itemCount - this.previousEnd) + sumOfCurrentChildHeight) / itemsPerRow + this.topPadding);
     if (itemsPerCol === 1 && Math.floor(scrollTop / scrollHeight * itemCount) + itemsPerRowByCalc >= itemCount) {
