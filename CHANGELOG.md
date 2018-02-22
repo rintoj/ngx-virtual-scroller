@@ -1,3 +1,6 @@
+# v0.3.2
+
+* Added ability to use virtual scroll with different heights of elements
 
 # v0.3.2
 
