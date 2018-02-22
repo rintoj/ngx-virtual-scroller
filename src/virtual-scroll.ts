@@ -452,8 +452,6 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
     }
     if (start !== this.previousStart || end !== this.previousEnd || forceViewportUpdate === true) {
       this.zone.run(() => {
-        this.previousStart = start;
-        this.previousEnd = end;
 
         // update the scroll list
         let _end = end >= 0 ? end : 0; // To prevent from accidentally selecting the entire array with a negative 1 (-1) in the end position.
@@ -475,6 +473,9 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
         } else {
           this.change.emit({start, end});
         }
+        
+        this.previousStart = start;
+        this.previousEnd = end;
       });
 
     } else if (this.startupLoop === true) {
