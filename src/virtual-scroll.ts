@@ -123,6 +123,7 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
   previousEnd: number;
   startupLoop: boolean = true;
   currentTween: any;
+  itemsLength: number;
 
   private disposeScrollHandler: () => void | undefined;
   private disposeResizeHandler: () => void | undefined;
@@ -157,8 +158,19 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
     const items = (changes as any).items || {};
     if ((changes as any).items != undefined && items.previousValue == undefined || (items.previousValue != undefined && items.previousValue.length === 0)) {
       this.startupLoop = true;
+      this.itemsLength = this.items.length;
     }
     this.refresh();
+  }
+
+  ngDoCheck() {
+    if (this.items && this.itemsLength != this.items.length) {
+      this.previousStart = undefined;
+      this.previousEnd = undefined;
+      this.startupLoop = true;
+      this.refresh();
+      this.itemsLength = this.items.length;
+    }
   }
 
   refresh(forceViewportUpdate: boolean = false) {
