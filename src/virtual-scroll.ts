@@ -3,7 +3,6 @@ import {
   ContentChild,
   ElementRef,
   EventEmitter,
-  HostListener,
   Input,
   NgModule,
   NgZone,
