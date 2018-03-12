@@ -177,6 +177,12 @@ var VirtualScrollComponent = (function () {
             : el.scrollTop;
         var scrollTop = Math.max(0, elScrollTop);
         var scrollHeight = childHeight * itemCount / itemsPerRow;
+        if (itemsPerRow === this.contentElementRef.nativeElement.children.length) {
+            // This should fix the case when the collection had less items than the maximum by row, 
+            // and get changed to more items than the maximum by row.
+            // For example: Collection had 2 items when it fits 3 items by row, than change it to 9 items.
+            itemsPerRow = itemsPerRowByCalc;
+        }
         if (itemsPerCol === 1 && Math.floor(scrollTop / scrollHeight * itemCount) + itemsPerRowByCalc >= itemCount) {
             itemsPerRow = itemsPerRowByCalc;
         }

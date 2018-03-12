@@ -1,7 +1,7 @@
 
 # angular2-virtual-scroll-opus
 
-Virtual Scroll displays a virtual, "infinite" list. Supports multi-column, this fork contains one aditional input to consider padding.
+Virtual Scroll displays a virtual, "infinite" list. Supports multi-column, this fork contains one aditional input to consider padding, and additional adjusts in order to handle edge cases.
 
 ## About
 
