@@ -80,10 +80,10 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
 
   @Input()
   doNotCheckAngularZone: boolean = false;
-  
+
   @Input()
   filterAttr: string;
-  
+
   private refreshHandler = () => {
     this.refresh();
   };
@@ -184,14 +184,14 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
     let animationRequest;
 
     if (this.currentTween != undefined) this.currentTween.stop()
-	
+
     // totally disable animate
     if(!this.scrollAnimationTime){
         el.scrollTop = scrollTop;
         return;
-    }  
-	  
-	  
+    }
+
+
     this.currentTween = new tween.Tween({ scrollTop: el.scrollTop })
       .to({ scrollTop }, this.scrollAnimationTime)
       .easing(tween.Easing.Quadratic.Out)
@@ -365,7 +365,7 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
 
       this.zone.run(() => {
         // update the scroll list
-        let _end = end >= 0 ? end : 0; // To prevent from accidentally selecting the entire array with a negative 1 (-1) in the end position. 
+        let _end = end >= 0 ? end : 0; // To prevent from accidentally selecting the entire array with a negative 1 (-1) in the end position.
         let filteredItems = [];
         if (filterAttr){
            filteredItems = items.filter((item)=>{
@@ -374,7 +374,7 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
          }
          filteredItems = filteredItems.length > 0 ? filteredItems : items;
          this.viewPortItems = filteredItems.slice(start, _end);
-         this.update.emit(_this.viewPortItems);
+         this.update.emit(this.viewPortItems);
 
         // emit 'start' event
         if (start !== this.previousStart && this.startupLoop === false) {
