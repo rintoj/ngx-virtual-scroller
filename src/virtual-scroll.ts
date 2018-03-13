@@ -80,7 +80,10 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
 
   @Input()
   doNotCheckAngularZone: boolean = false;
-
+  
+  @Input()
+  filterAttr: string;
+  
   private refreshHandler = () => {
     this.refresh();
   };
@@ -322,6 +325,7 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
 
     let d = this.calculateDimensions();
     let items = this.items || [];
+    let filterAttr = this.filterAttr || '';
     let offsetTop = this.getElementsOffset();
     let elScrollTop = this.parentScroll instanceof Window
       ? (window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || 0)
@@ -362,8 +366,15 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
       this.zone.run(() => {
         // update the scroll list
         let _end = end >= 0 ? end : 0; // To prevent from accidentally selecting the entire array with a negative 1 (-1) in the end position. 
-        this.viewPortItems = items.slice(start, _end);
-        this.update.emit(this.viewPortItems);
+        let filteredItems = [];
+        if (filterAttr){
+           filteredItems = items.filter((item)=>{
+ 	         return !item[filterAttr];
+           });
+         }
+         filteredItems = filteredItems.length > 0 ? filteredItems : items;
+         this.viewPortItems = filteredItems.slice(start, _end);
+         this.update.emit(_this.viewPortItems);
 
         // emit 'start' event
         if (start !== this.previousStart && this.startupLoop === false) {
