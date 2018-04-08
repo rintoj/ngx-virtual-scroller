@@ -5,10 +5,12 @@ import { HttpModule } from '@angular/http';
 import { ListItemComponent } from './lists/list-item.component';
 import { ListWithApiComponent } from './lists/list-with-api.component';
 import { MultiColListComponent } from './lists/multi-col-list.component';
+
 import { NgModule } from '@angular/core';
 import { TableListComponent } from './lists/table-list.component';
 import { VerticalListComponent } from './lists/vertical-list.component';
 import { VirtualScrollModule } from 'angular2-virtual-scroll';
+import { HorizontalListComponent } from "./lists/horizontal-list.component";
 
 @NgModule({
   declarations: [
@@ -17,7 +19,8 @@ import { VirtualScrollModule } from 'angular2-virtual-scroll';
     ListWithApiComponent,
     MultiColListComponent,
     TableListComponent,
-    VerticalListComponent
+    VerticalListComponent,
+    HorizontalListComponent,
   ],
   imports: [
     BrowserModule,

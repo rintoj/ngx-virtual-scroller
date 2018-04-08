@@ -15,6 +15,16 @@ export declare class VirtualScrollComponent implements OnInit, OnChanges, OnDest
     bufferAmount: number;
     scrollAnimationTime: number;
     doNotCheckAngularZone: boolean;
+    private _horizontal;
+    private _offsetType;
+    private _scrollType;
+    private _pageOffsetType;
+    private _scrollDim;
+    private _itemsPerScrollDir;
+    private _itemsPerOpScrollDir;
+    private _childScrollDim;
+    private _translateDir;
+    horizontal: boolean;
     private refreshHandler;
     private _parentScroll;
     parentScroll: Element | Window;
@@ -34,8 +44,9 @@ export declare class VirtualScrollComponent implements OnInit, OnChanges, OnDest
     private disposeResizeHandler;
     /** Cache of the last scroll height to prevent setting CSS when not needed. */
     private lastScrollHeight;
+    private lastScrollWidth;
     /** Cache of the last top padding to prevent setting CSS when not needed. */
-    private lastTopPadding;
+    private lastPadding;
     constructor(element: ElementRef, renderer: Renderer2, zone: NgZone);
     ngOnInit(): void;
     ngOnDestroy(): void;

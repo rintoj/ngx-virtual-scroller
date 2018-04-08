@@ -16,6 +16,8 @@ import {
   ViewChild,
 } from '@angular/core';
 
+import { CommonModule } from '@angular/common';
+
 import * as tween from '@tweenjs/tween.js'
 
 export interface ChangeEvent {
@@ -27,7 +29,7 @@ export interface ChangeEvent {
   selector: 'virtual-scroll,[virtualScroll]',
   exportAs: 'virtualScroll',
   template: `
-    <div class="total-padding" #shim></div>
+    <div [ngClass]="{'total-padding': true, 'horizontal-padding': this.horizontal }" #shim></div>
     <div class="scrollable-content" #content>
       <ng-content></ng-content>
     </div>
@@ -53,6 +55,10 @@ export interface ChangeEvent {
     .total-padding {
       width: 1px;
       opacity: 0;
+    }
+    
+    .horizontal-padding {
+      height: 100%;
     }
   `]
 })
@@ -84,6 +90,7 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
 
   private _horizontal: boolean = false;
   private _offsetType = 'offsetTop';
+  private _scrollType = 'scrollTop';
   private _pageOffsetType = 'pageYOffset';
   private _scrollDim = 'scrollHeight';
   private _itemsPerScrollDir = 'itemsPerCol';
@@ -100,6 +107,7 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
         this._itemsPerOpScrollDir = 'itemsPerCol';
         this._childScrollDim = 'childWidth';
         this._translateDir = 'translateX';
+        this._scrollType = 'scrollLeft';
     }
   }
   get horizontal(): boolean {
@@ -315,8 +323,8 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
     let itemsPerRowByCalc = Math.max(1, Math.floor(viewWidth / childWidth));
     let itemsPerCol = Math.max(1, Math.floor(viewHeight / childHeight));
     let elScroll = this.parentScroll instanceof Window
-      ? (window[this._pageOffsetType] || document.documentElement[this._offsetType] || document.body[this._offsetType]|| 0)
-      : el[this._offsetType];
+      ? (window[this._pageOffsetType] || document.documentElement[this._scrollType] || document.body[this._scrollType]|| 0)
+      : el[this._scrollType];
 
     let scroll = Math.max(0, elScroll);
 
@@ -360,8 +368,8 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
     let items = this.items || [];
     let offset = this.getElementsOffset();
     let elScroll = (this.parentScroll instanceof Window) ?
-        (window[this._pageOffsetType] || document.documentElement[this._offsetType] || document.body[this._offsetType] || 0)
-        : el[this._offsetType];
+        (window[this._pageOffsetType] || document.documentElement[this._scrollType] || document.body[this._scrollType] || 0)
+        : el[this._scrollType];
     console.log(`elScroll: ${elScroll}`);
     if (elScroll > d[this._scrollDim]) {
       elScroll = d[this._scrollDim] + offset;
@@ -436,6 +444,8 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
 
 @NgModule({
   exports: [VirtualScrollComponent],
-  declarations: [VirtualScrollComponent]
+  declarations: [VirtualScrollComponent],
+  imports: [CommonModule]
+
 })
 export class VirtualScrollModule { }
