@@ -86,12 +86,20 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
   private _offsetType = 'offsetTop';
   private _pageOffsetType = 'pageYOffset';
   private _scrollDim = 'scrollHeight';
+  private _itemsPerScrollDir = 'itemsPerCol';
+  private _itemsPerOpScrollDir = 'itemsPerRow';
+  private _childScrollDim = 'childHeight';
+  private _translateDir = 'translateY';
   @Input() set horizontal(value: boolean) {
     this._horizontal = value;
     if (this._horizontal) {
         this._offsetType = 'offsetLeft';
         this._pageOffsetType = 'pageXOffset';
         this._scrollDim = 'scrollWidth';
+        this._itemsPerScrollDir = 'itemsPerRow';
+        this._itemsPerOpScrollDir = 'itemsPerCol';
+        this._childScrollDim = 'childWidth';
+        this._translateDir = 'translateX';
     }
   }
   get horizontal(): boolean {
@@ -150,8 +158,8 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
   private lastScrollWidth = -1;
 
   /** Cache of the last top padding to prevent setting CSS when not needed. */
-  private lastTopPadding = -1;
-  private lastRightPadding = -1;
+  private lastPadding = -1;
+
 
   constructor(
     private readonly element: ElementRef,
@@ -189,7 +197,7 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
 
   scrollInto(item: any) {
     let el: Element = this.parentScroll instanceof Window ? document.body : this.parentScroll || this.element.nativeElement;
-    let offsetTop = this.getElementsOffset();
+    let offset = this.getElementsOffset();
     let index: number = (this.items || []).indexOf(item);
     if (index < 0 || index >= (this.items || []).length) return;
 
@@ -334,9 +342,9 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
       viewHeight: viewHeight,
       childWidth: childWidth,
       childHeight: childHeight,
-      itemsPerRow: (!this._horizontal) ? itemsPerRow : 1,
-      itemsPerCol: (!this._horizontal) ? itemsPerCol : 1,
-      itemsPerRowByCalc: (!this._horizontal) ? itemsPerRowByCalc : 1,
+      itemsPerRow: itemsPerRow,
+      itemsPerCol: itemsPerCol,
+      itemsPerRowByCalc: itemsPerRowByCalc,
       scrollHeight,
       scrollWidth
     };
@@ -363,23 +371,24 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
     let indexByScroll = scroll / d[this._scrollDim] * d.itemCount / ((this._horizontal) ? 1 : d.itemsPerRow);
 
 
-    let end = Math.min(d.itemCount, Math.ceil(indexByScroll) * d.itemsPerRow + d.itemsPerRow * (d.itemsPerCol + 1));
-
+    let end = Math.min(d.itemCount, Math.ceil(indexByScroll) * d[this._itemsPerOpScrollDir] + d[this._itemsPerOpScrollDir] * (d[this._itemsPerScrollDir] + 1));
 
     let maxStartEnd = end;
-    const modEnd = end % d.itemsPerRow;
+    const modEnd = end % d[this._itemsPerOpScrollDir];
     if (modEnd) {
-      maxStartEnd = end + d.itemsPerRow - modEnd;
+      maxStartEnd = end + d[this._itemsPerOpScrollDir] - modEnd;
     }
-    let maxStart = Math.max(0, maxStartEnd - d.itemsPerCol * d.itemsPerRow - d.itemsPerRow);
-    let start = Math.min(maxStart, Math.floor(indexByScroll) * d.itemsPerRow);
+    let maxStart = Math.max(0, maxStartEnd - d[this._itemsPerScrollDir] * d[this._itemsPerOpScrollDir] - d[this._itemsPerOpScrollDir]);
+    let start = Math.min(maxStart, Math.floor(indexByScroll) * d[this._itemsPerOpScrollDir]);
 
-    const topPadding = (items == null || items.length === 0) ? 0 : (d.childHeight * Math.ceil(start / d.itemsPerRow) - (d.childHeight * Math.min(start, this.bufferAmount)));
+    const dirPadding = (items == null || items.length === 0) ? 0 :
+        (d[this._childScrollDim] * Math.ceil(start / d[this._itemsPerOpScrollDir]) -
+            (d[this._childScrollDim] * Math.min(start, this.bufferAmount)));
 
-    if (topPadding !== this.lastTopPadding) {
-      this.renderer.setStyle(this.contentElementRef.nativeElement, 'transform', `translateY(${topPadding}px)`);
-      this.renderer.setStyle(this.contentElementRef.nativeElement, 'webkitTransform', `translateY(${topPadding}px)`);
-      this.lastTopPadding = topPadding;
+    if (dirPadding !== this.lastPadding) {
+      this.renderer.setStyle(this.contentElementRef.nativeElement, 'transform', `${_translateDir}(${topPadding}px)`);
+      this.renderer.setStyle(this.contentElementRef.nativeElement, 'webkitTransform', `${_translateDir}(${topPadding}px)`);
+      this.lastPadding = dirPadding;
     }
 
     start = !isNaN(start) ? start : -1;
