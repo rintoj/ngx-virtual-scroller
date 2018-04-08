@@ -362,7 +362,7 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
     let elScroll = (this.parentScroll instanceof Window) ?
         (window[this._pageOffsetType] || document.documentElement[this._offsetType] || document.body[this._offsetType] || 0)
         : el[this._offsetType];
-    console.log('elScroll: ${elScroll}');
+    console.log(`elScroll: ${elScroll}`);
     if (elScroll > d[this._scrollDim]) {
       elScroll = d[this._scrollDim] + offset;
     }
