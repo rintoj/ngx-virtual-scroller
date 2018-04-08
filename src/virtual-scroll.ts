@@ -331,7 +331,7 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
       this.lastScrollHeight = scrollHeight;
     }
 
-    if (scrollWidth !== this.lastScrollHeight && this.horizontal) {
+    if (scrollWidth !== this.lastScrollWidth && this.horizontal) {
       this.renderer.setStyle(this.shimElementRef.nativeElement, 'width', `${scrollWidth}px`);
       this.lastScrollWidth = scrollWidth;
     }
@@ -381,13 +381,15 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
     let maxStart = Math.max(0, maxStartEnd - d[this._itemsPerScrollDir] * d[this._itemsPerOpScrollDir] - d[this._itemsPerOpScrollDir]);
     let start = Math.min(maxStart, Math.floor(indexByScroll) * d[this._itemsPerOpScrollDir]);
 
+
     const dirPadding = (items == null || items.length === 0) ? 0 :
         (d[this._childScrollDim] * Math.ceil(start / d[this._itemsPerOpScrollDir]) -
             (d[this._childScrollDim] * Math.min(start, this.bufferAmount)));
 
+    console.log(`start : ${start}, end: ${end}, dirPadding: ${dirPadding}, lastPadding, ${this.lastPadding}`);
     if (dirPadding !== this.lastPadding) {
-      this.renderer.setStyle(this.contentElementRef.nativeElement, 'transform', `${_translateDir}(${topPadding}px)`);
-      this.renderer.setStyle(this.contentElementRef.nativeElement, 'webkitTransform', `${_translateDir}(${topPadding}px)`);
+      this.renderer.setStyle(this.contentElementRef.nativeElement, 'transform', `${this._translateDir}(${dirPadding}px)`);
+      this.renderer.setStyle(this.contentElementRef.nativeElement, 'webkitTransform', `${this._translateDir}(${dirPadding}px)`);
       this.lastPadding = dirPadding;
     }
 
