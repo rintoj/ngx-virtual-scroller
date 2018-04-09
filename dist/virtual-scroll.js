@@ -104,24 +104,26 @@ var VirtualScrollComponent = (function () {
         if (index < 0 || index >= (this.items || []).length)
             return;
         var d = this.calculateDimensions();
-        var scrollTop = (Math.floor(index / d.itemsPerRow) * d.childHeight)
-            - (d.childHeight * Math.min(index, this.bufferAmount));
+        var scroll = (Math.floor(index / d[this._itemsPerOpScrollDir]) * d[this._childScrollDim])
+            - (d[this._childScrollDim] * Math.min(index, this.bufferAmount));
         var animationRequest;
         if (this.currentTween != undefined)
             this.currentTween.stop();
         // totally disable animate
         if (!this.scrollAnimationTime) {
-            el.scrollTop = scrollTop;
+            el[this._scrollType] = scroll;
             return;
         }
-        this.currentTween = new tween.Tween({ scrollTop: el.scrollTop })
-            .to({ scrollTop: scrollTop }, this.scrollAnimationTime)
+        var tweenConfigObj = {};
+        tweenConfigObj[this._scrollType] = el[this._scrollType];
+        this.currentTween = new tween.Tween(tweenConfigObj)
+            .to({ scroll: scroll }, this.scrollAnimationTime)
             .easing(tween.Easing.Quadratic.Out)
             .onUpdate(function (data) {
-            if (isNaN(data.scrollTop)) {
+            if (isNaN(data[_this._scrollType])) {
                 return;
             }
-            _this.renderer.setProperty(el, 'scrollTop', data.scrollTop);
+            _this.renderer.setProperty(el, _this._scrollType, data[_this._scrollType]);
             _this.refresh();
         })
             .onStop(function () {
@@ -130,7 +132,7 @@ var VirtualScrollComponent = (function () {
             .start();
         var animate = function (time) {
             _this.currentTween.update(time);
-            if (_this.currentTween._object.scrollTop !== scrollTop) {
+            if (_this.currentTween._object[_this._scrollType] !== scroll) {
                 _this.zone.runOutsideAngular(function () {
                     animationRequest = requestAnimationFrame(animate);
                 });

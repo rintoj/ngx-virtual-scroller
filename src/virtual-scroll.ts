@@ -210,28 +210,31 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
     if (index < 0 || index >= (this.items || []).length) return;
 
     let d = this.calculateDimensions();
-    let scrollTop = (Math.floor(index / d.itemsPerRow) * d.childHeight)
-      - (d.childHeight * Math.min(index, this.bufferAmount));
+    let scroll = (Math.floor(index / d[this._itemsPerOpScrollDir]) * d[this._childScrollDim])
+      - (d[this._childScrollDim] * Math.min(index, this.bufferAmount));
 
     let animationRequest;
 
-    if (this.currentTween != undefined) this.currentTween.stop()
+    if (this.currentTween != undefined) this.currentTween.stop();
 	
     // totally disable animate
     if(!this.scrollAnimationTime){
-        el.scrollTop = scrollTop;
+        el[this._scrollType] = scroll;
         return;
     }  
+
+    const tweenConfigObj = {};
+    tweenConfigObj[this._scrollType] = el[this._scrollType];
+
 	  
-	  
-    this.currentTween = new tween.Tween({ scrollTop: el.scrollTop })
-      .to({ scrollTop }, this.scrollAnimationTime)
+    this.currentTween = new tween.Tween(tweenConfigObj)
+      .to({ scroll }, this.scrollAnimationTime)
       .easing(tween.Easing.Quadratic.Out)
       .onUpdate((data) => {
-        if (isNaN(data.scrollTop)) {
+        if (isNaN(data[this._scrollType])) {
           return;
         }
-        this.renderer.setProperty(el, 'scrollTop', data.scrollTop);
+        this.renderer.setProperty(el, this._scrollType, data[this._scrollType]);
         this.refresh();
       })
       .onStop(() => {
@@ -241,12 +244,12 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
 
     const animate = (time?) => {
       this.currentTween.update(time);
-      if (this.currentTween._object.scrollTop !== scrollTop) {
+      if (this.currentTween._object[this._scrollType] !== scroll) {
         this.zone.runOutsideAngular(() => {
             animationRequest = requestAnimationFrame(animate);
         });
       }
-    }
+    };
 
     animate()
   }

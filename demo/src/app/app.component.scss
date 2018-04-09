@@ -6,9 +6,9 @@ virtual-scroll,
   border: 1px solid $border-color;
   height: 75vh;
   display: block;
-  
+
   &.horizontal-scroll {
-    width: 80vw;
+    width: 60vw;
     height: 150px;
   }
 }
