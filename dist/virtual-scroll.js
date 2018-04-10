@@ -116,8 +116,10 @@ var VirtualScrollComponent = (function () {
         }
         var tweenConfigObj = {};
         tweenConfigObj[this._scrollType] = el[this._scrollType];
+        var tweenScrollTo = {};
+        tweenScrollTo[this._scrollType] = scroll;
         this.currentTween = new tween.Tween(tweenConfigObj)
-            .to({ scroll: scroll }, this.scrollAnimationTime)
+            .to(tweenScrollTo, this.scrollAnimationTime)
             .easing(tween.Easing.Quadratic.Out)
             .onUpdate(function (data) {
             if (isNaN(data[_this._scrollType])) {

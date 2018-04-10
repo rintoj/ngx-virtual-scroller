@@ -216,7 +216,6 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
     let animationRequest;
 
     if (this.currentTween != undefined) this.currentTween.stop();
-	
     // totally disable animate
     if(!this.scrollAnimationTime){
         el[this._scrollType] = scroll;
@@ -226,9 +225,10 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
     const tweenConfigObj = {};
     tweenConfigObj[this._scrollType] = el[this._scrollType];
 
-	  
+    const tweenScrollTo = {}
+    tweenScrollTo[this._scrollType] = scroll;
     this.currentTween = new tween.Tween(tweenConfigObj)
-      .to({ scroll }, this.scrollAnimationTime)
+      .to(tweenScrollTo, this.scrollAnimationTime)
       .easing(tween.Easing.Quadratic.Out)
       .onUpdate((data) => {
         if (isNaN(data[this._scrollType])) {
