@@ -56,6 +56,7 @@ export declare class VirtualScrollComponent implements OnInit, OnChanges, OnDest
     private addParentEventHandlers(parentScroll);
     private removeParentEventHandlers();
     private countItemsPerRow();
+    private countItemsPerCol();
     private getElementsOffset();
     private calculateDimensions();
     private calculateItems(forceViewportUpdate?);

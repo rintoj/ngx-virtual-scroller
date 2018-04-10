@@ -1,2 +1,10 @@
+::ng-deep .horizontal-scroll .scrollable-content {
+  display: flex!important;
+}
+
+.horizontal-list-item {
+  min-width: 400px;
+}
+
 
 

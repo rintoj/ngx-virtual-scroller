@@ -35,8 +35,8 @@ export interface ChangeEvent {
     </div>
   `,
   host: {
-    '[style.overflow-y]': "parentScroll ? 'hidden' : 'auto'",
-    '[style.overflow-x]': "parentScroll ? 'hidden' : 'auto'"
+    '[style.overflow-y]': "parentScroll || horizontal ? 'hidden' : 'auto'",
+    '[style.overflow-x]': "parentScroll || !horizontal ? 'hidden' : 'auto'"
   },
   styles: [`
     :host {
@@ -221,7 +221,7 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
     if(!this.scrollAnimationTime){
         el[this._scrollType] = scroll;
         return;
-    }  
+    }
 
     const tweenConfigObj = {};
     tweenConfigObj[this._scrollType] = el[this._scrollType];
@@ -290,6 +290,17 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
     return itemsPerRow;
   }
 
+    private countItemsPerCol() {
+        let offsetLeft;
+        let itemsPerCol;
+        let children = this.contentElementRef.nativeElement.children;
+        for (itemsPerCol = 0; itemsPerCol < children.length; itemsPerCol++) {
+            if (offsetLeft != undefined && offsetLeft !== children[itemsPerCol].offsetLeft) break;
+            offsetLeft = children[itemsPerCol].offsetLeft;
+        }
+        return itemsPerCol;
+    }
+
   private getElementsOffset(): number {
     let offset = 0;
     if (this.containerElementRef && this.containerElementRef.nativeElement) {
@@ -322,9 +333,23 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
     let childWidth = this.childWidth || contentDimensions.width;
     let childHeight = this.childHeight || contentDimensions.height;
 
-    let itemsPerRow = Math.max(1, this.countItemsPerRow());
-    let itemsPerRowByCalc = Math.max(1, Math.floor(viewWidth / childWidth));
-    let itemsPerCol = Math.max(1, Math.floor(viewHeight / childHeight));
+
+
+    let itemsPerCol = -1;
+    let itemsPerColByCalc = -1;
+    let itemsPerRow = -1;
+    let itemsPerRowByCalc = -1;
+
+    if (this.horizontal) {
+      itemsPerCol = Math.max(1, this.countItemsPerCol());
+      itemsPerColByCalc = Math.max(1, Math.floor(viewHeight / childHeight));
+      itemsPerRow = Math.max(1, Math.floor(viewWidth / childWidth));
+    } else {
+      itemsPerRow = Math.max(1, this.countItemsPerRow());
+      itemsPerRowByCalc = Math.max(1, Math.floor(viewWidth / childWidth));
+      itemsPerCol = Math.max(1, Math.floor(viewHeight / childHeight));
+    }
+
     let elScroll = this.parentScroll instanceof Window
       ? (window[this._pageOffsetType] || document.documentElement[this._scrollType] || document.body[this._scrollType]|| 0)
       : el[this._scrollType];
@@ -333,8 +358,12 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
 
     const scrollHeight = childHeight * Math.ceil(itemCount / itemsPerRow);
     const scrollWidth = childWidth * Math.ceil(itemCount / itemsPerCol);
-    if (itemsPerCol === 1 && Math.floor(scroll / scrollHeight * itemCount) + itemsPerRowByCalc >= itemCount) {
+    if (!this.horizontal && itemsPerCol === 1 && Math.floor(scroll / scrollHeight * itemCount) + itemsPerRowByCalc >= itemCount) {
       itemsPerRow = itemsPerRowByCalc;
+    }
+    // only re-assign in case of horizontal to prevent
+    if (this.horizontal && itemsPerRow === 1 && Math.floor(scroll /scrollWidth * itemCount) + itemsPerColByCalc >= itemCount ) {
+      itemsPerCol = itemsPerColByCalc;
     }
 
     if (scrollHeight !== this.lastScrollHeight && !this.horizontal) {
@@ -356,6 +385,7 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
       itemsPerRow: itemsPerRow,
       itemsPerCol: itemsPerCol,
       itemsPerRowByCalc: itemsPerRowByCalc,
+      itemsPerColByCalc : itemsPerColByCalc,
       scrollHeight,
       scrollWidth
     };
@@ -368,18 +398,18 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
     let el = this.parentScroll instanceof Window ? document.body : this.parentScroll || this.element.nativeElement;
 
     let d = this.calculateDimensions();
+    console.log()
     let items = this.items || [];
     let offset = this.getElementsOffset();
     let elScroll = (this.parentScroll instanceof Window) ?
         (window[this._pageOffsetType] || document.documentElement[this._scrollType] || document.body[this._scrollType] || 0)
         : el[this._scrollType];
-    console.log(`elScroll: ${elScroll}`);
     if (elScroll > d[this._scrollDim]) {
       elScroll = d[this._scrollDim] + offset;
     }
 
     let scroll = Math.max(0, elScroll - offset);
-    let indexByScroll = scroll / d[this._scrollDim] * d.itemCount / ((this._horizontal) ? 1 : d.itemsPerRow);
+    let indexByScroll = scroll / d[this._scrollDim] * d.itemCount / ((this._horizontal) ? d.itemsPerCol : d.itemsPerRow);
 
 
     let end = Math.min(d.itemCount, Math.ceil(indexByScroll) * d[this._itemsPerOpScrollDir] + d[this._itemsPerOpScrollDir] * (d[this._itemsPerScrollDir] + 1));
@@ -397,7 +427,6 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
         (d[this._childScrollDim] * Math.ceil(start / d[this._itemsPerOpScrollDir]) -
             (d[this._childScrollDim] * Math.min(start, this.bufferAmount)));
 
-    console.log(`start : ${start}, end: ${end}, dirPadding: ${dirPadding}, lastPadding, ${this.lastPadding}`);
     if (dirPadding !== this.lastPadding) {
       this.renderer.setStyle(this.contentElementRef.nativeElement, 'transform', `${this._translateDir}(${dirPadding}px)`);
       this.renderer.setStyle(this.contentElementRef.nativeElement, 'webkitTransform', `${this._translateDir}(${dirPadding}px)`);

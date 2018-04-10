@@ -25,11 +25,11 @@ import { ListItem } from './list-item.component';
       [items]="filteredList"
       (update)="scrollItems = $event"
       (change)="indices = $event">
-
-      <list-item *ngFor="let item of scrollItems" class="list-item" [item]="item"> </list-item>
-
+      
+      <list-item *ngFor="let item of scrollItems" class="list-item horizontal-list-item" [item]="item"> </list-item>
     </virtual-scroll>
-  `
+  `,
+  styleUrls: ['./horizontal-list.scss']
 })
 export class HorizontalListComponent implements OnChanges {
 
