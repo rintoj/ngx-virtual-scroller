@@ -8,6 +8,12 @@
   height: 100px;
   line-height: 1.2em;
   overflow: hidden;
+
+  &.list-item {
+    width : 450px;
+    border-left: 1px solid $border-color;
+    display: inline-block!important;
+  }
 }
 
 .avatar {

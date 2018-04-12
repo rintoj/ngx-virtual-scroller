@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 var core_1 = require("@angular/core");
+var common_1 = require("@angular/common");
 var tween = require("@tweenjs/tween.js");
 var VirtualScrollComponent = (function () {
     function VirtualScrollComponent(element, renderer, zone) {
@@ -12,6 +13,15 @@ var VirtualScrollComponent = (function () {
         this.bufferAmount = 0;
         this.scrollAnimationTime = 1500;
         this.doNotCheckAngularZone = false;
+        this._horizontal = false;
+        this._offsetType = 'offsetTop';
+        this._scrollType = 'scrollTop';
+        this._pageOffsetType = 'pageYOffset';
+        this._scrollDim = 'scrollHeight';
+        this._itemsPerScrollDir = 'itemsPerCol';
+        this._itemsPerOpScrollDir = 'itemsPerRow';
+        this._childScrollDim = 'childHeight';
+        this._translateDir = 'translateY';
         this.refreshHandler = function () {
             _this.refresh();
         };
@@ -22,9 +32,30 @@ var VirtualScrollComponent = (function () {
         this.startupLoop = true;
         /** Cache of the last scroll height to prevent setting CSS when not needed. */
         this.lastScrollHeight = -1;
+        this.lastScrollWidth = -1;
         /** Cache of the last top padding to prevent setting CSS when not needed. */
-        this.lastTopPadding = -1;
+        this.lastPadding = -1;
     }
+    Object.defineProperty(VirtualScrollComponent.prototype, "horizontal", {
+        get: function () {
+            return this._horizontal;
+        },
+        set: function (value) {
+            this._horizontal = value;
+            if (this._horizontal) {
+                this._offsetType = 'offsetLeft';
+                this._pageOffsetType = 'pageXOffset';
+                this._scrollDim = 'scrollWidth';
+                this._itemsPerScrollDir = 'itemsPerRow';
+                this._itemsPerOpScrollDir = 'itemsPerCol';
+                this._childScrollDim = 'childWidth';
+                this._translateDir = 'translateX';
+                this._scrollType = 'scrollLeft';
+            }
+        },
+        enumerable: true,
+        configurable: true
+    });
     Object.defineProperty(VirtualScrollComponent.prototype, "parentScroll", {
         get: function () {
             return this._parentScroll;
@@ -68,29 +99,33 @@ var VirtualScrollComponent = (function () {
     VirtualScrollComponent.prototype.scrollInto = function (item) {
         var _this = this;
         var el = this.parentScroll instanceof Window ? document.body : this.parentScroll || this.element.nativeElement;
-        var offsetTop = this.getElementsOffset();
+        var offset = this.getElementsOffset();
         var index = (this.items || []).indexOf(item);
         if (index < 0 || index >= (this.items || []).length)
             return;
         var d = this.calculateDimensions();
-        var scrollTop = (Math.floor(index / d.itemsPerRow) * d.childHeight)
-            - (d.childHeight * Math.min(index, this.bufferAmount));
+        var scroll = (Math.floor(index / d[this._itemsPerOpScrollDir]) * d[this._childScrollDim])
+            - (d[this._childScrollDim] * Math.min(index, this.bufferAmount));
         var animationRequest;
         if (this.currentTween != undefined)
             this.currentTween.stop();
         // totally disable animate
         if (!this.scrollAnimationTime) {
-            el.scrollTop = scrollTop;
+            el[this._scrollType] = scroll;
             return;
         }
-        this.currentTween = new tween.Tween({ scrollTop: el.scrollTop })
-            .to({ scrollTop: scrollTop }, this.scrollAnimationTime)
+        var tweenConfigObj = {};
+        tweenConfigObj[this._scrollType] = el[this._scrollType];
+        var tweenScrollTo = {};
+        tweenScrollTo[this._scrollType] = scroll;
+        this.currentTween = new tween.Tween(tweenConfigObj)
+            .to(tweenScrollTo, this.scrollAnimationTime)
             .easing(tween.Easing.Quadratic.Out)
             .onUpdate(function (data) {
-            if (isNaN(data.scrollTop)) {
+            if (isNaN(data[_this._scrollType])) {
                 return;
             }
-            _this.renderer.setProperty(el, 'scrollTop', data.scrollTop);
+            _this.renderer.setProperty(el, _this._scrollType, data[_this._scrollType]);
             _this.refresh();
         })
             .onStop(function () {
@@ -99,7 +134,7 @@ var VirtualScrollComponent = (function () {
             .start();
         var animate = function (time) {
             _this.currentTween.update(time);
-            if (_this.currentTween._object.scrollTop !== scrollTop) {
+            if (_this.currentTween._object[_this._scrollType] !== scroll) {
                 _this.zone.runOutsideAngular(function () {
                     animationRequest = requestAnimationFrame(animate);
                 });
@@ -142,15 +177,26 @@ var VirtualScrollComponent = (function () {
         }
         return itemsPerRow;
     };
+    VirtualScrollComponent.prototype.countItemsPerCol = function () {
+        var offsetLeft;
+        var itemsPerCol;
+        var children = this.contentElementRef.nativeElement.children;
+        for (itemsPerCol = 0; itemsPerCol < children.length; itemsPerCol++) {
+            if (offsetLeft != undefined && offsetLeft !== children[itemsPerCol].offsetLeft)
+                break;
+            offsetLeft = children[itemsPerCol].offsetLeft;
+        }
+        return itemsPerCol;
+    };
     VirtualScrollComponent.prototype.getElementsOffset = function () {
-        var offsetTop = 0;
+        var offset = 0;
         if (this.containerElementRef && this.containerElementRef.nativeElement) {
-            offsetTop += this.containerElementRef.nativeElement.offsetTop;
+            offset += this.containerElementRef.nativeElement[this._offsetType];
         }
         if (this.parentScroll) {
-            offsetTop += this.element.nativeElement.offsetTop;
+            offset += this.element.nativeElement[this._offsetType];
         }
-        return offsetTop;
+        return offset;
     };
     VirtualScrollComponent.prototype.calculateDimensions = function () {
         var el = this.parentScroll instanceof Window ? document.body : this.parentScroll || this.element.nativeElement;
@@ -171,20 +217,40 @@ var VirtualScrollComponent = (function () {
         }
         var childWidth = this.childWidth || contentDimensions.width;
         var childHeight = this.childHeight || contentDimensions.height;
-        var itemsPerRow = Math.max(1, this.countItemsPerRow());
-        var itemsPerRowByCalc = Math.max(1, Math.floor(viewWidth / childWidth));
-        var itemsPerCol = Math.max(1, Math.floor(viewHeight / childHeight));
-        var elScrollTop = this.parentScroll instanceof Window
-            ? (window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || 0)
-            : el.scrollTop;
-        var scrollTop = Math.max(0, elScrollTop);
+        var itemsPerCol = -1;
+        var itemsPerColByCalc = -1;
+        var itemsPerRow = -1;
+        var itemsPerRowByCalc = -1;
+        if (this.horizontal) {
+            itemsPerCol = Math.max(1, this.countItemsPerCol());
+            itemsPerColByCalc = Math.max(1, Math.floor(viewHeight / childHeight));
+            itemsPerRow = Math.max(1, Math.floor(viewWidth / childWidth));
+        }
+        else {
+            itemsPerRow = Math.max(1, this.countItemsPerRow());
+            itemsPerRowByCalc = Math.max(1, Math.floor(viewWidth / childWidth));
+            itemsPerCol = Math.max(1, Math.floor(viewHeight / childHeight));
+        }
+        var elScroll = this.parentScroll instanceof Window
+            ? (window[this._pageOffsetType] || document.documentElement[this._scrollType] || document.body[this._scrollType] || 0)
+            : el[this._scrollType];
+        var scroll = Math.max(0, elScroll);
         var scrollHeight = childHeight * Math.ceil(itemCount / itemsPerRow);
-        if (itemsPerCol === 1 && Math.floor(scrollTop / scrollHeight * itemCount) + itemsPerRowByCalc >= itemCount) {
+        var scrollWidth = childWidth * Math.ceil(itemCount / itemsPerCol);
+        if (!this.horizontal && itemsPerCol === 1 && Math.floor(scroll / scrollHeight * itemCount) + itemsPerRowByCalc >= itemCount) {
             itemsPerRow = itemsPerRowByCalc;
         }
-        if (scrollHeight !== this.lastScrollHeight) {
+        // only re-assign in case of horizontal to prevent
+        if (this.horizontal && itemsPerRow === 1 && Math.floor(scroll / scrollWidth * itemCount) + itemsPerColByCalc >= itemCount) {
+            itemsPerCol = itemsPerColByCalc;
+        }
+        if (scrollHeight !== this.lastScrollHeight && !this.horizontal) {
             this.renderer.setStyle(this.shimElementRef.nativeElement, 'height', scrollHeight + "px");
             this.lastScrollHeight = scrollHeight;
+        }
+        if (scrollWidth !== this.lastScrollWidth && this.horizontal) {
+            this.renderer.setStyle(this.shimElementRef.nativeElement, 'width', scrollWidth + "px");
+            this.lastScrollWidth = scrollWidth;
         }
         return {
             itemCount: itemCount,
@@ -195,7 +261,9 @@ var VirtualScrollComponent = (function () {
             itemsPerRow: itemsPerRow,
             itemsPerCol: itemsPerCol,
             itemsPerRowByCalc: itemsPerRowByCalc,
+            itemsPerColByCalc: itemsPerColByCalc,
             scrollHeight: scrollHeight,
+            scrollWidth: scrollWidth
         };
     };
     VirtualScrollComponent.prototype.calculateItems = function (forceViewportUpdate) {
@@ -206,29 +274,32 @@ var VirtualScrollComponent = (function () {
         }
         var el = this.parentScroll instanceof Window ? document.body : this.parentScroll || this.element.nativeElement;
         var d = this.calculateDimensions();
+        console.log();
         var items = this.items || [];
-        var offsetTop = this.getElementsOffset();
-        var elScrollTop = this.parentScroll instanceof Window
-            ? (window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || 0)
-            : el.scrollTop;
-        if (elScrollTop > d.scrollHeight) {
-            elScrollTop = d.scrollHeight + offsetTop;
+        var offset = this.getElementsOffset();
+        var elScroll = (this.parentScroll instanceof Window) ?
+            (window[this._pageOffsetType] || document.documentElement[this._scrollType] || document.body[this._scrollType] || 0)
+            : el[this._scrollType];
+        if (elScroll > d[this._scrollDim]) {
+            elScroll = d[this._scrollDim] + offset;
         }
-        var scrollTop = Math.max(0, elScrollTop - offsetTop);
-        var indexByScrollTop = scrollTop / d.scrollHeight * d.itemCount / d.itemsPerRow;
-        var end = Math.min(d.itemCount, Math.ceil(indexByScrollTop) * d.itemsPerRow + d.itemsPerRow * (d.itemsPerCol + 1));
+        var scroll = Math.max(0, elScroll - offset);
+        var indexByScroll = scroll / d[this._scrollDim] * d.itemCount / ((this._horizontal) ? d.itemsPerCol : d.itemsPerRow);
+        var end = Math.min(d.itemCount, Math.ceil(indexByScroll) * d[this._itemsPerOpScrollDir] + d[this._itemsPerOpScrollDir] * (d[this._itemsPerScrollDir] + 1));
         var maxStartEnd = end;
-        var modEnd = end % d.itemsPerRow;
+        var modEnd = end % d[this._itemsPerOpScrollDir];
         if (modEnd) {
-            maxStartEnd = end + d.itemsPerRow - modEnd;
+            maxStartEnd = end + d[this._itemsPerOpScrollDir] - modEnd;
         }
-        var maxStart = Math.max(0, maxStartEnd - d.itemsPerCol * d.itemsPerRow - d.itemsPerRow);
-        var start = Math.min(maxStart, Math.floor(indexByScrollTop) * d.itemsPerRow);
-        var topPadding = (items == null || items.length === 0) ? 0 : (d.childHeight * Math.ceil(start / d.itemsPerRow) - (d.childHeight * Math.min(start, this.bufferAmount)));
-        if (topPadding !== this.lastTopPadding) {
-            this.renderer.setStyle(this.contentElementRef.nativeElement, 'transform', "translateY(" + topPadding + "px)");
-            this.renderer.setStyle(this.contentElementRef.nativeElement, 'webkitTransform', "translateY(" + topPadding + "px)");
-            this.lastTopPadding = topPadding;
+        var maxStart = Math.max(0, maxStartEnd - d[this._itemsPerScrollDir] * d[this._itemsPerOpScrollDir] - d[this._itemsPerOpScrollDir]);
+        var start = Math.min(maxStart, Math.floor(indexByScroll) * d[this._itemsPerOpScrollDir]);
+        var dirPadding = (items == null || items.length === 0) ? 0 :
+            (d[this._childScrollDim] * Math.ceil(start / d[this._itemsPerOpScrollDir]) -
+                (d[this._childScrollDim] * Math.min(start, this.bufferAmount)));
+        if (dirPadding !== this.lastPadding) {
+            this.renderer.setStyle(this.contentElementRef.nativeElement, 'transform', this._translateDir + "(" + dirPadding + "px)");
+            this.renderer.setStyle(this.contentElementRef.nativeElement, 'webkitTransform', this._translateDir + "(" + dirPadding + "px)");
+            this.lastPadding = dirPadding;
         }
         start = !isNaN(start) ? start : -1;
         end = !isNaN(end) ? end : -1;
@@ -269,11 +340,12 @@ var VirtualScrollComponent = (function () {
         { type: core_1.Component, args: [{
                     selector: 'virtual-scroll,[virtualScroll]',
                     exportAs: 'virtualScroll',
-                    template: "\n    <div class=\"total-padding\" #shim></div>\n    <div class=\"scrollable-content\" #content>\n      <ng-content></ng-content>\n    </div>\n  ",
+                    template: "\n    <div [ngClass]=\"{'total-padding': true, 'horizontal-padding': this.horizontal }\" #shim></div>\n    <div class=\"scrollable-content\" #content>\n      <ng-content></ng-content>\n    </div>\n  ",
                     host: {
-                        '[style.overflow-y]': "parentScroll ? 'hidden' : 'auto'"
+                        '[style.overflow-y]': "parentScroll || horizontal ? 'hidden' : 'auto'",
+                        '[style.overflow-x]': "parentScroll || !horizontal ? 'hidden' : 'auto'"
                     },
-                    styles: ["\n    :host {\n      overflow: hidden;\n      position: relative;\n\t  display: block;\n      -webkit-overflow-scrolling: touch;\n    }\n    .scrollable-content {\n      top: 0;\n      left: 0;\n      width: 100%;\n      height: 100%;\n      position: absolute;\n    }\n    .total-padding {\n      width: 1px;\n      opacity: 0;\n    }\n  "]
+                    styles: ["\n    :host {\n      overflow: hidden;\n      position: relative;\n\t  display: block;\n      -webkit-overflow-scrolling: touch;\n    }\n    .scrollable-content {\n      top: 0;\n      left: 0;\n      width: 100%;\n      height: 100%;\n      position: absolute;\n    }\n    .total-padding {\n      width: 1px;\n      opacity: 0;\n    }\n    \n    .horizontal-padding {\n      height: 100%;\n    }\n  "]
                 },] },
     ];
     /** @nocollapse */
@@ -291,6 +363,7 @@ var VirtualScrollComponent = (function () {
         'bufferAmount': [{ type: core_1.Input },],
         'scrollAnimationTime': [{ type: core_1.Input },],
         'doNotCheckAngularZone': [{ type: core_1.Input },],
+        'horizontal': [{ type: core_1.Input },],
         'parentScroll': [{ type: core_1.Input },],
         'update': [{ type: core_1.Output },],
         'change': [{ type: core_1.Output },],
@@ -309,7 +382,8 @@ var VirtualScrollModule = (function () {
     VirtualScrollModule.decorators = [
         { type: core_1.NgModule, args: [{
                     exports: [VirtualScrollComponent],
-                    declarations: [VirtualScrollComponent]
+                    declarations: [VirtualScrollComponent],
+                    imports: [common_1.CommonModule]
                 },] },
     ];
     /** @nocollapse */
