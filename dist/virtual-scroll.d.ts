@@ -8,6 +8,7 @@ export declare class VirtualScrollComponent implements OnInit, OnChanges, OnDest
     private readonly renderer;
     private readonly zone;
     items: any[];
+    private _items;
     scrollbarWidth: number;
     scrollbarHeight: number;
     childWidth: number;
