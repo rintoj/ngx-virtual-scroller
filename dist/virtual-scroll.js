@@ -8,7 +8,7 @@ var VirtualScrollComponent = (function () {
         this.element = element;
         this.renderer = renderer;
         this.zone = zone;
-        this.items = [];
+        this._items = [];
         this.bufferAmount = 0;
         this.scrollAnimationTime = 1500;
         this.doNotCheckAngularZone = false;
@@ -25,6 +25,20 @@ var VirtualScrollComponent = (function () {
         /** Cache of the last top padding to prevent setting CSS when not needed. */
         this.lastTopPadding = -1;
     }
+    Object.defineProperty(VirtualScrollComponent.prototype, "items", {
+        get: function () {
+            return this._items;
+        },
+        set: function (items) {
+            if (items === this._items) {
+                return;
+            }
+            this._items = items;
+            this.refresh();
+        },
+        enumerable: true,
+        configurable: true
+    });
     Object.defineProperty(VirtualScrollComponent.prototype, "parentScroll", {
         get: function () {
             return this._parentScroll;
