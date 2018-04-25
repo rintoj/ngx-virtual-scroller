@@ -223,7 +223,7 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
         this.disposeScrollHandler =
           this.renderer.listen(parentScroll, 'scroll', this.refreshHandler);
         if (parentScroll instanceof Window) {
-          this.disposeScrollHandler =
+          this.disposeResizeHandler =
             this.renderer.listen('window', 'resize', this.refreshHandler);
         }
       });
