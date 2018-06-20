@@ -1,7 +1,11 @@
 
-# angular2-virtual-scroll
+# ngx-virtual-scroll-plus
 
 Virtual Scroll displays a virtual, "infinite" list. Supports multi-column.
+
+Fork of original https://github.com/rintoj/angular2-virtual-scroll
+
+## New feature is support of elements with different heights
 
 ## About
 
@@ -20,7 +24,7 @@ This method is effective because the number of DOM elements are always constant 
 
 ## Demo
 
-[See Demo Here](http://rintoj.github.io/angular2-virtual-scroll)
+[See Demo Here](http://rintoj.github.io/ngx-virtual-scroll-plus)
 
 ## Usage
 
@@ -57,17 +61,17 @@ alternatively
 
 ## Get Started
 
-**Step 1:** Install angular2-virtual-scroll
+**Step 1:** Install ngx-virtual-scroll-plus
 
 ```sh
-npm install angular2-virtual-scroll --save
+npm install ngx-virtual-scroll-plus --save
 ```
 
 **Step 2:** Import virtual scroll module into your app module
 
 ```ts
 ....
-import { VirtualScrollModule } from 'angular2-virtual-scroll';
+import { VirtualScrollModule } from 'ngx-virtual-scroll-plus';
 
 ....
 
@@ -112,7 +116,7 @@ list-item {
 
 **Step 4:** Create 'list-item' component.
 
-'list-item' must a custom angular2 component, outside of this library. A sample list item is give below or check the [demo app](https://github.com/rintoj/angular2-virtual-scroll/tree/master/demo) for [list-item.component.ts](https://github.com/rintoj/angular2-virtual-scroll/blob/master/demo/src/app/lists/list-item.component.ts).
+'list-item' must a custom angular2 component, outside of this library. A sample list item is give below or check the [demo app](https://github.com/rintoj/ngx-virtual-scroll-plus/tree/master/demo) for [list-item.component.ts](https://github.com/rintoj/ngx-virtual-scroll-plus/blob/master/demo/src/app/lists/list-item.component.ts).
 
 ```ts
 import { Component, Input } from '@angular/core';
@@ -255,7 +259,7 @@ The event `end` is fired every time scroll reaches at the end of the list. You c
 
 ```ts
 
-import { ChangeEvent } from '@angular2-virtual-scroll';
+import { ChangeEvent } from '@ngx-virtual-scroll-plus';
 ...
 
 @Component({
@@ -301,7 +305,7 @@ If virtual scroll is used within a dropdown or collapsible menu, virtual scroll 
 
 ```ts
 import { Component, ViewChild } from '@angular/core';
-import { VirtualScrollComponent } from 'angular2-virtual-scroll';
+import { VirtualScrollComponent } from 'ngx-virtual-scroll-plus';
 
 @Component({
     selector: 'rj-list',
@@ -331,7 +335,7 @@ You could use `scrollInto(item)` api to scroll into an item in the list. See bel
 
 ```ts
 import { Component, ViewChild } from '@angular/core';
-import { VirtualScrollComponent } from 'angular2-virtual-scroll';
+import { VirtualScrollComponent } from 'ngx-virtual-scroll-plus';
 
 @Component({
     selector: 'rj-list',
@@ -386,7 +390,7 @@ Follow me:
 | [Youtube](https://youtube.com/+RintoJoseMankudy)
 
 ## Versions
-[Check CHANGELOG](https://github.com/rintoj/angular2-virtual-scroll/blob/master/CHANGELOG.md)
+[Check CHANGELOG](https://github.com/rintoj/ngx-virtual-scroll-plus/blob/master/CHANGELOG.md)
 
 ## License
 ```
