@@ -1,4 +1,5 @@
 import { ElementRef, EventEmitter, NgZone, OnChanges, OnDestroy, OnInit, Renderer2, SimpleChanges } from '@angular/core';
+import * as tween from '@tweenjs/tween.js';
 export interface ChangeEvent {
     start?: number;
     end?: number;
@@ -14,6 +15,7 @@ export declare class VirtualScrollComponent implements OnInit, OnChanges, OnDest
     childHeight: number;
     bufferAmount: number;
     scrollAnimationTime: number;
+    doNotCheckAngularZone: boolean;
     private refreshHandler;
     private _parentScroll;
     parentScroll: Element | Window;
@@ -25,10 +27,17 @@ export declare class VirtualScrollComponent implements OnInit, OnChanges, OnDest
     contentElementRef: ElementRef;
     shimElementRef: ElementRef;
     containerElementRef: ElementRef;
+    topPadding: number;
     previousStart: number;
     previousEnd: number;
+    previousChildHeight: number;
+    previousScrollNumberElements: number;
     startupLoop: boolean;
-    currentTween: any;
+    currentTween: tween.Tween;
+    itemsHeight: {
+        [key: number]: number;
+    };
+    window: Window;
     private disposeScrollHandler;
     private disposeResizeHandler;
     /** Cache of the last scroll height to prevent setting CSS when not needed. */
@@ -40,7 +49,8 @@ export declare class VirtualScrollComponent implements OnInit, OnChanges, OnDest
     ngOnDestroy(): void;
     ngOnChanges(changes: SimpleChanges): void;
     refresh(forceViewportUpdate?: boolean): void;
-    scrollInto(item: any): void;
+    scrollInto(item: any, additionalOffset?: number): void;
+    private getElement();
     private addParentEventHandlers(parentScroll);
     private removeParentEventHandlers();
     private countItemsPerRow();
