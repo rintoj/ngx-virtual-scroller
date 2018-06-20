@@ -1,9 +1,33 @@
+# v0.3.2
+
+* Added ability to use virtual scroll with different heights of elements
+
+# v0.3.1
+
+* Merge PR [!117](https://github.com/rintoj/angular2-virtual-scroll/pull/117) - Run scroll and frame handlers outside of angular zone for performance
+
+# v0.3.0
+
+* Add smooth scroll for `scrollInto` function.
+
+# v0.2.2
+
+* Fixes #94
+
+# v0.2.1
+
+* Added ability to get viewPortItems as a field instead of event
+* Added easier ability of using window scrollbar
 
 # v0.2.0
 
-* Forked from angular2-virtual-scroll
 * Added ability to put other elements inside of scroll (Need to wrap list itself in @ContentChild('container'))
 * Added ability to use any parent with scrollbar instead of this element (@input() parentScroll)
+
+# v0.1.8
+
+* fixes [#74](https://github.com/rintoj/angular2-virtual-scroll/issues/74)
+* fix buffer for scroll to top amount [#71](https://github.com/rintoj/angular2-virtual-scroll/issues/71)
 
 # v0.1.7
 

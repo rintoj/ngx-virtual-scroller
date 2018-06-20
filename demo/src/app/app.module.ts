@@ -8,7 +8,7 @@ import { MultiColListComponent } from './lists/multi-col-list.component';
 import { NgModule } from '@angular/core';
 import { TableListComponent } from './lists/table-list.component';
 import { VerticalListComponent } from './lists/vertical-list.component';
-import { VirtualScrollModule } from '../../../src/virtual-scroll';
+import { VirtualScrollModule } from 'angular2-virtual-scroll';
 
 @NgModule({
   declarations: [
