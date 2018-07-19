@@ -1,4 +1,8 @@
 
+# v0.3.3
+
+* update to latest npm versions. fix parentScroll. support horizontal scrollbars. auto-calculate scrollbar size. auto-refresh if items array changes. minor bug fixes
+
 # v0.3.2
 
 * Merge PR [!159](https://github.com/rintoj/angular2-virtual-scroll/pull/159), [!165](https://github.com/rintoj/angular2-virtual-scroll/pull/165), [!167](https://github.com/rintoj/angular2-virtual-scroll/pull/167), [!168](https://github.com/rintoj/angular2-virtual-scroll/pull/168)

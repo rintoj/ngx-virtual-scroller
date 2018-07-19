@@ -1,9 +1,9 @@
 {
   "name": "angular2-virtual-scroll",
-  "version": "0.3.2",
+  "version": "0.3.3",
   "description": "Angular 2 module for virtual -infinite- list. Supports multi-column",
-  "main": "dist/virtual-scroll.js",
-  "types": "dist/virtual-scroll.d.ts",
+  "main": "dist/src/virtual-scroll.js",
+  "types": "dist/src/virtual-scroll.d.ts",
   "scripts": {
     "cleanup": "rimraf dist",
     "build": "npm run cleanup && npm run ngc",
@@ -13,7 +13,8 @@
     "test": "npm test",
     "ngc": "ngc",
     "tslint": "tslint",
-    "watch": "ngc -- -w"
+    "watch": "ngc -- -w",
+    "update-npm-versions": "npm-check --skip-unused --update-all --save-exact --ignore typescript"
   },
   "repository": {
     "type": "git",
@@ -31,26 +32,27 @@
   },
   "homepage": "https://github.com/rintoj/angular2-virtual-scroll#readme",
   "devDependencies": {
-    "@angular/cli": "^1.3.0",
-    "@angular/common": "^4.3.0",
-    "@angular/compiler": "^4.3.0",
-    "@angular/compiler-cli": "^4.3.0",
-    "@angular/core": "^4.3.0",
-    "@angular/forms": "^4.3.0",
-    "@angular/http": "^4.3.0",
-    "@angular/platform-browser": "^4.3.0",
-    "@angular/platform-browser-dynamic": "^4.3.0",
-    "@angular/router": "^4.3.0",
-    "@types/node": "^8.0.14",
-    "codelyzer": "^2.0.0",
-    "core-js": "^2.4.1",
-    "rimraf": "^2.6.1",
-    "rxjs": "^5.4.2",
-    "tslint": "^5.5.0",
-    "typescript": "2.4.1",
-    "zone.js": "^0.8.13"
+    "@angular/cli": "6.0.8",
+    "@angular/common": "6.0.9",
+    "@angular/compiler": "6.0.9",
+    "@angular/compiler-cli": "6.0.9",
+    "@angular/core": "6.0.9",
+    "@angular/forms": "6.0.9",
+    "@angular/http": "6.0.9",
+    "@angular/platform-browser": "6.0.9",
+    "@angular/platform-browser-dynamic": "6.0.9",
+    "@angular/router": "6.0.9",
+    "@types/node": "10.5.2",
+    "codelyzer": "4.4.2",
+    "core-js": "2.5.7",
+    "npm-check": "5.7.1",
+    "rimraf": "2.6.2",
+    "rxjs": "6.2.2",
+    "tslint": "5.11.0",
+    "typescript": "2.7.2",
+    "zone.js": "0.8.26"
   },
   "dependencies": {
-    "@tweenjs/tween.js": "^17.1.0"
+    "@tweenjs/tween.js": "17.2.0"
   }
 }

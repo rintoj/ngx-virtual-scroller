@@ -6,7 +6,7 @@ Virtual Scroll displays a virtual, "infinite" list. Supports multi-column.
 ## About
 
 This module displays a small subset of records just enough to fill the viewport and uses the same DOM elements as the user scrolls.
-This method is effective because the number of DOM elements are always constant and tiny irrespective of the size of the list. Thus virtual scroll can display infinitely growing list of items in an efficient way.
+This method is effective because the number of DOM elements are always constant and tiny irrespective of the size of the list. Thus virtual scroll can display an infinitely growing list of items in an efficient way.
 
 * Angular 2 compatible module
 * Supports multi-column
@@ -17,6 +17,7 @@ This method is effective because the number of DOM elements are always constant 
 
 * Added ability to put other elements inside of scroll (Need to wrap list itself in @ContentChild('container'))
 * Added ability to use any parent with scrollbar instead of this element (@Input() parentScroll)
+* Added ability to use horizontal scrollbars
 
 ## Demo
 
@@ -112,7 +113,7 @@ list-item {
 
 **Step 4:** Create 'list-item' component.
 
-'list-item' must a custom angular2 component, outside of this library. A sample list item is give below or check the [demo app](https://github.com/rintoj/angular2-virtual-scroll/tree/master/demo) for [list-item.component.ts](https://github.com/rintoj/angular2-virtual-scroll/blob/master/demo/src/app/lists/list-item.component.ts).
+'list-item' must be a custom angular2 component, outside of this library. A sample list item is give below or check the [demo app](https://github.com/rintoj/angular2-virtual-scroll/tree/master/demo) for [list-item.component.ts](https://github.com/rintoj/angular2-virtual-scroll/blob/master/demo/src/app/lists/list-item.component.ts).
 
 ```ts
 import { Component, Input } from '@angular/core';
@@ -148,7 +149,7 @@ export class ListItemComponent {
 }
 ```
 
-Child component is not a necessity if your item is simple enough. See below.
+Child component is not necessary if your item is simple enough. See below.
 
 ```html
 <virtual-scroll [items]="items" (update)="viewPortItems = $event">
@@ -160,20 +161,24 @@ Child component is not a necessity if your item is simple enough. See below.
 
 | Attribute      | Type   | Description
 |----------------|--------|------------
+| scrollbarWidth | number | If you want to override the auto-calculated scrollbar width. This is used to determine the dimensions of the viewable area when calculating the number of items to render.
+| scrollbarHeight | number | If you want to override the auto-calculated scrollbar height. This is used to determine the dimensions of the viewable area when calculating the number of items to render.
+| horizontal | boolean | Whether the scrollbars should be vertical or horizontal. Defaults to false.
 | items          | any[]  | The data that builds the templates within the virtual scroll. This is the same data that you'd pass to ngFor. It's important to note that when this data has changed, then the entire virtual scroll is refreshed.
 | childWidth     | number | The minimum width of the item template's cell. This dimension is used to help determine how many cells should be created when initialized, and to help calculate the height of the scrollable area. Note that the actual rendered size of the first cell is used by default if not specified.
 | childHeight    | number | The minimum height of the item template's cell. This dimension is used to help determine how many cells should be created when initialized, and to help calculate the height of the scrollable area. Note that the actual rendered size of the first cell is used by default if not specified.
 | bufferAmount   | number | The the number of elements to be rendered outside of the current container's viewport. Useful when not all elements are the same dimensions.
-| scrollAnimationTime | number | The time in milliseconds for the scroll animation to run for. Default value is 1500
+| scrollAnimationTime | number | The time in milliseconds for the scroll animation to run for. Default value is 1500. 0 will completely disable the tween/animation.
 | parentScroll   | Element / Window | Element (or window), which will have scrollbar. This element must be one of the parents of virtual-scroll
-| update         | Event  | This event is fired every time `start` or `end` index change and emits list of items from `start` to `end`. The list emitted by this event must be used with `*ngFor` to render the actual list of items within `<virtual-scroll>`
-| change         | Event  | This event is fired every time `start` or `end` index change and emits `ChangeEvent` which of format: `{ start: number, end: number }`
+| start         | Event  | This event is fired every time `start` index changes and emits `ChangeEvent` which of format: `{ start: number, end: number }`
+| end         | Event  | This event is fired every time `end` index changes and emits `ChangeEvent` which of format: `{ start: number, end: number }`
+| update         | Event  | This event is fired every time the `start` or `end` indexes change and emits the list of items which should be visible based on the current scroll position from `start` to `end`. The list emitted by this event must be used with `*ngFor` to render the actual list of items within `<virtual-scroll>`
+| change         | Event  | This event is fired every time the `start` or `end` indexes change and emits `ChangeEvent` which of format: `{ start: number, end: number }`
 
 ## Getting view port items without events
 
-If you are using AOT compilation (hope you do it) then in classic usage (with listening to `update` event) it is required to create field `viewPortItems` in your component.
-There is a way how to avoid it.
-
+If you are using AOT compilation (I hope you are) then with classic usage (listening to `update` event) you are required to create a public field `viewPortItems` in your component.
+Here's a way to avoid it:
 ```html
 <virtual-scroll #scroll [items]="items">
 
@@ -185,7 +190,7 @@ There is a way how to avoid it.
 
 ## Additional elements in scroll
 
-If inside of content of virtual scroll element you want to show also additional elements except list itself (e.g. search field), you need to specify block with list using id "container".
+If you want to nest additional elements inside virtual scroll besides the list itself (e.g. search field), you need to wrap those elements in a tag with an angular selector name of #container.
 
 ```html
 <virtual-scroll [items]="items"
@@ -198,9 +203,9 @@ If inside of content of virtual scroll element you want to show also additional 
 </virtual-scroll>
 ```
 
-## Use scrollbar of parent block
+## Use parent scrollbar
 
-If you want to use scrollbar of parent block, instead of scrolling block, set `parentScroll`.
+If you want to use the scrollbar of a parent element, set `parentScroll`.
 
 ```html
 <div #scrollingBlock>
@@ -216,9 +221,11 @@ If you want to use scrollbar of parent block, instead of scrolling block, set `p
 </div>
 ```
 
+Note: The parent element must have a width and height defined.
+
 ## Use scrollbar of window
 
-If you want to use scrollbar of window, instead of scrolling block, set `parentScroll`.
+If you want to use the window's scrollbar, set `parentScroll`.
 
 ```html
 <virtual-scroll
@@ -233,9 +240,11 @@ If you want to use scrollbar of window, instead of scrolling block, set `parentS
 </virtual-scroll>
 ```
 
+Note: The body element must have a width and height defined.
+
 ## Items with variable size
 
-Items must have fixed height and width for this module to work perfectly. However if your list happen to have items with variable width and height, set inputs `childWidth` and `childHeight` to the smallest possible values to make this work.
+Items must have fixed height and width for this module to work perfectly. However if you have items with variable width and height, set inputs `childWidth` and `childHeight` to their smallest possible values.
 
 ```html
 <virtual-scroll [items]="items"
@@ -249,9 +258,9 @@ Items must have fixed height and width for this module to work perfectly. Howeve
 </virtual-scroll>
 ```
 
-## Loading in chunk
+## Loading in chunks
 
-The event `end` is fired every time scroll reaches at the end of the list. You could use this to load more items at the end of the scroll. See below.
+The event `end` is fired every time the scrollbar reaches the end of the list. You could use this to dynamically load more items at the end of the scroll. See below.
 
 ```ts
 
@@ -295,7 +304,7 @@ export class ListWithApiComponent implements OnChanges {
 }
 ```
 
-## If container size change
+## If container size changes
 
 If virtual scroll is used within a dropdown or collapsible menu, virtual scroll needs to know when the container size change. Use `refresh()` function after container is resized (include time for animation as well).
 
@@ -325,9 +334,9 @@ export class ListComponent {
 }
 ```
 
-## Focus on an item
+## Focus an item
 
-You could use `scrollInto(item)` api to scroll into an item in the list. See below:
+You can use the `scrollInto(item)` api to scroll into an item in the list. See below:
 
 ```ts
 import { Component, ViewChild } from '@angular/core';
