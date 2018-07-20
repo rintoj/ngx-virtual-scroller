@@ -1,4 +1,8 @@
 
+# v0.3.4
+
+* revert package.json to Angular 4 instead of Angular 6 since they should be backwards compatible
+
 # v0.3.3
 
 * update to latest npm versions. fix parentScroll. support horizontal scrollbars. auto-calculate scrollbar size. auto-refresh if items array changes. minor bug fixes

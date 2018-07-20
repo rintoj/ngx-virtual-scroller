@@ -8,7 +8,7 @@ Virtual Scroll displays a virtual, "infinite" list. Supports multi-column.
 This module displays a small subset of records just enough to fill the viewport and uses the same DOM elements as the user scrolls.
 This method is effective because the number of DOM elements are always constant and tiny irrespective of the size of the list. Thus virtual scroll can display an infinitely growing list of items in an efficient way.
 
-* Angular 2 compatible module
+* Angular 4+ compatible module
 * Supports multi-column
 * Easy to use apis
 * OpenSource and available in GitHub
@@ -28,8 +28,8 @@ This method is effective because the number of DOM elements are always constant 
 ```html
 <virtual-scroll [items]="items" (update)="viewPortItems = $event">
 
-    <list-item *ngFor="let item of viewPortItems" [item]="item">
-    </list-item>
+    <my-custom-component *ngFor="let item of viewPortItems">
+    </my-custom-component>
 
 </virtual-scroll>
 ```
@@ -39,8 +39,8 @@ alternatively
 ```html
 <virtual-scroll #scroll [items]="items">
 
-    <list-item *ngFor="let item of scroll.viewPortItems" [item]="item">
-    </list-item>
+    <my-custom-component *ngFor="let item of scroll.viewPortItems">
+    </my-custom-component>
 
 </virtual-scroll>
 ```
@@ -50,8 +50,8 @@ alternatively
 ```html
 <div virtualScroll [items]="items" (update)="viewPortItems = $event">
 
-    <list-item *ngFor="let item of viewPortItems" [item]="item">
-    </list-item>
+    <my-custom-component *ngFor="let item of viewPortItems">
+    </my-custom-component>
 
 </div>
 ```
@@ -83,13 +83,13 @@ import { VirtualScrollModule } from 'angular2-virtual-scroll';
 export class AppModule { }
 ```
 
-**Step 3:** Wrap virtual-scroll tag around list items;
+**Step 3:** Wrap virtual-scroll tag around elements;
 
 ```ts
 <virtual-scroll [items]="items" (update)="viewPortItems = $event">
 
-    <list-item *ngFor="let item of viewPortItems" [item]="item">
-    </list-item>
+    <my-custom-component *ngFor="let item of viewPortItems">
+    </my-custom-component>
 
 </virtual-scroll>
 ```
@@ -103,7 +103,7 @@ virtual-scroll {
   height: 200px;
 }
 
-list-item {
+my-custom-component {
   display: block;
   width: 100%;
   height: 30px;
@@ -111,43 +111,9 @@ list-item {
 
 ```
 
-**Step 4:** Create 'list-item' component.
+**Step 4:** Create 'my-custom-component' component.
 
-'list-item' must be a custom angular2 component, outside of this library. A sample list item is give below or check the [demo app](https://github.com/rintoj/angular2-virtual-scroll/tree/master/demo) for [list-item.component.ts](https://github.com/rintoj/angular2-virtual-scroll/blob/master/demo/src/app/lists/list-item.component.ts).
-
-```ts
-import { Component, Input } from '@angular/core';
-
-export interface ListItem {
-    index?: number;
-    name?: string;
-    gender?: string;
-    age?: number;
-    email?: string;
-    phone?: string;
-    address?: string;
-}
-
-@Component({
-    selector: 'list-item',
-    template: `
-        <div class="avatar">{{item.index}}</div>
-        <div class="item-content">
-            <div class="name">{{item.name}}</div>
-            <div>
-                <span class="badge">{{item.age}} / {{item.gender}}</span>
-                <span>{{item.email}} | {{item.phone}}</span>
-            </div>
-            <div>{{item.address}}</div>
-        </div>
-    `,
-    styleUrls: ['./list-item.scss']
-})
-export class ListItemComponent {
-    @Input()
-    item: ListItem;
-}
-```
+'my-custom-component' must be a custom angular2 component, outside of this library.
 
 Child component is not necessary if your item is simple enough. See below.
 
@@ -182,8 +148,8 @@ Here's a way to avoid it:
 ```html
 <virtual-scroll #scroll [items]="items">
 
-    <list-item *ngFor="let item of scroll.viewPortItems" [item]="item">
-    </list-item>
+    <my-custom-component *ngFor="let item of scroll.viewPortItems">
+    </my-custom-component>
 
 </virtual-scroll>
 ```
@@ -197,8 +163,8 @@ If you want to nest additional elements inside virtual scroll besides the list i
     (update)="viewPortItems = $event">
     <input type="search">
     <div #container>
-        <list-item *ngFor="let item of viewPortItems" [item]="item">
-        </list-item>
+        <my-custom-component *ngFor="let item of viewPortItems">
+        </my-custom-component>
     </div>
 </virtual-scroll>
 ```
@@ -214,8 +180,8 @@ If you want to use the scrollbar of a parent element, set `parentScroll`.
         (update)="viewPortItems = $event">
         <input type="search">
         <div #container>
-            <list-item *ngFor="let item of viewPortItems" [item]="item">
-            </list-item>
+            <my-custom-component *ngFor="let item of viewPortItems">
+            </my-custom-component>
         </div>
     </virtual-scroll>
 </div>
@@ -234,8 +200,8 @@ If you want to use the window's scrollbar, set `parentScroll`.
     [parentScroll]="scroll.window">
     <input type="search">
     <div #container>
-        <list-item *ngFor="let item of scroll.viewPortItems" [item]="item">
-        </list-item>
+        <my-custom-component *ngFor="let item of scroll.viewPortItems">
+        </my-custom-component>
     </div>
 </virtual-scroll>
 ```
@@ -252,8 +218,8 @@ Items must have fixed height and width for this module to work perfectly. Howeve
     [childHeight]="30"
     (update)="viewPortItems = $event">
 
-    <list-item *ngFor="let item of viewPortItems" [item]="item">
-    </list-item>
+    <my-custom-component *ngFor="let item of viewPortItems">
+    </my-custom-component>
 
 </virtual-scroll>
 ```
@@ -273,7 +239,7 @@ import { ChangeEvent } from '@angular2-virtual-scroll';
         <virtual-scroll [items]="buffer" (update)="scrollItems = $event"
             (end)="fetchMore($event)">
 
-            <list-item *ngFor="let item of scrollItems" [item]="item"> </list-item>
+            <my-custom-component *ngFor="let item of scrollItems"> </my-custom-component>
             <div *ngIf="loading" class="loader">Loading...</div>
 
         </virtual-scroll>
