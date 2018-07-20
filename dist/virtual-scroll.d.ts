@@ -1,4 +1,4 @@
-import { ElementRef, EventEmitter, NgZone, OnChanges, OnDestroy, OnInit, Renderer2, SimpleChanges } from '@angular/core';
+import { ElementRef, EventEmitter, NgZone, OnChanges, OnDestroy, OnInit, Renderer2 } from '@angular/core';
 import * as tween from '@tweenjs/tween.js';
 export interface ChangeEvent {
     start?: number;
@@ -8,6 +8,8 @@ export declare class VirtualScrollComponent implements OnInit, OnChanges, OnDest
     protected readonly element: ElementRef;
     protected readonly renderer: Renderer2;
     protected readonly zone: NgZone;
+    private calculatedScrollbarWidth;
+    private calculatedScrollbarHeight;
     scrollbarWidth: number;
     scrollbarHeight: number;
     childWidth: number;
@@ -41,7 +43,7 @@ export declare class VirtualScrollComponent implements OnInit, OnChanges, OnDest
     padding: number;
     previousStart: number;
     previousEnd: number;
-    previousChildSize: number;
+    previousPageSize: number;
     previousScrollNumberElements: number;
     startupLoop: boolean;
     currentTween: tween.Tween;
@@ -63,7 +65,7 @@ export declare class VirtualScrollComponent implements OnInit, OnChanges, OnDest
     constructor(element: ElementRef, renderer: Renderer2, zone: NgZone);
     ngOnInit(): void;
     ngOnDestroy(): void;
-    ngOnChanges(changes: SimpleChanges): void;
+    ngOnChanges(changes: any): void;
     ngDoCheck(): void;
     refresh(forceViewportUpdate?: boolean): void;
     protected getScrollElement(): HTMLElement;
@@ -73,14 +75,12 @@ export declare class VirtualScrollComponent implements OnInit, OnChanges, OnDest
     protected getElementsOffset(): number;
     protected countItemsPerRow(): number;
     protected countItemsPerCol(): number;
-    protected countItemsPerDirection(property: string): number;
+    protected countItemsPerDirection(propertyName: string): number;
     protected getScrollValue(): number;
     protected calculateDimensions(): {
         itemCount: number;
-        childWidth: any;
-        childHeight: any;
-        currentChildHeight: any;
-        currentChildWidth: any;
+        childWidth: number;
+        childHeight: number;
         itemsPerRow: number;
         itemsPerCol: number;
         scrollHeight: number;
