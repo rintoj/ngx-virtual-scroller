@@ -1,34 +1,34 @@
 import { ElementRef, EventEmitter, NgZone, OnChanges, OnDestroy, OnInit, Renderer2, SimpleChanges } from '@angular/core';
+import * as tween from '@tweenjs/tween.js';
 export interface ChangeEvent {
     start?: number;
     end?: number;
 }
 export declare class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
-    private readonly element;
-    private readonly renderer;
-    private readonly zone;
+    protected readonly element: ElementRef;
+    protected readonly renderer: Renderer2;
+    protected readonly zone: NgZone;
     scrollbarWidth: number;
     scrollbarHeight: number;
     childWidth: number;
     childHeight: number;
     bufferAmount: number;
     scrollAnimationTime: number;
-    doNotCheckAngularZone: boolean;
-    private _items;
+    protected _items: any[];
     items: any[];
-    private _horizontal;
-    private _offsetType;
-    private _scrollType;
-    private _pageOffsetType;
-    private _scrollDim;
-    private _itemsPerScrollDir;
-    private _itemsPerOpScrollDir;
-    private _childScrollDim;
-    private _translateDir;
+    protected _horizontal: boolean;
+    protected _offsetType: any;
+    protected _scrollType: any;
+    protected _pageOffsetType: any;
+    protected _scrollDim: any;
+    protected _itemsPerScrollDir: any;
+    protected _itemsPerOpScrollDir: any;
+    protected _childScrollDim: any;
+    protected _translateDir: any;
     horizontal: boolean;
-    private updateDirection();
-    private refreshHandler;
-    private _parentScroll;
+    protected updateDirection(): void;
+    protected refreshHandler: () => void;
+    protected _parentScroll: Element | Window;
     parentScroll: Element | Window;
     update: EventEmitter<any[]>;
     viewPortItems: any[];
@@ -38,35 +38,55 @@ export declare class VirtualScrollComponent implements OnInit, OnChanges, OnDest
     contentElementRef: ElementRef;
     shimElementRef: ElementRef;
     containerElementRef: ElementRef;
+    padding: number;
     previousStart: number;
     previousEnd: number;
+    previousChildSize: number;
+    previousScrollNumberElements: number;
     startupLoop: boolean;
-    currentTween: any;
+    currentTween: tween.Tween;
+    itemsHeight: {
+        [key: number]: number;
+    };
+    itemsWidth: {
+        [key: number]: number;
+    };
     itemsLength: number;
     window: Window;
-    private disposeScrollHandler;
-    private disposeResizeHandler;
-    /** Cache of the last scroll height to prevent setting CSS when not needed. */
-    private lastScrollHeight;
-    private lastScrollWidth;
+    protected disposeScrollHandler: () => void | undefined;
+    protected disposeResizeHandler: () => void | undefined;
+    /** Cache of the last scroll to prevent setting CSS when not needed. */
+    protected lastScrollHeight: number;
+    protected lastScrollWidth: number;
     /** Cache of the last top padding to prevent setting CSS when not needed. */
-    private lastPadding;
+    protected lastPadding: number;
     constructor(element: ElementRef, renderer: Renderer2, zone: NgZone);
     ngOnInit(): void;
     ngOnDestroy(): void;
     ngOnChanges(changes: SimpleChanges): void;
     ngDoCheck(): void;
     refresh(forceViewportUpdate?: boolean): void;
-    private getScrollElement();
-    scrollInto(item: any): void;
-    private addScrollEventHandlers();
-    private removeScrollEventHandlers();
-    private countItemsPerRow();
-    private countItemsPerCol();
-    private getElementsOffset();
-    private getScrollValue();
-    private calculateDimensions();
-    private calculateItems(forceViewportUpdate?);
+    protected getScrollElement(): HTMLElement;
+    scrollInto(item: any, additionalOffset?: number): void;
+    protected addScrollEventHandlers(): void;
+    protected removeScrollEventHandlers(): void;
+    protected getElementsOffset(): number;
+    protected countItemsPerRow(): number;
+    protected countItemsPerCol(): number;
+    protected countItemsPerDirection(property: string): number;
+    protected getScrollValue(): number;
+    protected calculateDimensions(): {
+        itemCount: number;
+        childWidth: any;
+        childHeight: any;
+        currentChildHeight: any;
+        currentChildWidth: any;
+        itemsPerRow: number;
+        itemsPerCol: number;
+        scrollHeight: number;
+        scrollWidth: number;
+    };
+    protected calculateItems(forceViewportUpdate?: boolean): void;
 }
 export declare class VirtualScrollModule {
 }

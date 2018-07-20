@@ -18,6 +18,7 @@ This method is effective because the number of DOM elements are always constant 
 * Added ability to put other elements inside of scroll (Need to wrap list itself in @ContentChild('container'))
 * Added ability to use any parent with scrollbar instead of this element (@Input() parentScroll)
 * Added ability to use horizontal scrollbars
+* New feature is support of elements with different heights
 
 ## Demo
 
