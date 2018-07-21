@@ -24,6 +24,16 @@ export interface ChangeEvent {
 	end?: number;
 }
 
+export interface IDimensions {
+	itemCount: number;
+	childWidth: number;
+	childHeight: number;
+	itemsPerRow: number;
+	itemsPerCol: number;
+	scrollHeight: number;
+	scrollWidth: number;
+}
+
 @Component({
 	selector: 'virtual-scroll,[virtualScroll]',
 	exportAs: 'virtualScroll',
@@ -82,8 +92,8 @@ export interface ChangeEvent {
 })
 export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
 
-	private calculatedScrollbarWidth: number = 0;
-	private calculatedScrollbarHeight: number = 0;
+	protected calculatedScrollbarWidth: number = 0;
+	protected calculatedScrollbarHeight: number = 0;
 
 	@Input()
 	enableUnequalChildrenSizes_Experimental: boolean = false;
@@ -210,8 +220,6 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
 	padding: number = 0;
 	previousStart: number = 0;
 	previousEnd: number = -1;
-	previousPageSize: number = 0;
-	previousScrollNumberElements: number = 0;
 	startupLoop: boolean = true;
 	currentTween: tween.Tween;
 	itemsHeight: { [key: number]: number } = {};
@@ -279,24 +287,26 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
 		return this.parentScroll instanceof Window ? document.scrollingElement || document.documentElement || document.body : this.parentScroll || this.element.nativeElement;
 	}
 
-	scrollInto(item: any, additionalOffset: number = 0) {
-		let scrollElement = this.getScrollElement();
-		let offset = this.getElementsOffset();
+	scrollInto(item: any, alignToTop: boolean = true, additionalOffset: number = 0, animationMilliseconds: number = undefined, animationCompletedCallback: () => void = undefined) {
 		let index: number = this.items.indexOf(item);
 		if (index === -1) {
 			return;
 		}
 
+		this.scrollToIndex(index, alignToTop, additionalOffset, animationMilliseconds, animationCompletedCallback);
+	}
+
+	scrollToIndex(index: number, alignToBeginning: boolean = true, additionalOffset: number = 0, animationMilliseconds: number = undefined, animationCompletedCallback: () => void = undefined) {
+		animationCompletedCallback = animationCompletedCallback || (() => { });
+		animationMilliseconds = animationMilliseconds || this.scrollAnimationTime;
+
+		let scrollElement = this.getScrollElement();
+
 		let dimensions = this.calculateDimensions();
-		let scroll = ((Math.floor(index / dimensions[this._itemsPerOpScrollDir]) - Math.min(index, this.bufferAmount)) * dimensions[this._childScrollDim]) + offset + additionalOffset;
-
-		/*
-		 //bottom
-		 this.element.nativeElement.scrollTop = Math.floor(index / d.itemsPerRow) * - d.childHeight - Math.max(0, (d.itemsPerCol - 1)) * d.childHeight;
-
-		 //top
-+    this.element.nativeElement.scrollTop = Math.floor(index / d.itemsPerRow) * d.childHeight;
-		 */
+		let scroll = this.calculatePadding(index, dimensions, false) + additionalOffset;
+		if (!alignToBeginning) {
+			scroll -= Math.max(0, (dimensions[this._itemsPerScrollDir] - 1)) * dimensions[this._childScrollDim];
+		}
 
 		let animationRequest: number;
 
@@ -305,16 +315,17 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
 			this.currentTween = undefined;
 		}
 
-		// totally disable animate
-		if (!this.scrollAnimationTime) {
-			scrollElement[this._scrollType] = scroll;
+		if (!animationMilliseconds) {
+			this.renderer.setProperty(scrollElement, this._scrollType, scroll);
+			this.refresh();
+			animationCompletedCallback();
 			return;
 		}
 
 		const tweenConfigObj = { scroll: scrollElement[this._scrollType] };
 
 		let newTween = new tween.Tween(tweenConfigObj)
-			.to({ scroll }, this.scrollAnimationTime)
+			.to({ scroll }, animationMilliseconds)
 			.easing(tween.Easing.Quadratic.Out)
 			.onUpdate((data) => {
 				if (isNaN(data.scroll)) {
@@ -329,12 +340,19 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
 			.start();
 
 		const animate = (time?: number) => {
-			newTween.update(time);
-			if (tweenConfigObj.scroll !== scroll) {
-				this.zone.runOutsideAngular(() => {
-					animationRequest = requestAnimationFrame(animate);
-				});
+			if (!newTween.isPlaying()) {
+				return;
 			}
+
+			newTween.update(time);
+			if (tweenConfigObj.scroll === scroll) {
+				animationCompletedCallback();
+				return;
+			}
+
+			this.zone.runOutsideAngular(() => {
+				animationRequest = requestAnimationFrame(animate);
+			});
 		};
 
 		animate();
@@ -428,7 +446,7 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
 		return windowScrollValue || this.getScrollElement()[this._scrollType] || 0;
 	}
 
-	protected calculateDimensions() {
+	protected calculateDimensions(): IDimensions {
 		let scrollElement = this.getScrollElement();
 		let itemCount = this.items.length;
 
@@ -521,15 +539,72 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
 		};
 	}
 
+	cachedPageSize: number = 0;
+	previousScrollNumberElements: number = 0;
+
+	protected calculatePadding(start: number, dimensions: IDimensions, allowUnequalChildrenSizes_Experimental: boolean): number {
+		let offset = this.getElementsOffset();
+
+		//complex calculation isn't "pure", because it relies on global state & modifies that global state. It seems risky to call it during scrollInto since the original PR didn't. Once it's "pure" we can re-use it in both places.
+		if (!allowUnequalChildrenSizes_Experimental || !this.enableUnequalChildrenSizes_Experimental) {
+			return this.items.length === 0 ? 0 : (dimensions[this._childScrollDim] * Math.ceil(start / dimensions[this._itemsPerOpScrollDir]) - (dimensions[this._childScrollDim] * Math.min(start, this.bufferAmount)) + offset);
+		}
+
+		let newPadding: number = this.lastPadding;
+
+		if (start === 0) {
+			newPadding = 0;
+			this.previousStart = 0;
+		} else {
+			let content = (this.containerElementRef && this.containerElementRef.nativeElement) || this.contentElementRef.nativeElement;
+			let childSizeOverride = this.horizontal ? this.childWidth : this.childHeight;
+
+			if (!childSizeOverride && this.cachedPageSize && this.previousScrollNumberElements && content.children[this.previousScrollNumberElements - dimensions[this._itemsPerOpScrollDir]]) {
+				let firstChild = content.children[0].getBoundingClientRect();
+				let lastChild = content.children[this.previousScrollNumberElements - dimensions[this._itemsPerOpScrollDir]].getBoundingClientRect();
+				newPadding -= (this.horizontal ? lastChild.right : lastChild.bottom) - (this.horizontal ? firstChild.left : firstChild.top) - this.cachedPageSize;
+				this.cachedPageSize = 0;
+				this.previousScrollNumberElements = 0;
+			}
+
+			if (start < this.previousStart) {
+				this.cachedPageSize = 0;
+
+				let childSizeHash = this.horizontal ? this.itemsWidth : this.itemsHeight;
+				let defaultChildSize = dimensions[this._childScrollDim];
+
+				let maxChildSize = 0;
+				for (let i = start; i < this.previousStart; ++i) {
+					maxChildSize = Math.max(maxChildSize, childSizeHash[i] || defaultChildSize);
+					if ((i + 1) % dimensions[this._itemsPerOpScrollDir] === 0) {
+						this.cachedPageSize += maxChildSize * dimensions[this._itemsPerOpScrollDir];
+						maxChildSize = 0;
+					}
+				}
+
+				this.cachedPageSize /= dimensions[this._itemsPerOpScrollDir];
+				newPadding -= this.cachedPageSize;
+
+				this.previousScrollNumberElements = this.previousStart - start;
+			} else {
+				newPadding += dimensions[this._childScrollDim] * (start - this.previousStart) / dimensions[this._itemsPerOpScrollDir];
+			}
+
+			return Math.round(newPadding) + offset;
+		}
+	}
+
 	protected calculateItems(forceViewportUpdate: boolean = false) {
 		let dimensions = this.calculateDimensions();
 		let offset = this.getElementsOffset();
 		let elScroll = this.getScrollValue();
 		if (elScroll > dimensions[this._scrollDim] && !(this.parentScroll instanceof Window)) {
-			elScroll = dimensions[this._scrollDim] + offset;
+			elScroll = dimensions[this._scrollDim];
+		} else {
+			elScroll -= offset;
 		}
 
-		let scroll = Math.max(0, elScroll - offset);
+		let scroll = Math.max(0, elScroll);
 		let content = (this.containerElementRef && this.containerElementRef.nativeElement) || this.contentElementRef.nativeElement;
 
 		let newStart;
@@ -596,60 +671,7 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
 		newEnd += this.bufferAmount;
 		newEnd = Math.min(this.items.length, newEnd);
 
-		let newPadding: number = this.lastPadding;
-
-		if (this.enableUnequalChildrenSizes_Experimental) {
-			if (newStart === 0) {
-				newPadding = 0;
-				this.previousStart = 0;
-			} else {
-
-				let childSizeOverride = this.horizontal ? this.childWidth : this.childHeight;
-
-				if (!childSizeOverride &&
-					this.previousPageSize &&
-					this.previousScrollNumberElements &&
-					content.children[this.previousScrollNumberElements - dimensions[this._itemsPerOpScrollDir]]) {
-					let firstChild = content.children[0].getBoundingClientRect();
-					let lastChild = content.children[this.previousScrollNumberElements - dimensions[this._itemsPerOpScrollDir]]
-						.getBoundingClientRect();
-					newPadding -= (this.horizontal ? lastChild.right : lastChild.bottom) -
-						(this.horizontal ? firstChild.left : firstChild.top) -
-						this.previousPageSize;
-					this.previousPageSize = 0;
-					this.previousScrollNumberElements = 0;
-				}
-
-				if (newStart < this.previousStart) {
-					this.previousPageSize = 0;
-
-					let childSizeHash = this.horizontal ? this.itemsWidth : this.itemsHeight;
-					let defaultChildSize = dimensions[this._childScrollDim];
-
-					let maxChildSize = 0;
-					for (let i = newStart; i < this.previousStart; ++i) {
-						maxChildSize = Math.max(maxChildSize, childSizeHash[i] || defaultChildSize);
-						if ((i + 1) % dimensions[this._itemsPerOpScrollDir] === 0) {
-							this.previousPageSize += maxChildSize * dimensions[this._itemsPerOpScrollDir];
-							maxChildSize = 0;
-						}
-					}
-
-					this.previousPageSize /= dimensions[this._itemsPerOpScrollDir];
-					newPadding -= this.previousPageSize;
-
-					this.previousScrollNumberElements = this.previousStart - newStart;
-				} else {
-					newPadding += dimensions[this._childScrollDim] *
-						(newStart - this.previousStart) /
-						dimensions[this._itemsPerOpScrollDir];
-				}
-
-				newPadding = Math.round(newPadding);
-			}
-		} else {
-			newPadding = this.items.length === 0 ? 0 : (dimensions[this._childScrollDim] * Math.ceil(newStart / dimensions[this._itemsPerOpScrollDir]) - (dimensions[this._childScrollDim] * Math.min(newStart, this.bufferAmount)));
-		}
+		let newPadding = this.calculatePadding(newStart, dimensions, true);
 
 		if (newPadding !== this.lastPadding) {
 			this.renderer.setStyle(this.contentElementRef.nativeElement, 'transform', `${this._translateDir}(${newPadding}px)`);
@@ -685,7 +707,7 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
 					this.change.emit({ start: newStart, end: newEnd });
 				}
 
-				if ((this.previousPageSize && this.previousScrollNumberElements)) {
+				if ((this.cachedPageSize && this.previousScrollNumberElements)) {
 					this.refresh();
 				}
 			});

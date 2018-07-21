@@ -304,7 +304,9 @@ export class ListComponent {
 
 ## Focus an item
 
-You can use the `scrollInto(item)` api to scroll into an item in the list. See below:
+You can use the `scrollInto(item, alignToBeginning?, additionalOffset?, animationMilliseconds?, animationCompletedCallback?)` api to scroll into an item in the list.
+You can also use the `scrollToIndex(index, alignToBeginning?, additionalOffset?, animationMilliseconds?, animationCompletedCallback?)` api for the same purpose.
+See below:
 
 ```ts
 import { Component, ViewChild } from '@angular/core';

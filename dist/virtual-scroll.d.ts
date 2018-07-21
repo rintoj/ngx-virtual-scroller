@@ -4,6 +4,15 @@ export interface ChangeEvent {
     start?: number;
     end?: number;
 }
+export interface IDimensions {
+    itemCount: number;
+    childWidth: number;
+    childHeight: number;
+    itemsPerRow: number;
+    itemsPerCol: number;
+    scrollHeight: number;
+    scrollWidth: number;
+}
 export declare class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
     protected readonly element: ElementRef;
     protected readonly renderer: Renderer2;
@@ -44,8 +53,6 @@ export declare class VirtualScrollComponent implements OnInit, OnChanges, OnDest
     padding: number;
     previousStart: number;
     previousEnd: number;
-    previousPageSize: number;
-    previousScrollNumberElements: number;
     startupLoop: boolean;
     currentTween: tween.Tween;
     itemsHeight: {
@@ -70,7 +77,8 @@ export declare class VirtualScrollComponent implements OnInit, OnChanges, OnDest
     ngDoCheck(): void;
     refresh(forceViewportUpdate?: boolean): void;
     protected getScrollElement(): HTMLElement;
-    scrollInto(item: any, additionalOffset?: number): void;
+    scrollInto(item: any, alignToTop?: boolean, additionalOffset?: number, animationMilliseconds?: number, animationCompletedCallback?: () => void): void;
+    scrollToIndex(index: number, alignToBeginning?: boolean, additionalOffset?: number, animationMilliseconds?: number, animationCompletedCallback?: () => void): void;
     protected addScrollEventHandlers(): void;
     protected removeScrollEventHandlers(): void;
     protected getElementsOffset(): number;
@@ -78,15 +86,10 @@ export declare class VirtualScrollComponent implements OnInit, OnChanges, OnDest
     protected countItemsPerCol(): number;
     protected countItemsPerDirection(propertyName: string): number;
     protected getScrollValue(): number;
-    protected calculateDimensions(): {
-        itemCount: number;
-        childWidth: number;
-        childHeight: number;
-        itemsPerRow: number;
-        itemsPerCol: number;
-        scrollHeight: number;
-        scrollWidth: number;
-    };
+    protected calculateDimensions(): IDimensions;
+    cachedPageSize: number;
+    previousScrollNumberElements: number;
+    protected calculatePadding(start: number, dimensions: IDimensions, allowUnequalChildrenSizes_Experimental: boolean): number;
     protected calculateItems(forceViewportUpdate?: boolean): void;
 }
 export declare class VirtualScrollModule {
