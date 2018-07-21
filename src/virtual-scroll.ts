@@ -121,6 +121,24 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
 	@Input()
 	public scrollAnimationTime: number = 750;
 
+	@Input()
+	public resizeBypassRefreshTheshold: number = 5;
+
+	protected checkScrollElementResizedTimer: number;
+	protected _checkResizeInterval: number = 1000;
+	@Input()
+	public get checkResizeInterval(): number {
+		return this._checkResizeInterval;
+	}
+	public set checkResizeInterval(value: number) {
+		if (this._checkResizeInterval === value) {
+			return;
+		}
+
+		this._checkResizeInterval = value;
+		this.addScrollEventHandlers();
+	}
+
 	protected _items: any[] = [];
 	@Input()
 	public get items(): any[] {
@@ -135,6 +153,7 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
 		this.refresh_internal(true);
 	}
 
+	protected _horizontal: boolean;
 	@Input()
 	public get horizontal(): boolean {
 		return this._horizontal;
@@ -223,7 +242,7 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
 
 	public scrollToIndex(index: number, alignToBeginning: boolean = true, additionalOffset: number = 0, animationMilliseconds: number = undefined, animationCompletedCallback: () => void = undefined) {
 		animationCompletedCallback = animationCompletedCallback || (() => { });
-		animationMilliseconds = animationMilliseconds || this.scrollAnimationTime;
+		animationMilliseconds = animationMilliseconds === undefined ? this.scrollAnimationTime : animationMilliseconds;
 
 		let scrollElement = this.getScrollElement();
 
@@ -288,7 +307,25 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
 		this.horizontal = false;
 	}
 
-	protected _horizontal: boolean;
+	protected previousScrollBoundingRect: ClientRect;
+	protected checkScrollElementResized(): void {
+		let boundingRect = this.getScrollElement().getBoundingClientRect();
+
+		let sizeChanged: boolean;
+		if (!this.previousScrollBoundingRect) {
+			sizeChanged = true;
+		} else {
+			let widthChange = Math.abs(boundingRect.width - this.previousScrollBoundingRect.width);
+			let heightChange = Math.abs(boundingRect.height - this.previousScrollBoundingRect.height);
+			sizeChanged = widthChange > this.resizeBypassRefreshTheshold || heightChange > this.resizeBypassRefreshTheshold;
+		}
+
+		if (sizeChanged) {
+			this.previousScrollBoundingRect = boundingRect;
+			this.refresh();
+		}
+	}
+
 	protected _invisiblePaddingProperty;
 	protected _offsetType;
 	protected _scrollType;
@@ -347,10 +384,9 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
 	/** Cache of the last padding to prevent setting CSS when not needed. */
 	protected lastScrollPosition = -1;
 
-	protected refresh_internal(itemsArrayModified: boolean, maxReRunTimes: number = 5) {
+	protected refresh_internal(itemsArrayModified: boolean, maxReRunTimes: number = 2) {
 		this.zone.runOutsideAngular(() => {
 			requestAnimationFrame(() => {
-
 				let calculateItemsResult = this.calculateItems(itemsArrayModified);
 
 				let startChanged = calculateItemsResult.start !== this.previousStart || itemsArrayModified;
@@ -425,15 +461,21 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
 			}
 			else {
 				this.disposeScrollHandler = this.renderer.listen(scrollElement, 'scroll', this.refreshHandler);
+				this.checkScrollElementResizedTimer = <any>setInterval(() => { this.checkScrollElementResized(); }, this._checkResizeInterval);
 			}
 		});
 	}
 
 	protected removeScrollEventHandlers() {
+		if (this.checkScrollElementResizedTimer) {
+			clearInterval(this.checkScrollElementResizedTimer);
+		}
+
 		if (this.disposeScrollHandler) {
 			this.disposeScrollHandler();
 			this.disposeScrollHandler = undefined;
 		}
+
 		if (this.disposeResizeHandler) {
 			this.disposeResizeHandler();
 			this.disposeResizeHandler = undefined;

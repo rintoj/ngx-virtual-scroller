@@ -13,6 +13,8 @@ var VirtualScrollComponent = (function () {
         this.enableUnequalChildrenSizes_Experimental = false;
         this.bufferAmount = 0;
         this.scrollAnimationTime = 750;
+        this.resizeBypassRefreshTheshold = 5;
+        this._checkResizeInterval = 1000;
         this._items = [];
         this.update = new core_1.EventEmitter();
         this.change = new core_1.EventEmitter();
@@ -36,6 +38,20 @@ var VirtualScrollComponent = (function () {
         this.previousScrollNumberElements = 0;
         this.horizontal = false;
     }
+    Object.defineProperty(VirtualScrollComponent.prototype, "checkResizeInterval", {
+        get: function () {
+            return this._checkResizeInterval;
+        },
+        set: function (value) {
+            if (this._checkResizeInterval === value) {
+                return;
+            }
+            this._checkResizeInterval = value;
+            this.addScrollEventHandlers();
+        },
+        enumerable: true,
+        configurable: true
+    });
     Object.defineProperty(VirtualScrollComponent.prototype, "items", {
         get: function () {
             return this._items;
@@ -119,7 +135,7 @@ var VirtualScrollComponent = (function () {
         if (animationMilliseconds === void 0) { animationMilliseconds = undefined; }
         if (animationCompletedCallback === void 0) { animationCompletedCallback = undefined; }
         animationCompletedCallback = animationCompletedCallback || (function () { });
-        animationMilliseconds = animationMilliseconds || this.scrollAnimationTime;
+        animationMilliseconds = animationMilliseconds === undefined ? this.scrollAnimationTime : animationMilliseconds;
         var scrollElement = this.getScrollElement();
         var dimensions = this.calculateDimensions();
         var scroll = this.calculateScrollPosition(index, dimensions, false) + additionalOffset;
@@ -168,6 +184,22 @@ var VirtualScrollComponent = (function () {
         animate();
         this.currentTween = newTween;
     };
+    VirtualScrollComponent.prototype.checkScrollElementResized = function () {
+        var boundingRect = this.getScrollElement().getBoundingClientRect();
+        var sizeChanged;
+        if (!this.previousScrollBoundingRect) {
+            sizeChanged = true;
+        }
+        else {
+            var widthChange = Math.abs(boundingRect.width - this.previousScrollBoundingRect.width);
+            var heightChange = Math.abs(boundingRect.height - this.previousScrollBoundingRect.height);
+            sizeChanged = widthChange > this.resizeBypassRefreshTheshold || heightChange > this.resizeBypassRefreshTheshold;
+        }
+        if (sizeChanged) {
+            this.previousScrollBoundingRect = boundingRect;
+            this.refresh();
+        }
+    };
     VirtualScrollComponent.prototype.updateDirection = function () {
         if (this.horizontal) {
             this._invisiblePaddingProperty = 'width';
@@ -194,7 +226,7 @@ var VirtualScrollComponent = (function () {
     };
     VirtualScrollComponent.prototype.refresh_internal = function (itemsArrayModified, maxReRunTimes) {
         var _this = this;
-        if (maxReRunTimes === void 0) { maxReRunTimes = 5; }
+        if (maxReRunTimes === void 0) { maxReRunTimes = 2; }
         this.zone.runOutsideAngular(function () {
             requestAnimationFrame(function () {
                 var calculateItemsResult = _this.calculateItems(itemsArrayModified);
@@ -258,10 +290,14 @@ var VirtualScrollComponent = (function () {
             }
             else {
                 _this.disposeScrollHandler = _this.renderer.listen(scrollElement, 'scroll', _this.refreshHandler);
+                _this.checkScrollElementResizedTimer = setInterval(function () { _this.checkScrollElementResized(); }, _this._checkResizeInterval);
             }
         });
     };
     VirtualScrollComponent.prototype.removeScrollEventHandlers = function () {
+        if (this.checkScrollElementResizedTimer) {
+            clearInterval(this.checkScrollElementResizedTimer);
+        }
         if (this.disposeScrollHandler) {
             this.disposeScrollHandler();
             this.disposeScrollHandler = undefined;
@@ -537,6 +573,8 @@ var VirtualScrollComponent = (function () {
         'childHeight': [{ type: core_1.Input },],
         'bufferAmount': [{ type: core_1.Input },],
         'scrollAnimationTime': [{ type: core_1.Input },],
+        'resizeBypassRefreshTheshold': [{ type: core_1.Input },],
+        'checkResizeInterval': [{ type: core_1.Input },],
         'items': [{ type: core_1.Input },],
         'horizontal': [{ type: core_1.Input },],
         'parentScroll': [{ type: core_1.Input },],
