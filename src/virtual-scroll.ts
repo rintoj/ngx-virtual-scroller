@@ -82,6 +82,10 @@ export interface CalculateItemsResult {
 		white-space: nowrap;
 	}
 	
+	:host.horizontal .scrollable-content {
+		display: flex;
+	}
+	
 	:host.horizontal .scrollable-content ::ng-deep > * {
 		white-space: initial;
 	}

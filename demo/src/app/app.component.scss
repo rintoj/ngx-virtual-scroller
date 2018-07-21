@@ -1,13 +1,12 @@
 @import '../variables';
-virtual-scroll,
-[virtualScroll] {
+virtual-scroll.selfScroll {
   overflow: hidden;
   overflow-y: auto;
   border: 1px solid $border-color;
   height: 75vh;
   display: block;
 
-  &.horizontal-scroll {
+  &.horizontal {
     width: 60vw;
     height: 120px;
   }
