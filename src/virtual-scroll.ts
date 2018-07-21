@@ -255,8 +255,8 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
 	}
 
 	ngOnChanges(changes: any) {
-		this.previousStart = 0;
-		this.previousEnd = -1;
+		this.previousStart = undefined;
+		this.previousEnd = undefined;
 
 		const hadPreviousValue: boolean = changes.items && changes.items.previousValue && changes.items.previousValue.length > 0;
 		if (!hadPreviousValue) {
@@ -269,8 +269,8 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
 
 	ngDoCheck() {
 		if (this.itemsLength !== this.items.length) {
-			this.previousStart = 0;
-			this.previousEnd = -1;
+			this.previousStart = undefined;
+			this.previousEnd = undefined;
 			this.startupLoop = true;
 			this.refresh();
 			this.itemsLength = this.items.length;

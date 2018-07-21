@@ -17,8 +17,8 @@ export declare class VirtualScrollComponent implements OnInit, OnChanges, OnDest
     protected readonly element: ElementRef;
     protected readonly renderer: Renderer2;
     protected readonly zone: NgZone;
-    private calculatedScrollbarWidth;
-    private calculatedScrollbarHeight;
+    protected calculatedScrollbarWidth: number;
+    protected calculatedScrollbarHeight: number;
     enableUnequalChildrenSizes_Experimental: boolean;
     scrollbarWidth: number;
     scrollbarHeight: number;
