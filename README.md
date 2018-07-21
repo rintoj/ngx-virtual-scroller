@@ -19,7 +19,8 @@ This method is effective because the number of DOM elements are always constant 
 * Added ability to use any parent with scrollbar instead of this element (@Input() parentScroll)
 * Added ability to use horizontal scrollbars
 * New feature is support of elements with different heights *EXPERIMENTAL*
-
+* If scroll container resizes, the items will auto-refresh. Can be disabled if it causes any performance issues by setting [checkResizeInterval]="0"
+ 
 ## Demo
 
 [See Demo Here](http://rintoj.github.io/angular2-virtual-scroll)
@@ -272,10 +273,14 @@ export class ListWithApiComponent implements OnChanges {
 }
 ```
 
-## If container size changes (DEPRECATED)
+## If container size changes
 
-Note: This should now be auto-detected, however the 'refresh' method can force it if neeeded.
-If virtual scroll is used within a dropdown or collapsible menu, virtual scroll needs to know when the container size change. Use `refresh()` function after container is resized (include time for animation as well).
+Note: This should now be auto-detected, however the 'refresh' method can still force it if neeeded.
+	This was implemented using the setInterval method which may cause minor performance issues. It shouldn't be noticeable, but can be disabled via [checkResizeInterval]="0"
+	Performance will be improved once "Resize Observer" (https://wicg.github.io/ResizeObserver/) is fully implemented.
+
+Refresh method (DEPRECATED)
+If virtual scroll is used within a dropdown or collapsible menu, virtual scroll needs to know when the container size changes. Use `refresh()` function after container is resized (include time for animation as well).
 
 ```ts
 import { Component, ViewChild } from '@angular/core';
@@ -345,8 +350,6 @@ sort() {
   this.items = [].concat(this.items || []).sort()
 }
 ```
-
-This will be deprecated once [Resize Observer](https://wicg.github.io/ResizeObserver/) is fully implemented.
 
 ## Contributing
 Contributions are very welcome! Just send a pull request. Feel free to contact me or checkout my [GitHub](https://github.com/rintoj) page.
