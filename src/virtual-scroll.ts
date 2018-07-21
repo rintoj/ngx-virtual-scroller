@@ -249,7 +249,7 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
 		let dimensions = this.calculateDimensions();
 		let scroll = this.calculateScrollPosition(index, dimensions, false) + additionalOffset;
 		if (!alignToBeginning) {
-			scroll -= Math.max(0, (dimensions[this._itemsPerScrollDir] - 1)) * dimensions[this._childScrollDim];
+			scroll -= dimensions[this._itemsPerScrollDir] * dimensions[this._childScrollDim];
 		}
 
 		let animationRequest: number;
@@ -622,8 +622,8 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
 			itemCount: itemCount,
 			childWidth: childWidth,
 			childHeight: childHeight,
-			itemsPerRow: itemsPerRow,
-			itemsPerCol: itemsPerCol,
+			itemsPerRow: Math.max(itemsPerRow, 1),
+			itemsPerCol: Math.max(itemsPerCol, 1),
 			scrollHeight: scrollHeight,
 			scrollWidth: scrollWidth
 		};
