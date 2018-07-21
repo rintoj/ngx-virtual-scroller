@@ -461,7 +461,9 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
 			}
 			else {
 				this.disposeScrollHandler = this.renderer.listen(scrollElement, 'scroll', this.refreshHandler);
-				this.checkScrollElementResizedTimer = <any>setInterval(() => { this.checkScrollElementResized(); }, this._checkResizeInterval);
+				if (this._checkResizeInterval > 0) {
+					this.checkScrollElementResizedTimer = <any>setInterval(() => { this.checkScrollElementResized(); }, this._checkResizeInterval);
+				}
 			}
 		});
 	}

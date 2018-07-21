@@ -18,7 +18,7 @@ This method is effective because the number of DOM elements are always constant 
 * Added ability to put other elements inside of scroll (Need to wrap list itself in @ContentChild('container'))
 * Added ability to use any parent with scrollbar instead of this element (@Input() parentScroll)
 * Added ability to use horizontal scrollbars
-* New feature is support of elements with different heights
+* New feature is support of elements with different heights *EXPERIMENTAL*
 
 ## Demo
 
@@ -272,8 +272,9 @@ export class ListWithApiComponent implements OnChanges {
 }
 ```
 
-## If container size changes
+## If container size changes (DEPRECATED)
 
+Note: This should now be auto-detected, however the 'refresh' method can force it if neeeded.
 If virtual scroll is used within a dropdown or collapsible menu, virtual scroll needs to know when the container size change. Use `refresh()` function after container is resized (include time for animation as well).
 
 ```ts

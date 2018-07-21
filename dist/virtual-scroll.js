@@ -290,7 +290,9 @@ var VirtualScrollComponent = (function () {
             }
             else {
                 _this.disposeScrollHandler = _this.renderer.listen(scrollElement, 'scroll', _this.refreshHandler);
-                _this.checkScrollElementResizedTimer = setInterval(function () { _this.checkScrollElementResized(); }, _this._checkResizeInterval);
+                if (_this._checkResizeInterval > 0) {
+                    _this.checkScrollElementResizedTimer = setInterval(function () { _this.checkScrollElementResized(); }, _this._checkResizeInterval);
+                }
             }
         });
     };
