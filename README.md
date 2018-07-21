@@ -128,6 +128,7 @@ Child component is not necessary if your item is simple enough. See below.
 
 | Attribute      | Type   | Description
 |----------------|--------|------------
+| enableUnequalChildrenSizes_Experimental | boolean | If you want to use the "unequal size" children feature. This has some minor known bugs, but may be acceptable for your situation. Defaults to false.
 | scrollbarWidth | number | If you want to override the auto-calculated scrollbar width. This is used to determine the dimensions of the viewable area when calculating the number of items to render.
 | scrollbarHeight | number | If you want to override the auto-calculated scrollbar height. This is used to determine the dimensions of the viewable area when calculating the number of items to render.
 | horizontal | boolean | Whether the scrollbars should be vertical or horizontal. Defaults to false.

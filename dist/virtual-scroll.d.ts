@@ -10,6 +10,7 @@ export declare class VirtualScrollComponent implements OnInit, OnChanges, OnDest
     protected readonly zone: NgZone;
     private calculatedScrollbarWidth;
     private calculatedScrollbarHeight;
+    enableUnequalChildrenSizes_Experimental: boolean;
     scrollbarWidth: number;
     scrollbarHeight: number;
     childWidth: number;
@@ -38,7 +39,7 @@ export declare class VirtualScrollComponent implements OnInit, OnChanges, OnDest
     start: EventEmitter<ChangeEvent>;
     end: EventEmitter<ChangeEvent>;
     contentElementRef: ElementRef;
-    shimElementRef: ElementRef;
+    invisiblePaddingElementRef: ElementRef;
     containerElementRef: ElementRef;
     padding: number;
     previousStart: number;
@@ -60,7 +61,7 @@ export declare class VirtualScrollComponent implements OnInit, OnChanges, OnDest
     /** Cache of the last scroll to prevent setting CSS when not needed. */
     protected lastScrollHeight: number;
     protected lastScrollWidth: number;
-    /** Cache of the last top padding to prevent setting CSS when not needed. */
+    /** Cache of the last padding to prevent setting CSS when not needed. */
     protected lastPadding: number;
     constructor(element: ElementRef, renderer: Renderer2, zone: NgZone);
     ngOnInit(): void;
