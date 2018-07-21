@@ -11,7 +11,6 @@ import {
 	OnInit,
 	Output,
 	Renderer2,
-	SimpleChanges,
 	ViewChild,
 } from '@angular/core';
 
@@ -32,6 +31,13 @@ export interface IDimensions {
 	itemsPerCol: number;
 	scrollHeight: number;
 	scrollWidth: number;
+}
+
+export interface CalculateItemsResult {
+	start: number;
+	end: number;
+	scrollPosition: number;
+	scrollLength: number;
 }
 
 @Component({
@@ -91,97 +97,64 @@ export interface IDimensions {
   `]
 })
 export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
-
-	protected calculatedScrollbarWidth: number = 0;
-	protected calculatedScrollbarHeight: number = 0;
-
-	@Input()
-	enableUnequalChildrenSizes_Experimental: boolean = false;
+	public viewPortItems: any[];
+	public window = window;
 
 	@Input()
-	scrollbarWidth: number;
+	public enableUnequalChildrenSizes_Experimental: boolean = false;
 
 	@Input()
-	scrollbarHeight: number;
+	public scrollbarWidth: number;
 
 	@Input()
-	childWidth: number;
+	public scrollbarHeight: number;
 
 	@Input()
-	childHeight: number;
+	public childWidth: number;
 
 	@Input()
-	bufferAmount: number = 0;
+	public childHeight: number;
 
 	@Input()
-	scrollAnimationTime: number = 750;
+	public bufferAmount: number = 0;
+
+	@Input()
+	public scrollAnimationTime: number = 750;
 
 	protected _items: any[] = [];
 	@Input()
-	set items(items: any[]) {
-		if (items === this._items) {
+	public get items(): any[] {
+		return this._items;
+	}
+	public set items(value: any[]) {
+		if (value === this._items) {
 			return;
 		}
 
-		this._items = items || [];
-		this.refresh();
+		this._items = value || [];
+		this.refresh_internal(true);
 	}
 
-	get items(): any[] {
-		return this._items;
+	@Input()
+	public get horizontal(): boolean {
+		return this._horizontal;
 	}
-
-	protected _horizontal: boolean;
-	protected _offsetType;
-	protected _scrollType;
-	protected _pageOffsetType;
-	protected _scrollDim;
-	protected _itemsPerScrollDir;
-	protected _itemsPerOpScrollDir;
-	protected _childScrollDim;
-	protected _translateDir;
-	@Input() set horizontal(value: boolean) {
+	public set horizontal(value: boolean) {
 		this._horizontal = value;
 		this.updateDirection();
 	}
-	get horizontal(): boolean {
-		return this._horizontal;
-	}
 
-	protected updateDirection(): void {
-		if (this.horizontal) {
-			this._offsetType = 'offsetLeft';
-			this._pageOffsetType = 'pageXOffset';
-			this._scrollDim = 'scrollWidth';
-			this._itemsPerScrollDir = 'itemsPerRow';
-			this._itemsPerOpScrollDir = 'itemsPerCol';
-			this._childScrollDim = 'childWidth';
-			this._translateDir = 'translateX';
-			this._scrollType = 'scrollLeft';
-		}
-		else {
-			this._offsetType = 'offsetTop';
-			this._pageOffsetType = 'pageYOffset';
-			this._scrollDim = 'scrollHeight';
-			this._itemsPerScrollDir = 'itemsPerCol';
-			this._itemsPerOpScrollDir = 'itemsPerRow';
-			this._childScrollDim = 'childHeight';
-			this._translateDir = 'translateY';
-			this._scrollType = 'scrollTop';
-		}
-	}
-
-	protected refreshHandler = () => {
-		this.refresh();
-	};
 	protected _parentScroll: Element | Window;
 	@Input()
-	set parentScroll(element: Element | Window) {
-		if (this._parentScroll === element) {
+	public get parentScroll(): Element | Window {
+		return this._parentScroll;
+	}
+	public set parentScroll(value: Element | Window) {
+		if (this._parentScroll === value) {
 			return;
 		}
 
-		this._parentScroll = element;
+		this._parentScroll = value;
 		this.addScrollEventHandlers();
 
 		let scrollElement = this.getScrollElement();
@@ -191,103 +164,55 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
 		}
 	}
 
-	get parentScroll(): Element | Window {
-		return this._parentScroll;
-	}
+	@Output()
+	public update: EventEmitter<any[]> = new EventEmitter<any[]>();
 
 	@Output()
-	update: EventEmitter<any[]> = new EventEmitter<any[]>();
-	viewPortItems: any[];
+	public change: EventEmitter<ChangeEvent> = new EventEmitter<ChangeEvent>();
 
 	@Output()
-	change: EventEmitter<ChangeEvent> = new EventEmitter<ChangeEvent>();
+	public start: EventEmitter<ChangeEvent> = new EventEmitter<ChangeEvent>();
 
 	@Output()
-	start: EventEmitter<ChangeEvent> = new EventEmitter<ChangeEvent>();
-
-	@Output()
-	end: EventEmitter<ChangeEvent> = new EventEmitter<ChangeEvent>();
+	public end: EventEmitter<ChangeEvent> = new EventEmitter<ChangeEvent>();
 
 	@ViewChild('content', { read: ElementRef })
-	contentElementRef: ElementRef;
+	public contentElementRef: ElementRef;
 
 	@ViewChild('invisiblePadding', { read: ElementRef })
-	invisiblePaddingElementRef: ElementRef;
+	public invisiblePaddingElementRef: ElementRef;
 
 	@ContentChild('container', { read: ElementRef })
-	containerElementRef: ElementRef;
+	public containerElementRef: ElementRef;
 
-	padding: number = 0;
-	previousStart: number = 0;
-	previousEnd: number = -1;
-	startupLoop: boolean = true;
-	currentTween: tween.Tween;
-	itemsHeight: { [key: number]: number } = {};
-	itemsWidth: { [key: number]: number } = {};
-	itemsLength: number;
-
-	public window = window;
-
-	protected disposeScrollHandler: () => void | undefined;
-	protected disposeResizeHandler: () => void | undefined;
-
-	/** Cache of the last scroll to prevent setting CSS when not needed. */
-	protected lastScrollHeight = -1;
-	protected lastScrollWidth = -1;
-
-	/** Cache of the last padding to prevent setting CSS when not needed. */
-	protected lastPadding = -1;
-
-
-	constructor(
-		protected readonly element: ElementRef,
-		protected readonly renderer: Renderer2,
-		protected readonly zone: NgZone) {
-		this.horizontal = false;
-	}
-
-	ngOnInit() {
+	public ngOnInit() {
 		this.addScrollEventHandlers();
 	}
 
-	ngOnDestroy() {
+	public ngOnDestroy() {
 		this.removeScrollEventHandlers();
 	}
 
-	ngOnChanges(changes: any) {
-		this.previousStart = undefined;
-		this.previousEnd = undefined;
+	public ngOnChanges(changes: any) {
+		let indexLengthChanged = this.cachedItemsLength !== this.items.length;
+		this.cachedItemsLength = this.items.length;
 
-		const hadPreviousValue: boolean = changes.items && changes.items.previousValue && changes.items.previousValue.length > 0;
-		if (!hadPreviousValue) {
-			this.startupLoop = true;
-			this.itemsLength = this.items.length;
-		}
-
-		this.refresh();
+		const firstRun: boolean = !changes.items || !changes.items.previousValue || changes.items.previousValue.length === 0;
+		this.refresh_internal(indexLengthChanged || firstRun);
 	}
 
-	ngDoCheck() {
-		if (this.itemsLength !== this.items.length) {
-			this.previousStart = undefined;
-			this.previousEnd = undefined;
-			this.startupLoop = true;
-			this.refresh();
-			this.itemsLength = this.items.length;
+	public ngDoCheck() {
+		if (this.cachedItemsLength !== this.items.length) {
+			this.cachedItemsLength = this.items.length;
+			this.refresh_internal(true);
 		}
 	}
 
-	refresh(forceViewportUpdate: boolean = false) {
-		this.zone.runOutsideAngular(() => {
-			requestAnimationFrame(() => this.calculateItems(forceViewportUpdate));
-		});
+	public refresh() {
+		this.refresh_internal(false);
 	}
 
-	protected getScrollElement(): HTMLElement {
-		return this.parentScroll instanceof Window ? document.scrollingElement || document.documentElement || document.body : this.parentScroll || this.element.nativeElement;
-	}
-
-	scrollInto(item: any, alignToTop: boolean = true, additionalOffset: number = 0, animationMilliseconds: number = undefined, animationCompletedCallback: () => void = undefined) {
+	public scrollInto(item: any, alignToTop: boolean = true, additionalOffset: number = 0, animationMilliseconds: number = undefined, animationCompletedCallback: () => void = undefined) {
 		let index: number = this.items.indexOf(item);
 		if (index === -1) {
 			return;
@@ -296,14 +221,14 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
 		this.scrollToIndex(index, alignToTop, additionalOffset, animationMilliseconds, animationCompletedCallback);
 	}
 
-	scrollToIndex(index: number, alignToBeginning: boolean = true, additionalOffset: number = 0, animationMilliseconds: number = undefined, animationCompletedCallback: () => void = undefined) {
+	public scrollToIndex(index: number, alignToBeginning: boolean = true, additionalOffset: number = 0, animationMilliseconds: number = undefined, animationCompletedCallback: () => void = undefined) {
 		animationCompletedCallback = animationCompletedCallback || (() => { });
 		animationMilliseconds = animationMilliseconds || this.scrollAnimationTime;
 
 		let scrollElement = this.getScrollElement();
 
 		let dimensions = this.calculateDimensions();
-		let scroll = this.calculatePadding(index, dimensions, false) + additionalOffset;
+		let scroll = this.calculateScrollPosition(index, dimensions, false) + additionalOffset;
 		if (!alignToBeginning) {
 			scroll -= Math.max(0, (dimensions[this._itemsPerScrollDir] - 1)) * dimensions[this._childScrollDim];
 		}
@@ -357,6 +282,135 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
 
 		animate();
 		this.currentTween = newTween;
+	}
+
+	constructor(protected readonly element: ElementRef, protected readonly renderer: Renderer2, protected readonly zone: NgZone) {
+		this.horizontal = false;
+	}
+
+	protected _horizontal: boolean;
+	protected _invisiblePaddingProperty;
+	protected _offsetType;
+	protected _scrollType;
+	protected _pageOffsetType;
+	protected _scrollDim;
+	protected _itemsPerScrollDir;
+	protected _itemsPerOpScrollDir;
+	protected _childScrollDim;
+	protected _translateDir;
+	protected updateDirection(): void {
+		if (this.horizontal) {
+			this._invisiblePaddingProperty = 'width';
+			this._offsetType = 'offsetLeft';
+			this._pageOffsetType = 'pageXOffset';
+			this._scrollDim = 'scrollWidth';
+			this._itemsPerScrollDir = 'itemsPerRow';
+			this._itemsPerOpScrollDir = 'itemsPerCol';
+			this._childScrollDim = 'childWidth';
+			this._translateDir = 'translateX';
+			this._scrollType = 'scrollLeft';
+		}
+		else {
+			this._invisiblePaddingProperty = 'height';
+			this._offsetType = 'offsetTop';
+			this._pageOffsetType = 'pageYOffset';
+			this._scrollDim = 'scrollHeight';
+			this._itemsPerScrollDir = 'itemsPerCol';
+			this._itemsPerOpScrollDir = 'itemsPerRow';
+			this._childScrollDim = 'childHeight';
+			this._translateDir = 'translateY';
+			this._scrollType = 'scrollTop';
+		}
+	}
+
+	protected refreshHandler = () => {
+		this.refresh();
+	};
+
+	protected calculatedScrollbarWidth: number = 0;
+	protected calculatedScrollbarHeight: number = 0;
+
+	protected padding: number = 0;
+	protected previousStart: number = 0;
+	protected previousEnd: number = -1;
+	protected currentTween: tween.Tween;
+	protected itemsHeight: { [key: number]: number } = {};
+	protected itemsWidth: { [key: number]: number } = {};
+	protected cachedItemsLength: number;
+
+	protected disposeScrollHandler: () => void | undefined;
+	protected disposeResizeHandler: () => void | undefined;
+
+	/** Cache of the last scroll to prevent setting CSS when not needed. */
+	protected lastScrollLength = -1;
+
+	/** Cache of the last padding to prevent setting CSS when not needed. */
+	protected lastScrollPosition = -1;
+
+	protected refresh_internal(itemsArrayModified: boolean, maxReRunTimes: number = 5) {
+		this.zone.runOutsideAngular(() => {
+			requestAnimationFrame(() => {
+
+				let calculateItemsResult = this.calculateItems(itemsArrayModified);
+
+				let startChanged = calculateItemsResult.start !== this.previousStart || itemsArrayModified;
+				let endChanged = calculateItemsResult.end !== this.previousEnd || itemsArrayModified;
+				let scrollLengthChanged = calculateItemsResult.scrollLength !== this.lastScrollLength;
+				let scrollPositionChanged = calculateItemsResult.scrollPosition !== this.lastScrollPosition;
+
+				this.previousStart = calculateItemsResult.start;
+				this.previousEnd = calculateItemsResult.end;
+				this.lastScrollLength = calculateItemsResult.scrollLength;
+				this.lastScrollPosition = calculateItemsResult.scrollPosition;
+
+				if (scrollLengthChanged) {
+					this.renderer.setStyle(this.invisiblePaddingElementRef.nativeElement, this._invisiblePaddingProperty, `${calculateItemsResult.scrollLength}px`);
+				}
+
+				if (scrollPositionChanged) {
+					this.renderer.setStyle(this.contentElementRef.nativeElement, 'transform', `${this._translateDir}(${calculateItemsResult.scrollPosition}px)`);
+					this.renderer.setStyle(this.contentElementRef.nativeElement, 'webkitTransform', `${this._translateDir}(${calculateItemsResult.scrollPosition}px)`);
+				}
+
+				let emitIndexChangedEvents = true; // maxReRunTimes === 1 (would need to still run if didn't update if previous iteration had updated)
+
+				if (startChanged || endChanged) {
+					this.zone.run(() => {
+
+						// update the scroll list to trigger re-render of components in viewport
+						this.viewPortItems = this.items.slice(calculateItemsResult.start, calculateItemsResult.end);
+						this.update.emit(this.viewPortItems);
+
+						if (emitIndexChangedEvents) {
+							if (startChanged) {
+								this.start.emit({ start: calculateItemsResult.start, end: calculateItemsResult.end });
+							}
+
+							if (endChanged) {
+								this.end.emit({ start: calculateItemsResult.start, end: calculateItemsResult.end });
+							}
+
+							if (startChanged || endChanged) {
+								this.change.emit({ start: calculateItemsResult.start, end: calculateItemsResult.end });
+							}
+						}
+
+						if (maxReRunTimes > 0) {
+							this.refresh_internal(false, maxReRunTimes - 1);
+							return;
+						}
+					});
+				} else if (maxReRunTimes > 0) {
+					if (scrollLengthChanged || scrollPositionChanged) {
+						this.refresh_internal(false, maxReRunTimes - 1);
+					}
+				}
+			});
+		});
+	}
+
+	protected getScrollElement(): HTMLElement {
+		return this.parentScroll instanceof Window ? document.scrollingElement || document.documentElement || document.body : this.parentScroll || this.element.nativeElement;
 	}
 
 	protected addScrollEventHandlers() {
@@ -505,26 +559,18 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
 				}
 			}
 
-			scrollHeight = Math.ceil((childHeight * (itemCount - this.previousEnd) + sumOfCurrentChildHeight) / itemsPerRow + this.lastPadding);
-			scrollWidth = Math.ceil((childWidth * (itemCount - this.previousEnd) + sumOfCurrentChildWidth) / itemsPerCol + this.lastPadding);
+			scrollHeight = Math.ceil((childHeight * (itemCount - this.previousEnd) + sumOfCurrentChildHeight) / itemsPerRow + this.lastScrollPosition);
+			scrollWidth = Math.ceil((childWidth * (itemCount - this.previousEnd) + sumOfCurrentChildWidth) / itemsPerCol + this.lastScrollPosition);
 		}
 
 		if (this.horizontal) {
 			if (itemsPerRow === 1 && Math.floor(scroll / scrollWidth * itemCount) + itemsPerColByCalc >= itemCount) {
 				itemsPerCol = itemsPerColByCalc;
 			}
-			if (scrollWidth !== this.lastScrollWidth) {
-				this.renderer.setStyle(this.invisiblePaddingElementRef.nativeElement, 'width', `${scrollWidth}px`);
-				this.lastScrollWidth = scrollWidth;
-			}
 		}
 		else {
 			if (itemsPerCol === 1 && Math.floor(scroll / scrollHeight * itemCount) + itemsPerRowByCalc >= itemCount) {
 				itemsPerRow = itemsPerRowByCalc;
-			}
-			if (scrollHeight !== this.lastScrollHeight) {
-				this.renderer.setStyle(this.invisiblePaddingElementRef.nativeElement, 'height', `${scrollHeight}px`);
-				this.lastScrollHeight = scrollHeight;
 			}
 		}
 
@@ -539,10 +585,10 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
 		};
 	}
 
-	cachedPageSize: number = 0;
-	previousScrollNumberElements: number = 0;
+	protected cachedPageSize: number = 0;
+	protected previousScrollNumberElements: number = 0;
 
-	protected calculatePadding(start: number, dimensions: IDimensions, allowUnequalChildrenSizes_Experimental: boolean): number {
+	protected calculateScrollPosition(start: number, dimensions: IDimensions, allowUnequalChildrenSizes_Experimental: boolean): number {
 		let offset = this.getElementsOffset();
 
 		//complex calculation isn't "pure", because it relies on global state & modifies that global state. It seems risky to call it during scrollInto since the original PR didn't. Once it's "pure" we can re-use it in both places.
@@ -550,7 +596,7 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
 			return this.items.length === 0 ? 0 : (dimensions[this._childScrollDim] * Math.ceil(start / dimensions[this._itemsPerOpScrollDir]) - (dimensions[this._childScrollDim] * Math.min(start, this.bufferAmount)) + offset);
 		}
 
-		let newPadding: number = this.lastPadding;
+		let newPadding: number = this.lastScrollPosition;
 
 		if (start === 0) {
 			newPadding = 0;
@@ -594,7 +640,7 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
 		}
 	}
 
-	protected calculateItems(forceViewportUpdate: boolean = false) {
+	protected calculateItems(forceViewportUpdate: boolean = false): CalculateItemsResult {
 		let dimensions = this.calculateDimensions();
 		let offset = this.getElementsOffset();
 		let elScroll = this.getScrollValue();
@@ -612,15 +658,15 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
 
 		if (this.enableUnequalChildrenSizes_Experimental) {
 			let indexByScroll = this.previousStart / dimensions[this._itemsPerOpScrollDir];
-			if (this.lastPadding > scroll) {
+			if (this.lastScrollPosition > scroll) {
 				// scroll up
-				indexByScroll -= (this.lastPadding - scroll) / dimensions[this._childScrollDim];
+				indexByScroll -= (this.lastScrollPosition - scroll) / dimensions[this._childScrollDim];
 			} else {
 				// scroll down
 
 				let childSizeOverride = this.horizontal ? this.childWidth : this.childHeight;
 
-				let paddingCurrent = this.lastPadding;
+				let paddingCurrent = this.lastScrollPosition;
 				for (let child of content.children) {
 					let childSize = childSizeOverride;
 					if (!childSize) {
@@ -667,55 +713,19 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
 		newStart = !isNaN(newStart) ? newStart : -1;
 		newEnd = !isNaN(newEnd) ? newEnd : -1;
 		newStart -= this.bufferAmount;
-		newStart = Math.max(0, newStart);
 		newEnd += this.bufferAmount;
-		newEnd = Math.min(this.items.length, newEnd);
+		newStart = Math.max(0, Math.min(this.items.length, newStart));
+		newEnd = Math.max(0, Math.min(this.items.length, newEnd));
 
-		let newPadding = this.calculatePadding(newStart, dimensions, true);
+		let newScrollPosition = this.calculateScrollPosition(newStart, dimensions, true);
+		let newScrollLength = dimensions[this._scrollDim];
 
-		if (newPadding !== this.lastPadding) {
-			this.renderer.setStyle(this.contentElementRef.nativeElement, 'transform', `${this._translateDir}(${newPadding}px)`);
-			this.renderer.setStyle(this.contentElementRef.nativeElement, 'webkitTransform', `${this._translateDir}(${newPadding}px)`);
-			this.lastPadding = newPadding;
-		}
-
-		if (newStart !== this.previousStart || newEnd !== this.previousEnd || forceViewportUpdate) {
-			this.zone.run(() => {
-
-				// update the scroll list
-				let _end = newEnd >= 0 ? newEnd : 0; // To prevent from accidentally selecting the entire array with a negative 1 (-1) in the end position. 
-				this.viewPortItems = this.items.slice(newStart, _end);
-				this.update.emit(this.viewPortItems);
-
-				// emit 'start' event
-				if (newStart !== this.previousStart && this.startupLoop === false) {
-					this.start.emit({ start: newStart, end: newEnd });
-				}
-
-				// emit 'end' event
-				if (newEnd !== this.previousEnd && this.startupLoop === false) {
-					this.end.emit({ start: newStart, end: newEnd });
-				}
-
-				this.previousStart = newStart;
-				this.previousEnd = newEnd;
-
-				if (this.startupLoop) {
-					this.refresh();
-					return;
-				} else {
-					this.change.emit({ start: newStart, end: newEnd });
-				}
-
-				if ((this.cachedPageSize && this.previousScrollNumberElements)) {
-					this.refresh();
-				}
-			});
-		} else if (this.startupLoop) {
-			this.startupLoop = false;
-			this.change.emit({ start: newStart, end: newEnd });
-			this.refresh();
-		}
+		return {
+			start: Math.round(newStart),
+			end: Math.round(newEnd),
+			scrollPosition: Math.round(newScrollPosition),
+			scrollLength: Math.round(newScrollLength)
+		};
 	}
 }
 

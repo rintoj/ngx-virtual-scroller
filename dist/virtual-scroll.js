@@ -9,31 +9,29 @@ var VirtualScrollComponent = (function () {
         this.element = element;
         this.renderer = renderer;
         this.zone = zone;
-        this.calculatedScrollbarWidth = 0;
-        this.calculatedScrollbarHeight = 0;
+        this.window = window;
         this.enableUnequalChildrenSizes_Experimental = false;
         this.bufferAmount = 0;
         this.scrollAnimationTime = 750;
         this._items = [];
-        this.refreshHandler = function () {
-            _this.refresh();
-        };
         this.update = new core_1.EventEmitter();
         this.change = new core_1.EventEmitter();
         this.start = new core_1.EventEmitter();
         this.end = new core_1.EventEmitter();
+        this.refreshHandler = function () {
+            _this.refresh();
+        };
+        this.calculatedScrollbarWidth = 0;
+        this.calculatedScrollbarHeight = 0;
         this.padding = 0;
         this.previousStart = 0;
         this.previousEnd = -1;
-        this.startupLoop = true;
         this.itemsHeight = {};
         this.itemsWidth = {};
-        this.window = window;
         /** Cache of the last scroll to prevent setting CSS when not needed. */
-        this.lastScrollHeight = -1;
-        this.lastScrollWidth = -1;
+        this.lastScrollLength = -1;
         /** Cache of the last padding to prevent setting CSS when not needed. */
-        this.lastPadding = -1;
+        this.lastScrollPosition = -1;
         this.cachedPageSize = 0;
         this.previousScrollNumberElements = 0;
         this.horizontal = false;
@@ -42,12 +40,12 @@ var VirtualScrollComponent = (function () {
         get: function () {
             return this._items;
         },
-        set: function (items) {
-            if (items === this._items) {
+        set: function (value) {
+            if (value === this._items) {
                 return;
             }
-            this._items = items || [];
-            this.refresh();
+            this._items = value || [];
+            this.refresh_internal(true);
         },
         enumerable: true,
         configurable: true
@@ -63,37 +61,15 @@ var VirtualScrollComponent = (function () {
         enumerable: true,
         configurable: true
     });
-    VirtualScrollComponent.prototype.updateDirection = function () {
-        if (this.horizontal) {
-            this._offsetType = 'offsetLeft';
-            this._pageOffsetType = 'pageXOffset';
-            this._scrollDim = 'scrollWidth';
-            this._itemsPerScrollDir = 'itemsPerRow';
-            this._itemsPerOpScrollDir = 'itemsPerCol';
-            this._childScrollDim = 'childWidth';
-            this._translateDir = 'translateX';
-            this._scrollType = 'scrollLeft';
-        }
-        else {
-            this._offsetType = 'offsetTop';
-            this._pageOffsetType = 'pageYOffset';
-            this._scrollDim = 'scrollHeight';
-            this._itemsPerScrollDir = 'itemsPerCol';
-            this._itemsPerOpScrollDir = 'itemsPerRow';
-            this._childScrollDim = 'childHeight';
-            this._translateDir = 'translateY';
-            this._scrollType = 'scrollTop';
-        }
-    };
     Object.defineProperty(VirtualScrollComponent.prototype, "parentScroll", {
         get: function () {
             return this._parentScroll;
         },
-        set: function (element) {
-            if (this._parentScroll === element) {
+        set: function (value) {
+            if (this._parentScroll === value) {
                 return;
             }
-            this._parentScroll = element;
+            this._parentScroll = value;
             this.addScrollEventHandlers();
             var scrollElement = this.getScrollElement();
             if (scrollElement !== this.element.nativeElement) {
@@ -111,33 +87,19 @@ var VirtualScrollComponent = (function () {
         this.removeScrollEventHandlers();
     };
     VirtualScrollComponent.prototype.ngOnChanges = function (changes) {
-        this.previousStart = undefined;
-        this.previousEnd = undefined;
-        var hadPreviousValue = changes.items && changes.items.previousValue && changes.items.previousValue.length > 0;
-        if (!hadPreviousValue) {
-            this.startupLoop = true;
-            this.itemsLength = this.items.length;
-        }
-        this.refresh();
+        var indexLengthChanged = this.cachedItemsLength !== this.items.length;
+        this.cachedItemsLength = this.items.length;
+        var firstRun = !changes.items || !changes.items.previousValue || changes.items.previousValue.length === 0;
+        this.refresh_internal(indexLengthChanged || firstRun);
     };
     VirtualScrollComponent.prototype.ngDoCheck = function () {
-        if (this.itemsLength !== this.items.length) {
-            this.previousStart = undefined;
-            this.previousEnd = undefined;
-            this.startupLoop = true;
-            this.refresh();
-            this.itemsLength = this.items.length;
+        if (this.cachedItemsLength !== this.items.length) {
+            this.cachedItemsLength = this.items.length;
+            this.refresh_internal(true);
         }
     };
-    VirtualScrollComponent.prototype.refresh = function (forceViewportUpdate) {
-        var _this = this;
-        if (forceViewportUpdate === void 0) { forceViewportUpdate = false; }
-        this.zone.runOutsideAngular(function () {
-            requestAnimationFrame(function () { return _this.calculateItems(forceViewportUpdate); });
-        });
-    };
-    VirtualScrollComponent.prototype.getScrollElement = function () {
-        return this.parentScroll instanceof Window ? document.scrollingElement || document.documentElement || document.body : this.parentScroll || this.element.nativeElement;
+    VirtualScrollComponent.prototype.refresh = function () {
+        this.refresh_internal(false);
     };
     VirtualScrollComponent.prototype.scrollInto = function (item, alignToTop, additionalOffset, animationMilliseconds, animationCompletedCallback) {
         if (alignToTop === void 0) { alignToTop = true; }
@@ -160,7 +122,7 @@ var VirtualScrollComponent = (function () {
         animationMilliseconds = animationMilliseconds || this.scrollAnimationTime;
         var scrollElement = this.getScrollElement();
         var dimensions = this.calculateDimensions();
-        var scroll = this.calculatePadding(index, dimensions, false) + additionalOffset;
+        var scroll = this.calculateScrollPosition(index, dimensions, false) + additionalOffset;
         if (!alignToBeginning) {
             scroll -= Math.max(0, (dimensions[this._itemsPerScrollDir] - 1)) * dimensions[this._childScrollDim];
         }
@@ -205,6 +167,85 @@ var VirtualScrollComponent = (function () {
         };
         animate();
         this.currentTween = newTween;
+    };
+    VirtualScrollComponent.prototype.updateDirection = function () {
+        if (this.horizontal) {
+            this._invisiblePaddingProperty = 'width';
+            this._offsetType = 'offsetLeft';
+            this._pageOffsetType = 'pageXOffset';
+            this._scrollDim = 'scrollWidth';
+            this._itemsPerScrollDir = 'itemsPerRow';
+            this._itemsPerOpScrollDir = 'itemsPerCol';
+            this._childScrollDim = 'childWidth';
+            this._translateDir = 'translateX';
+            this._scrollType = 'scrollLeft';
+        }
+        else {
+            this._invisiblePaddingProperty = 'height';
+            this._offsetType = 'offsetTop';
+            this._pageOffsetType = 'pageYOffset';
+            this._scrollDim = 'scrollHeight';
+            this._itemsPerScrollDir = 'itemsPerCol';
+            this._itemsPerOpScrollDir = 'itemsPerRow';
+            this._childScrollDim = 'childHeight';
+            this._translateDir = 'translateY';
+            this._scrollType = 'scrollTop';
+        }
+    };
+    VirtualScrollComponent.prototype.refresh_internal = function (itemsArrayModified, maxReRunTimes) {
+        var _this = this;
+        if (maxReRunTimes === void 0) { maxReRunTimes = 5; }
+        this.zone.runOutsideAngular(function () {
+            requestAnimationFrame(function () {
+                var calculateItemsResult = _this.calculateItems(itemsArrayModified);
+                var startChanged = calculateItemsResult.start !== _this.previousStart || itemsArrayModified;
+                var endChanged = calculateItemsResult.end !== _this.previousEnd || itemsArrayModified;
+                var scrollLengthChanged = calculateItemsResult.scrollLength !== _this.lastScrollLength;
+                var scrollPositionChanged = calculateItemsResult.scrollPosition !== _this.lastScrollPosition;
+                _this.previousStart = calculateItemsResult.start;
+                _this.previousEnd = calculateItemsResult.end;
+                _this.lastScrollLength = calculateItemsResult.scrollLength;
+                _this.lastScrollPosition = calculateItemsResult.scrollPosition;
+                if (scrollLengthChanged) {
+                    _this.renderer.setStyle(_this.invisiblePaddingElementRef.nativeElement, _this._invisiblePaddingProperty, calculateItemsResult.scrollLength + "px");
+                }
+                if (scrollPositionChanged) {
+                    _this.renderer.setStyle(_this.contentElementRef.nativeElement, 'transform', _this._translateDir + "(" + calculateItemsResult.scrollPosition + "px)");
+                    _this.renderer.setStyle(_this.contentElementRef.nativeElement, 'webkitTransform', _this._translateDir + "(" + calculateItemsResult.scrollPosition + "px)");
+                }
+                var emitIndexChangedEvents = true; // maxReRunTimes === 1 (would need to still run if didn't update if previous iteration had updated)
+                if (startChanged || endChanged) {
+                    _this.zone.run(function () {
+                        // update the scroll list to trigger re-render of components in viewport
+                        _this.viewPortItems = _this.items.slice(calculateItemsResult.start, calculateItemsResult.end);
+                        _this.update.emit(_this.viewPortItems);
+                        if (emitIndexChangedEvents) {
+                            if (startChanged) {
+                                _this.start.emit({ start: calculateItemsResult.start, end: calculateItemsResult.end });
+                            }
+                            if (endChanged) {
+                                _this.end.emit({ start: calculateItemsResult.start, end: calculateItemsResult.end });
+                            }
+                            if (startChanged || endChanged) {
+                                _this.change.emit({ start: calculateItemsResult.start, end: calculateItemsResult.end });
+                            }
+                        }
+                        if (maxReRunTimes > 0) {
+                            _this.refresh_internal(false, maxReRunTimes - 1);
+                            return;
+                        }
+                    });
+                }
+                else if (maxReRunTimes > 0) {
+                    if (scrollLengthChanged || scrollPositionChanged) {
+                        _this.refresh_internal(false, maxReRunTimes - 1);
+                    }
+                }
+            });
+        });
+    };
+    VirtualScrollComponent.prototype.getScrollElement = function () {
+        return this.parentScroll instanceof Window ? document.scrollingElement || document.documentElement || document.body : this.parentScroll || this.element.nativeElement;
     };
     VirtualScrollComponent.prototype.addScrollEventHandlers = function () {
         var _this = this;
@@ -323,25 +364,17 @@ var VirtualScrollComponent = (function () {
                     maxWidthInRow = 0;
                 }
             }
-            scrollHeight = Math.ceil((childHeight * (itemCount - this.previousEnd) + sumOfCurrentChildHeight) / itemsPerRow + this.lastPadding);
-            scrollWidth = Math.ceil((childWidth * (itemCount - this.previousEnd) + sumOfCurrentChildWidth) / itemsPerCol + this.lastPadding);
+            scrollHeight = Math.ceil((childHeight * (itemCount - this.previousEnd) + sumOfCurrentChildHeight) / itemsPerRow + this.lastScrollPosition);
+            scrollWidth = Math.ceil((childWidth * (itemCount - this.previousEnd) + sumOfCurrentChildWidth) / itemsPerCol + this.lastScrollPosition);
         }
         if (this.horizontal) {
             if (itemsPerRow === 1 && Math.floor(scroll / scrollWidth * itemCount) + itemsPerColByCalc >= itemCount) {
                 itemsPerCol = itemsPerColByCalc;
             }
-            if (scrollWidth !== this.lastScrollWidth) {
-                this.renderer.setStyle(this.invisiblePaddingElementRef.nativeElement, 'width', scrollWidth + "px");
-                this.lastScrollWidth = scrollWidth;
-            }
         }
         else {
             if (itemsPerCol === 1 && Math.floor(scroll / scrollHeight * itemCount) + itemsPerRowByCalc >= itemCount) {
                 itemsPerRow = itemsPerRowByCalc;
-            }
-            if (scrollHeight !== this.lastScrollHeight) {
-                this.renderer.setStyle(this.invisiblePaddingElementRef.nativeElement, 'height', scrollHeight + "px");
-                this.lastScrollHeight = scrollHeight;
             }
         }
         return {
@@ -354,13 +387,13 @@ var VirtualScrollComponent = (function () {
             scrollWidth: scrollWidth
         };
     };
-    VirtualScrollComponent.prototype.calculatePadding = function (start, dimensions, allowUnequalChildrenSizes_Experimental) {
+    VirtualScrollComponent.prototype.calculateScrollPosition = function (start, dimensions, allowUnequalChildrenSizes_Experimental) {
         var offset = this.getElementsOffset();
         //complex calculation isn't "pure", because it relies on global state & modifies that global state. It seems risky to call it during scrollInto since the original PR didn't. Once it's "pure" we can re-use it in both places.
         if (!allowUnequalChildrenSizes_Experimental || !this.enableUnequalChildrenSizes_Experimental) {
             return this.items.length === 0 ? 0 : (dimensions[this._childScrollDim] * Math.ceil(start / dimensions[this._itemsPerOpScrollDir]) - (dimensions[this._childScrollDim] * Math.min(start, this.bufferAmount)) + offset);
         }
-        var newPadding = this.lastPadding;
+        var newPadding = this.lastScrollPosition;
         if (start === 0) {
             newPadding = 0;
             this.previousStart = 0;
@@ -398,7 +431,6 @@ var VirtualScrollComponent = (function () {
         }
     };
     VirtualScrollComponent.prototype.calculateItems = function (forceViewportUpdate) {
-        var _this = this;
         if (forceViewportUpdate === void 0) { forceViewportUpdate = false; }
         var dimensions = this.calculateDimensions();
         var offset = this.getElementsOffset();
@@ -415,14 +447,14 @@ var VirtualScrollComponent = (function () {
         var newEnd;
         if (this.enableUnequalChildrenSizes_Experimental) {
             var indexByScroll = this.previousStart / dimensions[this._itemsPerOpScrollDir];
-            if (this.lastPadding > scroll) {
+            if (this.lastScrollPosition > scroll) {
                 // scroll up
-                indexByScroll -= (this.lastPadding - scroll) / dimensions[this._childScrollDim];
+                indexByScroll -= (this.lastScrollPosition - scroll) / dimensions[this._childScrollDim];
             }
             else {
                 // scroll down
                 var childSizeOverride = this.horizontal ? this.childWidth : this.childHeight;
-                var paddingCurrent = this.lastPadding;
+                var paddingCurrent = this.lastScrollPosition;
                 for (var _i = 0, _a = content.children; _i < _a.length; _i++) {
                     var child = _a[_i];
                     var childSize = childSizeOverride;
@@ -466,48 +498,17 @@ var VirtualScrollComponent = (function () {
         newStart = !isNaN(newStart) ? newStart : -1;
         newEnd = !isNaN(newEnd) ? newEnd : -1;
         newStart -= this.bufferAmount;
-        newStart = Math.max(0, newStart);
         newEnd += this.bufferAmount;
-        newEnd = Math.min(this.items.length, newEnd);
-        var newPadding = this.calculatePadding(newStart, dimensions, true);
-        if (newPadding !== this.lastPadding) {
-            this.renderer.setStyle(this.contentElementRef.nativeElement, 'transform', this._translateDir + "(" + newPadding + "px)");
-            this.renderer.setStyle(this.contentElementRef.nativeElement, 'webkitTransform', this._translateDir + "(" + newPadding + "px)");
-            this.lastPadding = newPadding;
-        }
-        if (newStart !== this.previousStart || newEnd !== this.previousEnd || forceViewportUpdate) {
-            this.zone.run(function () {
-                // update the scroll list
-                var _end = newEnd >= 0 ? newEnd : 0; // To prevent from accidentally selecting the entire array with a negative 1 (-1) in the end position. 
-                _this.viewPortItems = _this.items.slice(newStart, _end);
-                _this.update.emit(_this.viewPortItems);
-                // emit 'start' event
-                if (newStart !== _this.previousStart && _this.startupLoop === false) {
-                    _this.start.emit({ start: newStart, end: newEnd });
-                }
-                // emit 'end' event
-                if (newEnd !== _this.previousEnd && _this.startupLoop === false) {
-                    _this.end.emit({ start: newStart, end: newEnd });
-                }
-                _this.previousStart = newStart;
-                _this.previousEnd = newEnd;
-                if (_this.startupLoop) {
-                    _this.refresh();
-                    return;
-                }
-                else {
-                    _this.change.emit({ start: newStart, end: newEnd });
-                }
-                if ((_this.cachedPageSize && _this.previousScrollNumberElements)) {
-                    _this.refresh();
-                }
-            });
-        }
-        else if (this.startupLoop) {
-            this.startupLoop = false;
-            this.change.emit({ start: newStart, end: newEnd });
-            this.refresh();
-        }
+        newStart = Math.max(0, Math.min(this.items.length, newStart));
+        newEnd = Math.max(0, Math.min(this.items.length, newEnd));
+        var newScrollPosition = this.calculateScrollPosition(newStart, dimensions, true);
+        var newScrollLength = dimensions[this._scrollDim];
+        return {
+            start: Math.round(newStart),
+            end: Math.round(newEnd),
+            scrollPosition: Math.round(newScrollPosition),
+            scrollLength: Math.round(newScrollLength)
+        };
     };
     VirtualScrollComponent.decorators = [
         { type: core_1.Component, args: [{
