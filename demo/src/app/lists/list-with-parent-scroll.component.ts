@@ -3,8 +3,9 @@ import { VirtualScrollComponent } from 'angular2-virtual-scroll';
 import { ListItem } from './list-item.component';
 
 @Component({
-  selector: 'horizontal-list',
+  selector: 'list-with-parent-scroll',
   template: `
+    <h1>Window/Parent Scroll</h1>
     <button (click)="sortByName()">Sort By Name</button>
     <button (click)="sortByIndex()">Sort By Index</button>
     <button (click)="reduceListToEmpty()">Reduce to 0 Items</button>
@@ -19,18 +20,17 @@ import { ListItem } from './list-item.component';
       <span>({{scrollItems?.length}} nodes)</span>
       </div>
 
-    <virtual-scroll
-      [horizontal]="true"
+    <virtual-scroll #scroll [parentScroll]="scroll.window"
       [items]="filteredList"
       (update)="scrollItems = $event"
       (change)="indices = $event">
-      
-      <list-item *ngFor="let item of scrollItems" class="list-item horizontal-list-item" [item]="item"> </list-item>
+
+      <list-item *ngFor="let item of scrollItems" [item]="item"> </list-item>
+
     </virtual-scroll>
-  `,
-  styleUrls: ['./horizontal-list.scss']
+  `
 })
-export class HorizontalListComponent implements OnChanges {
+export class ListWithParentScrollComponent implements OnChanges {
 
   @Input()
   items: ListItem[];
@@ -63,7 +63,7 @@ export class HorizontalListComponent implements OnChanges {
   }
 
   scrollTo() {
-    this.virtualScroll.scrollToIndex(50);
+    this.virtualScroll.scrollToIndex(50, false);
   }
 
   ngOnChanges() {

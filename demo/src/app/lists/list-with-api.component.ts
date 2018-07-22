@@ -9,7 +9,7 @@ import { SimpleChanges } from '@angular/core';
   selector: 'list-with-api',
   template: `
     <div class="status">
-      Showing <span class="badge">{{indices?.start + 1}}</span>
+      Showing <span class="badge">{{indices?.start}}</span>
       - <span class="badge">{{indices?.end}}</span>
       of <span class="badge">{{buffer?.length}}</span>
       <span>({{scrollItems?.length}} nodes)</span>
@@ -49,7 +49,7 @@ export class ListWithApiComponent implements OnChanges {
 
   fetchMore(event: ChangeEvent) {
     this.indices = event;
-    if (event.end === this.buffer.length) {
+    if (event.end === this.buffer.length - 1) {
       this.loading = true;
       this.fetchNextChunk(this.buffer.length, this.bufferSize, event).then(chunk => {
         this.buffer = this.buffer.concat(chunk);

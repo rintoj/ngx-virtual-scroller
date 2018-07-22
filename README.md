@@ -13,6 +13,9 @@ This method is effective because the number of DOM elements are always constant 
 * Easy to use apis
 * OpenSource and available in GitHub
 
+## Breaking Changes:
+* The value of ChangeEvent.end wasn't intuitive. This has been corrected. Both ChangeEvent.start and ChangeEvent.end are the 0-based array indexes of the items being rendered in the viewport. (Previously Change.End was the array index + 1)
+
 ## New features:
 
 * Added ability to put other elements inside of scroll (Need to wrap list itself in @ContentChild('container'))
@@ -137,7 +140,7 @@ Child component is not necessary if your item is simple enough. See below.
 | childWidth     | number | The minimum width of the item template's cell. This dimension is used to help determine how many cells should be created when initialized, and to help calculate the height of the scrollable area. Note that the actual rendered size of the first cell is used by default if not specified.
 | childHeight    | number | The minimum height of the item template's cell. This dimension is used to help determine how many cells should be created when initialized, and to help calculate the height of the scrollable area. Note that the actual rendered size of the first cell is used by default if not specified.
 | bufferAmount   | number | The the number of elements to be rendered outside of the current container's viewport. Useful when not all elements are the same dimensions.
-| scrollAnimationTime | number | The time in milliseconds for the scroll animation to run for. Default value is 1500. 0 will completely disable the tween/animation.
+| scrollAnimationTime | number | The time in milliseconds for the scroll animation to run for. Default value is 750. 0 will completely disable the tween/animation.
 | parentScroll   | Element / Window | Element (or window), which will have scrollbar. This element must be one of the parents of virtual-scroll
 | start         | Event  | This event is fired every time `start` index changes and emits `ChangeEvent` which of format: `{ start: number, end: number }`
 | end         | Event  | This event is fired every time `end` index changes and emits `ChangeEvent` which of format: `{ start: number, end: number }`

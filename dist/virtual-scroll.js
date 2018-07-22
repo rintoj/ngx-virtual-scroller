@@ -26,14 +26,9 @@ var VirtualScrollComponent = (function () {
         this.calculatedScrollbarWidth = 0;
         this.calculatedScrollbarHeight = 0;
         this.padding = 0;
-        this.previousStart = 0;
-        this.previousEnd = -1;
+        this.previousViewPort = {};
         this.itemsHeight = {};
         this.itemsWidth = {};
-        /** Cache of the last scroll to prevent setting CSS when not needed. */
-        this.lastScrollLength = -1;
-        /** Cache of the last padding to prevent setting CSS when not needed. */
-        this.lastScrollPosition = -1;
         this.cachedPageSize = 0;
         this.previousScrollNumberElements = 0;
         this.horizontal = false;
@@ -137,10 +132,11 @@ var VirtualScrollComponent = (function () {
         animationCompletedCallback = animationCompletedCallback || (function () { });
         animationMilliseconds = animationMilliseconds === undefined ? this.scrollAnimationTime : animationMilliseconds;
         var scrollElement = this.getScrollElement();
+        var offset = this.getElementsOffset();
         var dimensions = this.calculateDimensions();
-        var scroll = this.calculateScrollPosition(index, dimensions, false) + additionalOffset;
+        var scroll = this.calculatePadding(index, dimensions, false) + offset + additionalOffset;
         if (!alignToBeginning) {
-            scroll -= dimensions[this._itemsPerScrollDir] * dimensions[this._childScrollDim];
+            scroll -= dimensions.wrapGroupsPerPage * dimensions[this._childScrollDim];
         }
         var animationRequest;
         if (this.currentTween) {
@@ -205,9 +201,6 @@ var VirtualScrollComponent = (function () {
             this._invisiblePaddingProperty = 'width';
             this._offsetType = 'offsetLeft';
             this._pageOffsetType = 'pageXOffset';
-            this._scrollDim = 'scrollWidth';
-            this._itemsPerScrollDir = 'itemsPerRow';
-            this._itemsPerOpScrollDir = 'itemsPerCol';
             this._childScrollDim = 'childWidth';
             this._translateDir = 'translateX';
             this._scrollType = 'scrollLeft';
@@ -216,61 +209,59 @@ var VirtualScrollComponent = (function () {
             this._invisiblePaddingProperty = 'height';
             this._offsetType = 'offsetTop';
             this._pageOffsetType = 'pageYOffset';
-            this._scrollDim = 'scrollHeight';
-            this._itemsPerScrollDir = 'itemsPerCol';
-            this._itemsPerOpScrollDir = 'itemsPerRow';
             this._childScrollDim = 'childHeight';
             this._translateDir = 'translateY';
             this._scrollType = 'scrollTop';
         }
     };
-    VirtualScrollComponent.prototype.refresh_internal = function (itemsArrayModified, maxReRunTimes) {
+    VirtualScrollComponent.prototype.refresh_internal = function (itemsArrayModified, maxRunTimes) {
+        //note: maxRunTimes is to force it to keep recalculating if the previous iteration caused a re-render (different sliced items in viewport or scrollPosition changed). 
+        //The default of 2x max will probably be accurate enough without causing too large a performance bottleneck
+        //The code would typically quit out on the 2nd iteration anyways. The main time it'd think more than 2 runs would be necessary would be for vastly different sized child items.
+        //Without maxRunTimes, If the user is actively scrolling this code would run indefinitely. However, we want to short-circuit it because there are separate scroll event handlers which call this function & we don't want to do the work 2x.
         var _this = this;
-        if (maxReRunTimes === void 0) { maxReRunTimes = 2; }
+        if (maxRunTimes === void 0) { maxRunTimes = 2; }
         this.zone.runOutsideAngular(function () {
             requestAnimationFrame(function () {
-                var calculateItemsResult = _this.calculateItems(itemsArrayModified);
-                var startChanged = calculateItemsResult.start !== _this.previousStart || itemsArrayModified;
-                var endChanged = calculateItemsResult.end !== _this.previousEnd || itemsArrayModified;
-                var scrollLengthChanged = calculateItemsResult.scrollLength !== _this.lastScrollLength;
-                var scrollPositionChanged = calculateItemsResult.scrollPosition !== _this.lastScrollPosition;
-                _this.previousStart = calculateItemsResult.start;
-                _this.previousEnd = calculateItemsResult.end;
-                _this.lastScrollLength = calculateItemsResult.scrollLength;
-                _this.lastScrollPosition = calculateItemsResult.scrollPosition;
+                var viewport = _this.calculateViewport(itemsArrayModified);
+                var startChanged = itemsArrayModified || viewport.arrayStartIndex !== _this.previousViewPort.arrayStartIndex;
+                var endChanged = itemsArrayModified || viewport.arrayEndIndex !== _this.previousViewPort.arrayEndIndex;
+                var scrollLengthChanged = viewport.scrollLength !== _this.previousViewPort.scrollLength;
+                var paddingChanged = viewport.padding !== _this.previousViewPort.padding;
+                _this.previousViewPort = viewport;
                 if (scrollLengthChanged) {
-                    _this.renderer.setStyle(_this.invisiblePaddingElementRef.nativeElement, _this._invisiblePaddingProperty, calculateItemsResult.scrollLength + "px");
+                    _this.renderer.setStyle(_this.invisiblePaddingElementRef.nativeElement, _this._invisiblePaddingProperty, viewport.scrollLength + "px");
                 }
-                if (scrollPositionChanged) {
-                    _this.renderer.setStyle(_this.contentElementRef.nativeElement, 'transform', _this._translateDir + "(" + calculateItemsResult.scrollPosition + "px)");
-                    _this.renderer.setStyle(_this.contentElementRef.nativeElement, 'webkitTransform', _this._translateDir + "(" + calculateItemsResult.scrollPosition + "px)");
+                if (paddingChanged) {
+                    _this.renderer.setStyle(_this.contentElementRef.nativeElement, 'transform', _this._translateDir + "(" + viewport.padding + "px)");
+                    _this.renderer.setStyle(_this.contentElementRef.nativeElement, 'webkitTransform', _this._translateDir + "(" + viewport.padding + "px)");
                 }
                 var emitIndexChangedEvents = true; // maxReRunTimes === 1 (would need to still run if didn't update if previous iteration had updated)
                 if (startChanged || endChanged) {
                     _this.zone.run(function () {
                         // update the scroll list to trigger re-render of components in viewport
-                        _this.viewPortItems = _this.items.slice(calculateItemsResult.start, calculateItemsResult.end);
+                        _this.viewPortItems = viewport.arrayStartIndex >= 0 && viewport.arrayEndIndex >= 0 ? _this.items.slice(viewport.arrayStartIndex, viewport.arrayEndIndex + 1) : [];
                         _this.update.emit(_this.viewPortItems);
                         if (emitIndexChangedEvents) {
                             if (startChanged) {
-                                _this.start.emit({ start: calculateItemsResult.start, end: calculateItemsResult.end });
+                                _this.start.emit({ start: viewport.arrayStartIndex, end: viewport.arrayEndIndex });
                             }
                             if (endChanged) {
-                                _this.end.emit({ start: calculateItemsResult.start, end: calculateItemsResult.end });
+                                _this.end.emit({ start: viewport.arrayStartIndex, end: viewport.arrayEndIndex });
                             }
                             if (startChanged || endChanged) {
-                                _this.change.emit({ start: calculateItemsResult.start, end: calculateItemsResult.end });
+                                _this.change.emit({ start: viewport.arrayStartIndex, end: viewport.arrayEndIndex });
                             }
                         }
-                        if (maxReRunTimes > 0) {
-                            _this.refresh_internal(false, maxReRunTimes - 1);
+                        if (maxRunTimes > 0) {
+                            _this.refresh_internal(false, maxRunTimes - 1);
                             return;
                         }
                     });
                 }
-                else if (maxReRunTimes > 0) {
-                    if (scrollLengthChanged || scrollPositionChanged) {
-                        _this.refresh_internal(false, maxReRunTimes - 1);
+                else if (maxRunTimes > 0) {
+                    if (scrollLengthChanged || paddingChanged) {
+                        _this.refresh_internal(false, maxRunTimes - 1);
                     }
                 }
             });
@@ -330,13 +321,8 @@ var VirtualScrollComponent = (function () {
         }
         return offset;
     };
-    VirtualScrollComponent.prototype.countItemsPerRow = function () {
-        return this.countItemsPerDirection('offsetTop');
-    };
-    VirtualScrollComponent.prototype.countItemsPerCol = function () {
-        return this.countItemsPerDirection('offsetLeft');
-    };
-    VirtualScrollComponent.prototype.countItemsPerDirection = function (propertyName) {
+    VirtualScrollComponent.prototype.countItemsPerWrapGroup = function () {
+        var propertyName = this.horizontal ? 'offsetLeft' : 'offsetTop';
         var children = this.contentElementRef.nativeElement.children;
         var childrenLength = children ? children.length : 0;
         if (childrenLength === 0) {
@@ -349,7 +335,7 @@ var VirtualScrollComponent = (function () {
         }
         return result;
     };
-    VirtualScrollComponent.prototype.getScrollValue = function () {
+    VirtualScrollComponent.prototype.getScrollPosition = function () {
         var windowScrollValue = undefined;
         if (this.parentScroll instanceof Window) {
             windowScrollValue = window[this._pageOffsetType];
@@ -373,13 +359,8 @@ var VirtualScrollComponent = (function () {
         }
         var childWidth = this.childWidth || contentDimensions.width;
         var childHeight = this.childHeight || contentDimensions.height;
-        var itemsPerRowByCalc = Math.max(1, Math.floor(viewWidth / childWidth));
-        var itemsPerColByCalc = Math.max(1, Math.floor(viewHeight / childHeight));
-        var itemsPerRow = !this.horizontal ? this.countItemsPerRow() : itemsPerRowByCalc;
-        var itemsPerCol = this.horizontal ? this.countItemsPerCol() : itemsPerColByCalc;
-        var scroll = Math.max(0, this.getScrollValue());
-        var scrollHeight = childHeight * Math.ceil(itemCount / itemsPerRow);
-        var scrollWidth = childWidth * Math.ceil(itemCount / itemsPerCol);
+        var itemsPerRow = Math.ceil(viewWidth / childWidth);
+        var itemsPerCol = Math.ceil(viewHeight / childHeight);
         if (this.enableUnequalChildrenSizes_Experimental) {
             var maxHeightInRow = 0;
             var maxWidthInRow = 0;
@@ -387,7 +368,7 @@ var VirtualScrollComponent = (function () {
             var sumOfCurrentChildWidth = 0;
             for (var i = 0; i < content.children.length; ++i) {
                 var child = content.children[i];
-                var index = this.previousStart + i;
+                var index = this.previousViewPort.arrayStartIndex + i;
                 var clientRect = (!this.childHeight || !this.childWidth) ? child.getBoundingClientRect() : undefined;
                 this.itemsHeight[index] = this.childHeight || clientRect.height;
                 this.itemsWidth[index] = this.childWidth || clientRect.width;
@@ -402,97 +383,118 @@ var VirtualScrollComponent = (function () {
                     maxWidthInRow = 0;
                 }
             }
-            scrollHeight = Math.ceil((childHeight * (itemCount - this.previousEnd) + sumOfCurrentChildHeight) / itemsPerRow + this.lastScrollPosition);
-            scrollWidth = Math.ceil((childWidth * (itemCount - this.previousEnd) + sumOfCurrentChildWidth) / itemsPerCol + this.lastScrollPosition);
+            //scrollHeight = Math.ceil((childHeight * (itemCount - this.previousViewPort.arrayEndIndex) + sumOfCurrentChildHeight) / itemsPerRow + this.previousViewPort.padding);
+            //scrollWidth = Math.ceil((childWidth * (itemCount - this.previousViewPort.arrayEndIndex) + sumOfCurrentChildWidth) / itemsPerCol + this.previousViewPort.padding);
         }
-        if (this.horizontal) {
-            if (itemsPerRow === 1 && Math.floor(scroll / scrollWidth * itemCount) + itemsPerColByCalc >= itemCount) {
-                itemsPerCol = itemsPerColByCalc;
-            }
-        }
-        else {
-            if (itemsPerCol === 1 && Math.floor(scroll / scrollHeight * itemCount) + itemsPerRowByCalc >= itemCount) {
-                itemsPerRow = itemsPerRowByCalc;
-            }
-        }
+        itemsPerCol = Math.max(itemsPerCol, 1);
+        itemsPerRow = Math.max(itemsPerRow, 1);
+        var itemsPerWrapGroup = this.countItemsPerWrapGroup();
+        var wrapGroupsPerPage = this.horizontal ? itemsPerRow : itemsPerCol;
+        var itemsPerPage = itemsPerWrapGroup * wrapGroupsPerPage;
+        var pageCount_fractional = itemCount / itemsPerPage;
+        var numberOfWrapGroups = Math.ceil(itemCount / itemsPerWrapGroup);
+        var scrollLength = numberOfWrapGroups * (this.horizontal ? childWidth : childHeight);
         return {
             itemCount: itemCount,
+            itemsPerWrapGroup: itemsPerWrapGroup,
+            wrapGroupsPerPage: wrapGroupsPerPage,
+            itemsPerPage: itemsPerPage,
+            pageCount_fractional: pageCount_fractional,
             childWidth: childWidth,
             childHeight: childHeight,
-            itemsPerRow: Math.max(itemsPerRow, 1),
-            itemsPerCol: Math.max(itemsPerCol, 1),
-            scrollHeight: scrollHeight,
-            scrollWidth: scrollWidth
+            scrollLength: scrollLength
         };
     };
-    VirtualScrollComponent.prototype.calculateScrollPosition = function (start, dimensions, allowUnequalChildrenSizes_Experimental) {
-        var offset = this.getElementsOffset();
-        //complex calculation isn't "pure", because it relies on global state & modifies that global state. It seems risky to call it during scrollInto since the original PR didn't. Once it's "pure" we can re-use it in both places.
-        if (!allowUnequalChildrenSizes_Experimental || !this.enableUnequalChildrenSizes_Experimental) {
-            return this.items.length === 0 ? 0 : (dimensions[this._childScrollDim] * Math.ceil(start / dimensions[this._itemsPerOpScrollDir]) - (dimensions[this._childScrollDim] * Math.min(start, this.bufferAmount)) + offset);
+    VirtualScrollComponent.prototype.calculatePadding = function (arrayStartIndex, dimensions, allowUnequalChildrenSizes_Experimental) {
+        if (dimensions.itemCount === 0) {
+            return 0;
         }
-        var newPadding = this.lastScrollPosition;
-        if (start === 0) {
-            newPadding = 0;
-            this.previousStart = 0;
+        //UnequalChildrenSizes_Experimental isn't "pure", because it relies on & modifies previous viewport. It seems risky to call it during scrollInto since the original PR didn't. Once it's "pure" we can re-use it in both places.
+        if (!allowUnequalChildrenSizes_Experimental || !this.enableUnequalChildrenSizes_Experimental) {
+            var wrapGroups = Math.ceil(arrayStartIndex / dimensions.itemsPerWrapGroup);
+            return dimensions[this._childScrollDim] * wrapGroups;
+        }
+        var offset = this.getElementsOffset();
+        if (arrayStartIndex === 0) {
+            return 0;
+        }
+        var newPadding = this.previousViewPort.padding;
+        var content = (this.containerElementRef && this.containerElementRef.nativeElement) || this.contentElementRef.nativeElement;
+        var childSizeOverride = this.horizontal ? this.childWidth : this.childHeight;
+        if (!childSizeOverride && this.cachedPageSize && this.previousScrollNumberElements && content.children[this.previousScrollNumberElements - dimensions.itemsPerWrapGroup]) {
+            var firstChild = content.children[0].getBoundingClientRect();
+            var lastChild = content.children[this.previousScrollNumberElements - dimensions.itemsPerWrapGroup].getBoundingClientRect();
+            newPadding -= (this.horizontal ? lastChild.right : lastChild.bottom) - (this.horizontal ? firstChild.left : firstChild.top) - this.cachedPageSize;
+            this.cachedPageSize = 0;
+            this.previousScrollNumberElements = 0;
+        }
+        if (arrayStartIndex < this.previousViewPort.arrayStartIndex) {
+            this.cachedPageSize = 0;
+            var childSizeHash = this.horizontal ? this.itemsWidth : this.itemsHeight;
+            var defaultChildSize = dimensions[this._childScrollDim];
+            var maxChildSize = 0;
+            for (var i = arrayStartIndex; i < this.previousViewPort.arrayStartIndex; ++i) {
+                maxChildSize = Math.max(maxChildSize, childSizeHash[i] || defaultChildSize);
+                if ((i + 1) % dimensions.itemsPerWrapGroup === 0) {
+                    this.cachedPageSize += maxChildSize * dimensions.itemsPerWrapGroup;
+                    maxChildSize = 0;
+                }
+            }
+            this.cachedPageSize /= dimensions.itemsPerWrapGroup;
+            newPadding -= this.cachedPageSize;
+            this.previousScrollNumberElements = this.previousViewPort.arrayStartIndex - arrayStartIndex;
         }
         else {
-            var content = (this.containerElementRef && this.containerElementRef.nativeElement) || this.contentElementRef.nativeElement;
-            var childSizeOverride = this.horizontal ? this.childWidth : this.childHeight;
-            if (!childSizeOverride && this.cachedPageSize && this.previousScrollNumberElements && content.children[this.previousScrollNumberElements - dimensions[this._itemsPerOpScrollDir]]) {
-                var firstChild = content.children[0].getBoundingClientRect();
-                var lastChild = content.children[this.previousScrollNumberElements - dimensions[this._itemsPerOpScrollDir]].getBoundingClientRect();
-                newPadding -= (this.horizontal ? lastChild.right : lastChild.bottom) - (this.horizontal ? firstChild.left : firstChild.top) - this.cachedPageSize;
-                this.cachedPageSize = 0;
-                this.previousScrollNumberElements = 0;
-            }
-            if (start < this.previousStart) {
-                this.cachedPageSize = 0;
-                var childSizeHash = this.horizontal ? this.itemsWidth : this.itemsHeight;
-                var defaultChildSize = dimensions[this._childScrollDim];
-                var maxChildSize = 0;
-                for (var i = start; i < this.previousStart; ++i) {
-                    maxChildSize = Math.max(maxChildSize, childSizeHash[i] || defaultChildSize);
-                    if ((i + 1) % dimensions[this._itemsPerOpScrollDir] === 0) {
-                        this.cachedPageSize += maxChildSize * dimensions[this._itemsPerOpScrollDir];
-                        maxChildSize = 0;
-                    }
-                }
-                this.cachedPageSize /= dimensions[this._itemsPerOpScrollDir];
-                newPadding -= this.cachedPageSize;
-                this.previousScrollNumberElements = this.previousStart - start;
-            }
-            else {
-                newPadding += dimensions[this._childScrollDim] * (start - this.previousStart) / dimensions[this._itemsPerOpScrollDir];
-            }
-            return Math.round(newPadding) + offset;
+            newPadding += dimensions[this._childScrollDim] * (arrayStartIndex - this.previousViewPort.arrayStartIndex) / dimensions.itemsPerWrapGroup;
         }
+        return Math.round(newPadding) + offset;
     };
-    VirtualScrollComponent.prototype.calculateItems = function (forceViewportUpdate) {
+    VirtualScrollComponent.prototype.calculatePageInfo = function (scrollPosition, dimensions) {
+        var scrollPercentage = scrollPosition / dimensions.scrollLength;
+        var startingArrayIndex_fractional = Math.min(Math.max(scrollPercentage * dimensions.pageCount_fractional, 0), dimensions.pageCount_fractional) * dimensions.itemsPerPage;
+        var maxStart = dimensions.itemCount - dimensions.itemsPerPage - 1;
+        var arrayStartIndex = Math.min(Math.floor(startingArrayIndex_fractional), maxStart);
+        arrayStartIndex -= arrayStartIndex % dimensions.itemsPerWrapGroup; // round down to start of wrapGroup
+        var arrayEndIndex = Math.ceil(startingArrayIndex_fractional) + dimensions.itemsPerPage - 1;
+        arrayEndIndex += (dimensions.itemsPerWrapGroup - (arrayEndIndex + 1) % dimensions.itemsPerWrapGroup); // round up to end of wrapGroup
+        var bufferSize = this.bufferAmount * dimensions.itemsPerWrapGroup;
+        arrayStartIndex -= bufferSize;
+        arrayEndIndex += bufferSize;
+        if (isNaN(arrayStartIndex)) {
+            arrayStartIndex = -1;
+        }
+        if (isNaN(arrayEndIndex)) {
+            arrayEndIndex = -1;
+        }
+        return {
+            arrayStartIndex: Math.min(Math.max(arrayStartIndex, 0), dimensions.itemCount - 1),
+            arrayEndIndex: Math.min(Math.max(arrayEndIndex, 0), dimensions.itemCount - 1)
+        };
+    };
+    VirtualScrollComponent.prototype.calculateViewport = function (forceViewportUpdate) {
         if (forceViewportUpdate === void 0) { forceViewportUpdate = false; }
         var dimensions = this.calculateDimensions();
         var offset = this.getElementsOffset();
-        var elScroll = this.getScrollValue();
-        if (elScroll > dimensions[this._scrollDim] && !(this.parentScroll instanceof Window)) {
-            elScroll = dimensions[this._scrollDim];
+        var scrollPosition = this.getScrollPosition();
+        if (scrollPosition > dimensions.scrollLength && !(this.parentScroll instanceof Window)) {
+            scrollPosition = dimensions.scrollLength;
         }
         else {
-            elScroll -= offset;
+            scrollPosition -= offset;
         }
-        var scroll = Math.max(0, elScroll);
+        scrollPosition = Math.max(0, scrollPosition);
         var content = (this.containerElementRef && this.containerElementRef.nativeElement) || this.contentElementRef.nativeElement;
-        var newStart;
-        var newEnd;
+        var pageInfo;
         if (this.enableUnequalChildrenSizes_Experimental) {
-            var indexByScroll = this.previousStart / dimensions[this._itemsPerOpScrollDir];
-            if (this.lastScrollPosition > scroll) {
+            var indexByScroll = this.previousViewPort.arrayStartIndex / dimensions.itemsPerWrapGroup;
+            if (this.previousViewPort.padding > scrollPosition) {
                 // scroll up
-                indexByScroll -= (this.lastScrollPosition - scroll) / dimensions[this._childScrollDim];
+                indexByScroll -= (this.previousViewPort.padding - scrollPosition) / dimensions[this._childScrollDim];
             }
             else {
                 // scroll down
                 var childSizeOverride = this.horizontal ? this.childWidth : this.childHeight;
-                var paddingCurrent = this.lastScrollPosition;
+                var paddingCurrent = this.previousViewPort.padding;
                 for (var _i = 0, _a = content.children; _i < _a.length; _i++) {
                     var child = _a[_i];
                     var childSize = childSizeOverride;
@@ -501,50 +503,44 @@ var VirtualScrollComponent = (function () {
                         childSize = this.horizontal ? boundingRect.width : boundingRect.height;
                     }
                     paddingCurrent += childSize;
-                    if (paddingCurrent > scroll) {
-                        indexByScroll += 1 - (paddingCurrent - scroll) / childSize;
+                    if (paddingCurrent > scrollPosition) {
+                        indexByScroll += 1 - (paddingCurrent - scrollPosition) / childSize;
                         break;
                     }
                     else {
                         ++indexByScroll;
                     }
                 }
-                if (scroll > paddingCurrent) {
-                    indexByScroll += (scroll - paddingCurrent) / dimensions[this._childScrollDim];
+                if (scrollPosition > paddingCurrent) {
+                    indexByScroll += (scrollPosition - paddingCurrent) / dimensions[this._childScrollDim];
                 }
             }
-            newEnd = Math.min(dimensions.itemCount, (Math.ceil(indexByScroll) + dimensions[this._itemsPerScrollDir] + 1) * dimensions[this._itemsPerOpScrollDir]);
+            var newEnd = Math.min(dimensions.itemCount, (Math.ceil(indexByScroll) + dimensions.wrapGroupsPerPage + 1) * dimensions.itemsPerWrapGroup);
             var maxStartEnd = newEnd;
-            var modEnd = newEnd % dimensions[this._itemsPerOpScrollDir];
+            var modEnd = newEnd % dimensions.itemsPerWrapGroup;
             if (modEnd) {
-                maxStartEnd = newEnd + dimensions[this._itemsPerOpScrollDir] - modEnd;
+                maxStartEnd = newEnd + dimensions.itemsPerWrapGroup - modEnd;
             }
-            var maxStart = Math.max(0, maxStartEnd - dimensions[this._itemsPerScrollDir] * dimensions[this._itemsPerOpScrollDir] - dimensions[this._itemsPerOpScrollDir]);
-            newStart = Math.min(maxStart, Math.floor(indexByScroll) * dimensions[this._itemsPerOpScrollDir]);
+            var maxStart = Math.max(0, maxStartEnd - dimensions.wrapGroupsPerPage * dimensions.itemsPerWrapGroup - dimensions.itemsPerWrapGroup);
+            var newStart = Math.min(maxStart, Math.floor(indexByScroll) * dimensions.itemsPerWrapGroup);
+            newStart = !isNaN(newStart) ? newStart : -1;
+            newEnd = !isNaN(newEnd) ? newEnd : -1;
+            newStart = Math.max(0, Math.min(dimensions.itemCount - 1, newStart));
+            newEnd = Math.max(0, Math.min(dimensions.itemCount - 1, newEnd));
+            pageInfo = {
+                start: newStart,
+                end: newEnd
+            };
         }
         else {
-            var indexByScroll = scroll / dimensions[this._scrollDim] * dimensions.itemCount / ((this.horizontal) ? dimensions.itemsPerCol : dimensions.itemsPerRow);
-            newEnd = Math.min(dimensions.itemCount, Math.ceil(indexByScroll) * dimensions[this._itemsPerOpScrollDir] + dimensions[this._itemsPerOpScrollDir] * (dimensions[this._itemsPerScrollDir] + 1));
-            var maxStartEnd = newEnd;
-            var modEnd = newEnd % dimensions[this._itemsPerOpScrollDir];
-            if (modEnd) {
-                maxStartEnd = newEnd + dimensions[this._itemsPerOpScrollDir] - modEnd;
-            }
-            var maxStart = Math.max(0, maxStartEnd - dimensions[this._itemsPerScrollDir] * dimensions[this._itemsPerOpScrollDir] - dimensions[this._itemsPerOpScrollDir]);
-            newStart = Math.min(maxStart, Math.floor(indexByScroll) * dimensions[this._itemsPerOpScrollDir]);
+            pageInfo = this.calculatePageInfo(scrollPosition, dimensions);
         }
-        newStart = !isNaN(newStart) ? newStart : -1;
-        newEnd = !isNaN(newEnd) ? newEnd : -1;
-        newStart -= this.bufferAmount;
-        newEnd += this.bufferAmount;
-        newStart = Math.max(0, Math.min(this.items.length, newStart));
-        newEnd = Math.max(0, Math.min(this.items.length, newEnd));
-        var newScrollPosition = this.calculateScrollPosition(newStart, dimensions, true);
-        var newScrollLength = dimensions[this._scrollDim];
+        var newPadding = this.calculatePadding(pageInfo.arrayStartIndex, dimensions, true);
+        var newScrollLength = dimensions.scrollLength;
         return {
-            start: Math.round(newStart),
-            end: Math.round(newEnd),
-            scrollPosition: Math.round(newScrollPosition),
+            arrayStartIndex: pageInfo.arrayStartIndex,
+            arrayEndIndex: pageInfo.arrayEndIndex,
+            padding: Math.round(newPadding),
             scrollLength: Math.round(newScrollLength)
         };
     };

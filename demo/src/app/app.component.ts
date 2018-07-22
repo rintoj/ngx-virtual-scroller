@@ -24,6 +24,10 @@ import { ViewEncapsulation } from '@angular/core';
         <p><strong>change</strong> event is fired every time start or end index change.
         You could use this to load more items at the end of the scroll. See below.</p>
         <pre><code class="javascript">{{codeListWithApi}}</code></pre>
+
+        <!--
+          <list-with-parent-scroll [items]="items"></list-with-parent-scroll>
+        -->
     `,
   styleUrls: ['./app.component.scss'],
   encapsulation: ViewEncapsulation.None

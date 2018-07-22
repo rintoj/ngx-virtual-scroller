@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { HttpModule } from '@angular/http';
 import { ListItemComponent } from './lists/list-item.component';
 import { ListWithApiComponent } from './lists/list-with-api.component';
+import { ListWithParentScrollComponent } from './lists/list-with-parent-scroll.component';
 import { MultiColListComponent } from './lists/multi-col-list.component';
 
 import { NgModule } from '@angular/core';
@@ -17,6 +18,7 @@ import { HorizontalListComponent } from "./lists/horizontal-list.component";
     AppComponent,
     ListItemComponent,
     ListWithApiComponent,
+    ListWithParentScrollComponent,
     MultiColListComponent,
     TableListComponent,
     VerticalListComponent,

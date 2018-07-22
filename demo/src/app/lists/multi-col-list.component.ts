@@ -15,20 +15,19 @@ import { VirtualScrollComponent } from 'angular2-virtual-scroll';
     <button (click)="scrollTo()">Scroll to 50</button>
 
     <div class="status">
-        Showing <span class="badge">{{indices?.start + 1}}</span>
+        Showing <span class="badge">{{indices?.start}}</span>
         - <span class="badge">{{indices?.end}}</span>
         of <span class="badge">{{filteredList?.length}}</span>
       <span>({{scrollItems?.length}} nodes)</span>
       </div>
 
-    <div virtualScroll
+    <virtual-scroll
       [items]="filteredList"
       (update)="scrollItems = $event"
       (change)="indices = $event">
-
-      <list-item *ngFor="let item of scrollItems" [item]="item"> </list-item>
-
-    </div>
+      
+      <list-item *ngFor="let item of scrollItems" class="list-item horizontal-list-item" [item]="item"> </list-item>
+    </virtual-scroll>
   `,
   styleUrls: ['./multi-col-list.scss']
 })
@@ -67,7 +66,7 @@ export class MultiColListComponent implements OnChanges {
   }
 
   scrollTo() {
-    this.virtualScroll.scrollInto(this.items[50]);
+    this.virtualScroll.scrollToIndex(50);
   }
 
   ngOnChanges() {

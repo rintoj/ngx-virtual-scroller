@@ -13,7 +13,7 @@ import { ListItem } from './list-item.component';
     <button (click)="scrollTo()">Scroll to 50</button>
 
     <div class="status">
-        Showing <span class="badge">{{indices?.start + 1}}</span>
+        Showing <span class="badge">{{indices?.start}}</span>
         - <span class="badge">{{indices?.end}}</span>
         of <span class="badge">{{filteredList?.length}}</span>
       <span>({{scrollItems?.length}} nodes)</span>
@@ -71,7 +71,7 @@ export class TableListComponent implements OnChanges {
   }
 
   scrollTo() {
-    this.virtualScroll.scrollInto(this.items[50]);
+    this.virtualScroll.scrollToIndex(50);
   }
 
   ngOnChanges() {

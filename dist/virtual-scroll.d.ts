@@ -6,17 +6,20 @@ export interface ChangeEvent {
 }
 export interface IDimensions {
     itemCount: number;
+    itemsPerWrapGroup: number;
+    wrapGroupsPerPage: number;
+    itemsPerPage: number;
+    pageCount_fractional: number;
     childWidth: number;
     childHeight: number;
-    itemsPerRow: number;
-    itemsPerCol: number;
-    scrollHeight: number;
-    scrollWidth: number;
+    scrollLength: number;
 }
-export interface CalculateItemsResult {
-    start: number;
-    end: number;
-    scrollPosition: number;
+export interface IPageInfo {
+    arrayStartIndex: number;
+    arrayEndIndex: number;
+}
+export interface IViewport extends IPageInfo {
+    padding: number;
     scrollLength: number;
 }
 export declare class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
@@ -63,9 +66,6 @@ export declare class VirtualScrollComponent implements OnInit, OnChanges, OnDest
     protected _offsetType: any;
     protected _scrollType: any;
     protected _pageOffsetType: any;
-    protected _scrollDim: any;
-    protected _itemsPerScrollDir: any;
-    protected _itemsPerOpScrollDir: any;
     protected _childScrollDim: any;
     protected _translateDir: any;
     protected updateDirection(): void;
@@ -73,8 +73,7 @@ export declare class VirtualScrollComponent implements OnInit, OnChanges, OnDest
     protected calculatedScrollbarWidth: number;
     protected calculatedScrollbarHeight: number;
     protected padding: number;
-    protected previousStart: number;
-    protected previousEnd: number;
+    protected previousViewPort: IViewport;
     protected currentTween: tween.Tween;
     protected itemsHeight: {
         [key: number]: number;
@@ -85,24 +84,19 @@ export declare class VirtualScrollComponent implements OnInit, OnChanges, OnDest
     protected cachedItemsLength: number;
     protected disposeScrollHandler: () => void | undefined;
     protected disposeResizeHandler: () => void | undefined;
-    /** Cache of the last scroll to prevent setting CSS when not needed. */
-    protected lastScrollLength: number;
-    /** Cache of the last padding to prevent setting CSS when not needed. */
-    protected lastScrollPosition: number;
-    protected refresh_internal(itemsArrayModified: boolean, maxReRunTimes?: number): void;
+    protected refresh_internal(itemsArrayModified: boolean, maxRunTimes?: number): void;
     protected getScrollElement(): HTMLElement;
     protected addScrollEventHandlers(): void;
     protected removeScrollEventHandlers(): void;
     protected getElementsOffset(): number;
-    protected countItemsPerRow(): number;
-    protected countItemsPerCol(): number;
-    protected countItemsPerDirection(propertyName: string): number;
-    protected getScrollValue(): number;
+    protected countItemsPerWrapGroup(): number;
+    protected getScrollPosition(): number;
     protected calculateDimensions(): IDimensions;
     protected cachedPageSize: number;
     protected previousScrollNumberElements: number;
-    protected calculateScrollPosition(start: number, dimensions: IDimensions, allowUnequalChildrenSizes_Experimental: boolean): number;
-    protected calculateItems(forceViewportUpdate?: boolean): CalculateItemsResult;
+    protected calculatePadding(arrayStartIndex: number, dimensions: IDimensions, allowUnequalChildrenSizes_Experimental: boolean): number;
+    protected calculatePageInfo(scrollPosition: number, dimensions: IDimensions): IPageInfo;
+    protected calculateViewport(forceViewportUpdate?: boolean): IViewport;
 }
 export declare class VirtualScrollModule {
 }

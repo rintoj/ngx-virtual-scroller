@@ -1,3 +1,9 @@
+# v0.4.4
+
+* Added ability to use virtual scroll with different heights of elements
+* flag "enableUnequalChildrenSizes_Experimental" was added (defaults to false) to bypass the different-height elements calculations until they're stable (& for users of fixed-height children to avoid the minor performance impact).
+Breaking Change: The value of ChangeEvent.end wasn't intuitive. This has been corrected. Both ChangeEvent.start and ChangeEvent.end are the 0-based array indexes of the items being rendered in the viewport. (Previously Change.End was the array index + 1)
+
 # v0.4.3
 
 * Added ability to use virtual scroll with different heights of elements
