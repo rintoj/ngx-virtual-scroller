@@ -275,7 +275,7 @@ export class ListWithApiComponent implements OnChanges {
     protected loading: boolean;
 
     protected fetchMore(event: ChangeEvent) {
-        if (event.end !== this.buffer.length) return;
+        if (event.end !== this.buffer.length-1) return;
         this.loading = true;
         this.fetchNextChunk(this.buffer.length, 10).then(chunk => {
             this.buffer = this.buffer.concat(chunk);
