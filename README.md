@@ -251,7 +251,7 @@ The event `end` is fired every time the scrollbar reaches the end of the list. Y
 
 ```ts
 
-import { ChangeEvent } from '@angular2-virtual-scroll';
+import { ChangeEvent } from 'angular2-virtual-scroll';
 ...
 
 @Component({
