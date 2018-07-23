@@ -15,6 +15,7 @@ import { OnInit } from '@angular/core';
 <button (click)="reduceList()">Reduce to 100 Items</button>
 <button (click)="setToFullList()">Revert to 1000 Items</button>
 <button (click)="scrollTo()">Scroll to 50</button>
+<button (click)="randomHeight = !randomHeight">Toggle Random Height</button>
 
 <div class="status">
   Showing <span class="badge">{{indices?.start}}</span>
@@ -24,17 +25,20 @@ import { OnInit } from '@angular/core';
 </div>
 
 <virtual-scroll #scroll [parentScroll]="scroll.window"
+                [enableUnequalChildrenSizes]="randomHeight"
                 [items]="filteredList"
                 (update)="scrollItems = $event"
                 (change)="indices = $event">
 
-  <list-item *ngFor="let item of scrollItems" [item]="item"> </list-item>
+  <list-item [randomHeight]="randomHeight" *ngFor="let item of scrollItems" [item]="item"> </list-item>
 
 </virtual-scroll>
         
     `
 })
 export class ParentScrollComponent implements OnInit {
+
+  randomHeight = false;
 
   items: ListItem[];
   scrollItems: ListItem[];
