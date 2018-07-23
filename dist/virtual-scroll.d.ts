@@ -57,7 +57,7 @@ export declare class VirtualScrollComponent implements OnInit, OnChanges, OnDest
     ngOnChanges(changes: any): void;
     ngDoCheck(): void;
     refresh(): void;
-    scrollInto(item: any, alignToTop?: boolean, additionalOffset?: number, animationMilliseconds?: number, animationCompletedCallback?: () => void): void;
+    scrollInto(item: any, alignToBeginning?: boolean, additionalOffset?: number, animationMilliseconds?: number, animationCompletedCallback?: () => void): void;
     scrollToIndex(index: number, alignToBeginning?: boolean, additionalOffset?: number, animationMilliseconds?: number, animationCompletedCallback?: () => void): void;
     constructor(element: ElementRef, renderer: Renderer2, zone: NgZone);
     protected previousScrollBoundingRect: ClientRect;

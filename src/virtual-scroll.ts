@@ -79,6 +79,8 @@ export interface IViewport extends IPageInfo {
       left: 0;
       width: 100%;
       height: 100%;
+      max-width: 100vw;
+      max-height: 100vh;
       position: absolute;
     }
 	
@@ -239,13 +241,13 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
 		this.refresh_internal(false);
 	}
 
-	public scrollInto(item: any, alignToTop: boolean = true, additionalOffset: number = 0, animationMilliseconds: number = undefined, animationCompletedCallback: () => void = undefined) {
+	public scrollInto(item: any, alignToBeginning: boolean = true, additionalOffset: number = 0, animationMilliseconds: number = undefined, animationCompletedCallback: () => void = undefined) {
 		let index: number = this.items.indexOf(item);
 		if (index === -1) {
 			return;
 		}
 
-		this.scrollToIndex(index, alignToTop, additionalOffset, animationMilliseconds, animationCompletedCallback);
+		this.scrollToIndex(index, alignToBeginning, additionalOffset, animationMilliseconds, animationCompletedCallback);
 	}
 
 	public scrollToIndex(index: number, alignToBeginning: boolean = true, additionalOffset: number = 0, animationMilliseconds: number = undefined, animationCompletedCallback: () => void = undefined) {

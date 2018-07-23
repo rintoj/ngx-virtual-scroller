@@ -99,7 +99,7 @@ export class AppModule { }
 </virtual-scroll>
 ```
 
-You must also define width and height for the container and for it's children.
+You must also define width and height for the container and for its children.
 
 ```css
 virtual-scroll {
@@ -193,7 +193,7 @@ If you want to use the scrollbar of a parent element, set `parentScroll`.
 </div>
 ```
 
-Note: The parent element must have a width and height defined.
+Note: The parent element should have a width and height defined.
 
 ## Use scrollbar of window
 
@@ -211,8 +211,6 @@ If you want to use the window's scrollbar, set `parentScroll`.
     </div>
 </virtual-scroll>
 ```
-
-Note: The body element must have a width and height defined.
 
 ## Items with variable size
 

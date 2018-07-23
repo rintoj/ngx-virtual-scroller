@@ -1,4 +1,4 @@
-import { Component, OnChanges, ViewChild } from '@angular/core';
+import { Component, ViewChild } from '@angular/core';
 import { VirtualScrollComponent } from 'angular2-virtual-scroll';
 import { Http } from '@angular/http';
 import { ListItem } from '../lists/list-item.component';
@@ -34,7 +34,7 @@ import { OnInit } from '@angular/core';
         
     `
 })
-export class ParentScrollComponent implements OnInit, OnChanges {
+export class ParentScrollComponent implements OnInit {
 
   items: ListItem[];
   scrollItems: ListItem[];
@@ -66,11 +66,7 @@ export class ParentScrollComponent implements OnInit, OnChanges {
   }
 
   scrollTo() {
-    this.virtualScroll.scrollToIndex(50, false);
-  }
-
-  ngOnChanges() {
-    this.setToFullList();
+    this.virtualScroll.scrollToIndex(50);
   }
 
   constructor(private http: Http) { }
@@ -78,6 +74,9 @@ export class ParentScrollComponent implements OnInit, OnChanges {
   ngOnInit() {
     this.http.get('assets/data/items.json')
       .map(response => response.json())
-      .subscribe(data => this.items = data);
+      .subscribe(data => {
+        this.items = data;
+        this.setToFullList();
+      });
   }
 }
