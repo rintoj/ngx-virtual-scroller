@@ -4,12 +4,10 @@
   background: white;
   font-size: 1em;
   padding: 20px;
-  height: 100px;
   line-height: 1.2em;
   overflow: hidden;
 
-  &.list-item {
-    width: 450px;
+  &.inline {
     border-left: 1px solid rgb(209, 218, 223);
     display: inline-block !important;
   }
@@ -30,7 +28,6 @@
 
 .item-content {
   display: inline-block;
-  width: calc(100% - 60px);
   padding: 5px;
   vertical-align: middle;
   div {

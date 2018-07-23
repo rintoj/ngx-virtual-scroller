@@ -63,8 +63,8 @@
       &lt;virtual-scroll [items]="items" (update)="viewPortItems = $event"
           [childWidth]="80"
           [childHeight]="30"&gt;
-          &lt;list-item *ngFor="let item of viewPortItems" [item]="item"&gt;
-          &lt;/list-item&gt;
+          &lt;my-custom-component *ngFor="let item of viewPortItems" [item]="item"&gt;
+          &lt;/my-custom-component&gt;
       &lt;/virtual-scroll&gt;
     </code></pre>
   </section>

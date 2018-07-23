@@ -11,6 +11,7 @@ import { ListItem } from './list-item.component';
     <button (click)="reduceList()">Reduce to 100 Items</button>
     <button (click)="setToFullList()">Revert to 1000 Items</button>
     <button (click)="scrollTo()">Scroll to 50</button>
+    <button (click)="randomWidth = !randomWidth">Toggle Random Width</button>
 
     <div class="status">
         Showing <span class="badge">{{indices?.start}}</span>
@@ -25,12 +26,14 @@ import { ListItem } from './list-item.component';
       (update)="scrollItems = $event"
       (change)="indices = $event">
       
-      <list-item *ngFor="let item of scrollItems" class="list-item horizontal-list-item" [item]="item"> </list-item>
+      <list-item [randomWidth]="randomWidth" *ngFor="let item of scrollItems" class="inline" [item]="item"> </list-item>
     </virtual-scroll>
   `,
   styleUrls: ['./horizontal-list.scss']
 })
 export class HorizontalListComponent implements OnChanges {
+
+  randomWidth = false;
 
   @Input()
   items: ListItem[];

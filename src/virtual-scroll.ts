@@ -93,6 +93,8 @@ export interface IViewport extends IPageInfo {
 	}
 	
 	:host.horizontal .scrollable-content ::ng-deep > * {
+		flex-shrink: 0;
+		flex-grow: 0;
 		white-space: initial;
 	}
 	
