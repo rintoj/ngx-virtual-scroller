@@ -43,6 +43,7 @@ import { VirtualScrollModule } from 'angular2-virtual-scroll';
         { path: 'samples', component: SamplesComponent },
         { path: 'parentScroll', component: ParentScrollComponent },
         { path: 'api', component: ApiComponent },
+        { path: '**', redirectTo: '/about', pathMatch: 'full' }
       ]
     ),
     BrowserModule,
