@@ -1,3 +1,7 @@
+# v0.4.5
+
+* Update Readme
+
 # v0.4.4
 
 * Added ability to use virtual scroll with different sized of elements
