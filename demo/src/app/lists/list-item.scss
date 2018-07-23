@@ -1,7 +1,6 @@
-@import '../../variables';
 :host {
   display: block;
-  border-bottom: 1px solid $border-color;
+  border-bottom: 1px solid rgb(209, 218, 223);
   background: white;
   font-size: 1em;
   padding: 20px;
@@ -10,9 +9,9 @@
   overflow: hidden;
 
   &.list-item {
-    width : 450px;
-    border-left: 1px solid $border-color;
-    display: inline-block!important;
+    width: 450px;
+    border-left: 1px solid rgb(209, 218, 223);
+    display: inline-block !important;
   }
 }
 
@@ -25,8 +24,8 @@
   margin-top: 5px;
   display: inline-block;
   border-radius: 100%;
-  background: $primary-color;
-  color: $primary-text;
+  background: #3d4f5d;
+  color: #fff;
 }
 
 .item-content {

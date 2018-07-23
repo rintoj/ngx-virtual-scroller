@@ -1,0 +1,80 @@
+<style>
+  ::ng-deep virtual-scroll.selfScroll {
+    overflow: hidden;
+    overflow-y: auto;
+    border: 1px solid rgb(209, 218, 223);
+    height: 75vh;
+    display: block;
+  }
+
+  ::ng-deep virtual-scroll.selfScroll.horizontal {
+    width: 60vw;
+    height: 120px;
+  }
+</style>
+
+<div class="posts" id="samples">
+  <h1 class="content-subhead">Samples</h1>
+  <section class="post">
+    <header class="post-header">
+      <h2 class="post-title"><span>Live</span> Samples</h2>
+    </header>
+    <div class="post-description">
+      <h2>With <span>Single Column</span></h2>
+      <vertical-list [items]="items"></vertical-list>
+
+      <h2>With <span>Horizontal List</span></h2>
+      <horizontal-list [items]="items"></horizontal-list>
+
+      <h2>With <span>Multiple Columns</span></h2>
+      <multi-col-list [items]="items"></multi-col-list>
+
+      <h2>With <span>Table</span></h2>
+      <table-list [items]="items"></table-list>
+
+      <h2>Loading in <span>Chunks</span></h2>
+      <list-with-api [items]="items"></list-with-api>
+      <p>
+        <strong>change</strong> event is fired every time start or end index change.
+        You could use this to load more items at the end of the scroll. See below.
+      </p>
+      <pre><code class="javascript">
+		      import {{'{'}} ChangeEvent {{'}'}} from 'angular2-virtual-scroll';
+		      ...
+
+		      @Component({{'{'}}
+			      selector: 'list-with-api',
+			      template: `
+&lt;virtual-scroll [items]="buffer" (update)="scrollItems = $event" (change)="onListChange($event)"&gt;
+  &lt;list-item *ngFor="let item of scrollItems" [item]="item"&gt; &lt;/list-item&gt;
+  &lt;div *ngIf="loading" class="loader"&gt;Loading...&lt;/div&gt;
+&lt;/virtual-scroll&gt;
+			      `
+		      {{'}'}})
+		      export class ListWithApiComponent implements OnChanges {{'{'}}
+
+			      @Input()
+			      items: ListItem[];
+
+			      buffer: ListItem[] = [];
+			      loading: boolean;
+
+			      onListChange(event: ChangeEvent) {{'{'}}
+				      if (event.end !== this.buffer.length) return;
+				      this.loading = true;
+				      this.fetchNextChunk(this.buffer.length, 10).then(chunk => {{'{'}}
+				        this.buffer = this.buffer.concat(chunk);
+				        this.loading = false;
+				      {{'}'}}, () => this.loading = false);
+			      {{'}'}}
+
+			      fetchNextChunk(skip: number, limit: number): Promise&lt;ListItem[]&gt; {{'{'}}
+				      return new Promise((resolve, reject) => {{'{'}}
+					    ....
+				      {{'}'}});
+			      {{'}'}}
+		      {{'}'}}
+		  </code></pre>
+    </div>
+  </section>
+</div>
