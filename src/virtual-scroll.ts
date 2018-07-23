@@ -128,6 +128,9 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
 	}
 
 	@Input()
+	public useMarginInsteadOfTranslate: boolean = false;
+
+	@Input()
 	public scrollbarWidth: number;
 
 	@Input()
@@ -357,12 +360,14 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
 	protected _pageOffsetType;
 	protected _childScrollDim;
 	protected _translateDir;
+	protected _marginDir;
 	protected updateDirection(): void {
 		if (this.horizontal) {
 			this._invisiblePaddingProperty = 'width';
 			this._offsetType = 'offsetLeft';
 			this._pageOffsetType = 'pageXOffset';
 			this._childScrollDim = 'childWidth';
+			this._marginDir = 'margin-left';
 			this._translateDir = 'translateX';
 			this._scrollType = 'scrollLeft';
 		}
@@ -371,6 +376,7 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
 			this._offsetType = 'offsetTop';
 			this._pageOffsetType = 'pageYOffset';
 			this._childScrollDim = 'childHeight';
+			this._marginDir = 'margin-top';
 			this._translateDir = 'translateY';
 			this._scrollType = 'scrollTop';
 		}
@@ -413,8 +419,13 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
 				}
 
 				if (paddingChanged) {
-					this.renderer.setStyle(this.contentElementRef.nativeElement, 'transform', `${this._translateDir}(${viewport.padding}px)`);
-					this.renderer.setStyle(this.contentElementRef.nativeElement, 'webkitTransform', `${this._translateDir}(${viewport.padding}px)`);
+					if (this.useMarginInsteadOfTranslate) {
+						this.renderer.setStyle(this.contentElementRef.nativeElement, this._marginDir, `${viewport.padding}px`);
+					}
+					else {
+						this.renderer.setStyle(this.contentElementRef.nativeElement, 'transform', `${this._translateDir}(${viewport.padding}px)`);
+						this.renderer.setStyle(this.contentElementRef.nativeElement, 'webkitTransform', `${this._translateDir}(${viewport.padding}px)`);
+					}
 				}
 
 				let emitIndexChangedEvents = true; // maxReRunTimes === 1 (would need to still run if didn't update if previous iteration had updated)

@@ -30,6 +30,7 @@ export declare class VirtualScrollComponent implements OnInit, OnChanges, OnDest
     window: Window;
     protected _enableUnequalChildrenSizes: boolean;
     enableUnequalChildrenSizes: boolean;
+    useMarginInsteadOfTranslate: boolean;
     scrollbarWidth: number;
     scrollbarHeight: number;
     childWidth: number;
@@ -69,6 +70,7 @@ export declare class VirtualScrollComponent implements OnInit, OnChanges, OnDest
     protected _pageOffsetType: any;
     protected _childScrollDim: any;
     protected _translateDir: any;
+    protected _marginDir: any;
     protected updateDirection(): void;
     protected refreshHandler: () => void;
     protected calculatedScrollbarWidth: number;

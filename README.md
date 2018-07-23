@@ -23,6 +23,7 @@ This method is effective because the number of DOM elements are always constant 
 * Added ability to use horizontal scrollbars
 * New feature is support of elements with different heights *EXPERIMENTAL*
 * If scroll container resizes, the items will auto-refresh. Can be disabled if it causes any performance issues by setting [checkResizeInterval]="0"
+* useMarginInsteadOfTranslate flag. Defaults to false. This can affect performance (better/worse depending on your circumstances), and also creates a workaround for the transform+position:fixed browser bug.
  
 ## Demo
 
@@ -133,6 +134,7 @@ Child component is not necessary if your item is simple enough. See below.
 | Attribute      | Type   | Description
 |----------------|--------|------------
 | enableUnequalChildrenSizes | boolean | If you want to use the "unequal size" children feature. This is not perfect, but hopefully "close-enough" for most situations. Defaults to false.
+| useMarginInsteadOfTranslate | boolean | Defaults to false. Translate is faster in many scenarios because it can use GPU acceleration, but it can be slower if your scroll container or child elements don't use any transitions or opacity. More importantly, translate creates a new "containing block" which breaks position:fixed because it'll be relative to the transform rather than the window. If you're experiencing issues with position:fixed on your child elements, turn this flag on.
 | scrollbarWidth | number | If you want to override the auto-calculated scrollbar width. This is used to determine the dimensions of the viewable area when calculating the number of items to render.
 | scrollbarHeight | number | If you want to override the auto-calculated scrollbar height. This is used to determine the dimensions of the viewable area when calculating the number of items to render.
 | horizontal | boolean | Whether the scrollbars should be vertical or horizontal. Defaults to false.

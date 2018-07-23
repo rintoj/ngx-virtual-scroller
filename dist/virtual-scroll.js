@@ -11,6 +11,7 @@ var VirtualScrollComponent = (function () {
         this.zone = zone;
         this.window = window;
         this._enableUnequalChildrenSizes = false;
+        this.useMarginInsteadOfTranslate = false;
         this.bufferAmount = 0;
         this.scrollAnimationTime = 750;
         this.resizeBypassRefreshTheshold = 5;
@@ -215,6 +216,7 @@ var VirtualScrollComponent = (function () {
             this._offsetType = 'offsetLeft';
             this._pageOffsetType = 'pageXOffset';
             this._childScrollDim = 'childWidth';
+            this._marginDir = 'margin-left';
             this._translateDir = 'translateX';
             this._scrollType = 'scrollLeft';
         }
@@ -223,6 +225,7 @@ var VirtualScrollComponent = (function () {
             this._offsetType = 'offsetTop';
             this._pageOffsetType = 'pageYOffset';
             this._childScrollDim = 'childHeight';
+            this._marginDir = 'margin-top';
             this._translateDir = 'translateY';
             this._scrollType = 'scrollTop';
         }
@@ -246,8 +249,13 @@ var VirtualScrollComponent = (function () {
                     _this.renderer.setStyle(_this.invisiblePaddingElementRef.nativeElement, _this._invisiblePaddingProperty, viewport.scrollLength + "px");
                 }
                 if (paddingChanged) {
-                    _this.renderer.setStyle(_this.contentElementRef.nativeElement, 'transform', _this._translateDir + "(" + viewport.padding + "px)");
-                    _this.renderer.setStyle(_this.contentElementRef.nativeElement, 'webkitTransform', _this._translateDir + "(" + viewport.padding + "px)");
+                    if (_this.useMarginInsteadOfTranslate) {
+                        _this.renderer.setStyle(_this.contentElementRef.nativeElement, _this._marginDir, viewport.padding + "px");
+                    }
+                    else {
+                        _this.renderer.setStyle(_this.contentElementRef.nativeElement, 'transform', _this._translateDir + "(" + viewport.padding + "px)");
+                        _this.renderer.setStyle(_this.contentElementRef.nativeElement, 'webkitTransform', _this._translateDir + "(" + viewport.padding + "px)");
+                    }
                 }
                 var emitIndexChangedEvents = true; // maxReRunTimes === 1 (would need to still run if didn't update if previous iteration had updated)
                 if (startChanged || endChanged) {
@@ -472,6 +480,7 @@ var VirtualScrollComponent = (function () {
     ]; };
     VirtualScrollComponent.propDecorators = {
         'enableUnequalChildrenSizes': [{ type: core_1.Input },],
+        'useMarginInsteadOfTranslate': [{ type: core_1.Input },],
         'scrollbarWidth': [{ type: core_1.Input },],
         'scrollbarHeight': [{ type: core_1.Input },],
         'childWidth': [{ type: core_1.Input },],
