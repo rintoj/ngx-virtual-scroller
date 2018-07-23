@@ -214,12 +214,29 @@ If you want to use the window's scrollbar, set `parentScroll`.
 
 ## Items with variable size
 
-Items must have fixed height and width for this module to work perfectly. However if you have items with variable width and height, set inputs `childWidth` and `childHeight` to their smallest possible values.
+Items must have fixed height and width for this module to work perfectly. However if you have items with variable width and height, set inputs `childWidth` and `childHeight` to their smallest possible values. You can also modify `bufferAmount` which causes extra items to be rendered on the edges of the scrolling area.
+If you are unsure what values to use for `childWidth` and `childHeight` and `bufferAmount` you can instead set [enableUnequalChildrenSizes]="true". This will cause all 3 values to be auto-calculated.
+
+
 
 ```html
 <virtual-scroll [items]="items"
     [childWidth]="80"
     [childHeight]="30"
+	[bufferAmount]="5"
+    (update)="viewPortItems = $event">
+
+    <my-custom-component *ngFor="let item of viewPortItems">
+    </my-custom-component>
+
+</virtual-scroll>
+```
+
+or
+
+```html
+<virtual-scroll [items]="items"
+    [enableUnequalChildrenSizes]="true"
     (update)="viewPortItems = $event">
 
     <my-custom-component *ngFor="let item of viewPortItems">
