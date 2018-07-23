@@ -6,8 +6,10 @@
   padding: 20px;
   line-height: 1.2em;
   overflow: hidden;
+  height: 100px;
 
   &.inline {
+    width: 450px;
     border-left: 1px solid rgb(209, 218, 223);
     display: inline-block !important;
   }

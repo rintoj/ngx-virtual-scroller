@@ -21,6 +21,7 @@ import { ListItem } from './list-item.component';
       </div>
 
     <virtual-scroll
+      [enableUnequalChildrenSizes]="randomHeight"
       [items]="filteredList"
       (update)="scrollItems = $event"
       (change)="indices = $event">

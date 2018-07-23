@@ -112,8 +112,20 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
 	public viewPortItems: any[];
 	public window = window;
 
+	protected _enableUnequalChildrenSizes: boolean = false;
 	@Input()
-	public enableUnequalChildrenSizes_Experimental: boolean = false;
+	public get enableUnequalChildrenSizes(): boolean {
+		return this._enableUnequalChildrenSizes;
+	}
+	public set enableUnequalChildrenSizes(value: boolean) {
+		if (this._enableUnequalChildrenSizes === value) {
+			return;
+		}
+
+		this._enableUnequalChildrenSizes = value;
+		this.minMeasuredChildWidth = undefined;
+		this.minMeasuredChildHeight = undefined;
+	}
 
 	@Input()
 	public scrollbarWidth: number;
@@ -374,8 +386,6 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
 	protected padding: number = 0;
 	protected previousViewPort: IViewport = <any>{};
 	protected currentTween: tween.Tween;
-	protected itemsHeight: { [key: number]: number } = {};
-	protected itemsWidth: { [key: number]: number } = {};
 	protected cachedItemsLength: number;
 
 	protected disposeScrollHandler: () => void | undefined;
@@ -384,8 +394,8 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
 	protected refresh_internal(itemsArrayModified: boolean, maxRunTimes: number = 2) {
 		//note: maxRunTimes is to force it to keep recalculating if the previous iteration caused a re-render (different sliced items in viewport or scrollPosition changed). 
 		//The default of 2x max will probably be accurate enough without causing too large a performance bottleneck
-		//The code would typically quit out on the 2nd iteration anyways. The main time it'd think more than 2 runs would be necessary would be for vastly different sized child items.
-		//Without maxRunTimes, If the user is actively scrolling this code would run indefinitely. However, we want to short-circuit it because there are separate scroll event handlers which call this function & we don't want to do the work 2x.
+		//The code would typically quit out on the 2nd iteration anyways. The main time it'd think more than 2 runs would be necessary would be for vastly different sized child items or if this is the 1st time the items array was initialized.
+		//Without maxRunTimes, If the user is actively scrolling this code would become an infinite loop until they stopped scrolling. This would be okay, except each scroll event would start an additional infinte loop. We want to short-circuit it to prevent his.
 
 		this.zone.runOutsideAngular(() => {
 			requestAnimationFrame(() => {
@@ -536,6 +546,8 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
 		return windowScrollValue || this.getScrollElement()[this._scrollType] || 0;
 	}
 
+	private minMeasuredChildWidth: number;
+	private minMeasuredChildHeight: number;
 	protected calculateDimensions(): IDimensions {
 		let scrollElement = this.getScrollElement();
 		let itemCount = this.items.length;
@@ -549,52 +561,28 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
 
 		let content = (this.containerElementRef && this.containerElementRef.nativeElement) || this.contentElementRef.nativeElement;
 
-		let contentDimensions = { width: viewWidth, height: viewHeight };
-		if (!this.childWidth || !this.childHeight) {
-			let firstChild = content.children.length > 0 ? content.children[0] : undefined;
-			if (firstChild) {
-				contentDimensions = firstChild.getBoundingClientRect();
+		if ((!this.childWidth || !this.childHeight) && content.children.length > 0) {
+			if (!this.minMeasuredChildWidth) {
+				this.minMeasuredChildWidth = viewWidth;
 			}
-		}
+			if (!this.minMeasuredChildHeight) {
+				this.minMeasuredChildHeight = viewHeight;
+			}
 
-		let childWidth = this.childWidth || contentDimensions.width;
-		let childHeight = this.childHeight || contentDimensions.height;
-
-		let itemsPerRow = Math.ceil(viewWidth / childWidth);
-		let itemsPerCol = Math.ceil(viewHeight / childHeight);
-
-		if (this.enableUnequalChildrenSizes_Experimental) {
-			let maxHeightInRow = 0;
-			let maxWidthInRow = 0;
-
-			let sumOfCurrentChildHeight = 0;
-			let sumOfCurrentChildWidth = 0;
-
-			for (let i = 0; i < content.children.length; ++i) {
+			let childrenLength = this.enableUnequalChildrenSizes ? content.children.length : 1;
+			for (let i = 0; i < childrenLength; ++i) {
 				let child = content.children[i];
-				let index = this.previousViewPort.arrayStartIndex + i;
-				let clientRect = (!this.childHeight || !this.childWidth) ? child.getBoundingClientRect() : undefined;
-				this.itemsHeight[index] = this.childHeight || clientRect.height;
-				this.itemsWidth[index] = this.childWidth || clientRect.width;
-				maxHeightInRow = Math.max(maxHeightInRow, this.itemsHeight[index]);
-				maxWidthInRow = Math.max(maxWidthInRow, this.itemsWidth[index]);
-				if ((index + 1) % itemsPerRow === 0) {
-					sumOfCurrentChildHeight += maxHeightInRow * itemsPerRow;
-					maxHeightInRow = 0;
-				}
-				if ((index + 1) % itemsPerCol === 0) {
-					sumOfCurrentChildWidth += maxWidthInRow * itemsPerCol;
-					maxWidthInRow = 0;
-				}
+				let clientRect = child.getBoundingClientRect();
+				this.minMeasuredChildWidth = Math.min(this.minMeasuredChildWidth, clientRect.width);
+				this.minMeasuredChildHeight = Math.min(this.minMeasuredChildHeight, clientRect.height);
 			}
-
-			//scrollHeight = Math.ceil((childHeight * (itemCount - this.previousViewPort.arrayEndIndex) + sumOfCurrentChildHeight) / itemsPerRow + this.previousViewPort.padding);
-			//scrollWidth = Math.ceil((childWidth * (itemCount - this.previousViewPort.arrayEndIndex) + sumOfCurrentChildWidth) / itemsPerCol + this.previousViewPort.padding);
 		}
 
-		itemsPerCol = Math.max(itemsPerCol, 1);
-		itemsPerRow = Math.max(itemsPerRow, 1);
+		let childWidth = this.childWidth || this.minMeasuredChildWidth || viewWidth;
+		let childHeight = this.childHeight || this.minMeasuredChildHeight || viewHeight;
 
+		let itemsPerRow = Math.max(Math.ceil(viewWidth / childWidth), 1);
+		let itemsPerCol = Math.max(Math.ceil(viewHeight / childHeight), 1);
 		let itemsPerWrapGroup = this.countItemsPerWrapGroup();
 		let wrapGroupsPerPage = this.horizontal ? itemsPerRow : itemsPerCol;
 		let itemsPerPage = itemsPerWrapGroup * wrapGroupsPerPage;
@@ -622,55 +610,8 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
 			return 0;
 		}
 
-		//UnequalChildrenSizes_Experimental isn't "pure", because it relies on & modifies previous viewport. It seems risky to call it during scrollInto since the original PR didn't. Once it's "pure" we can re-use it in both places.
-		if (!allowUnequalChildrenSizes_Experimental || !this.enableUnequalChildrenSizes_Experimental) {
-			let wrapGroups = Math.ceil(arrayStartIndex / dimensions.itemsPerWrapGroup);
-			return dimensions[this._childScrollDim] * wrapGroups;
-		}
-
-		let offset = this.getElementsOffset();
-
-		if (arrayStartIndex === 0) {
-			return 0;
-		}
-
-		let newPadding: number = this.previousViewPort.padding;
-
-		let content = (this.containerElementRef && this.containerElementRef.nativeElement) || this.contentElementRef.nativeElement;
-		let childSizeOverride = this.horizontal ? this.childWidth : this.childHeight;
-
-		if (!childSizeOverride && this.cachedPageSize && this.previousScrollNumberElements && content.children[this.previousScrollNumberElements - dimensions.itemsPerWrapGroup]) {
-			let firstChild = content.children[0].getBoundingClientRect();
-			let lastChild = content.children[this.previousScrollNumberElements - dimensions.itemsPerWrapGroup].getBoundingClientRect();
-			newPadding -= (this.horizontal ? lastChild.right : lastChild.bottom) - (this.horizontal ? firstChild.left : firstChild.top) - this.cachedPageSize;
-			this.cachedPageSize = 0;
-			this.previousScrollNumberElements = 0;
-		}
-
-		if (arrayStartIndex < this.previousViewPort.arrayStartIndex) {
-			this.cachedPageSize = 0;
-
-			let childSizeHash = this.horizontal ? this.itemsWidth : this.itemsHeight;
-			let defaultChildSize = dimensions[this._childScrollDim];
-
-			let maxChildSize = 0;
-			for (let i = arrayStartIndex; i < this.previousViewPort.arrayStartIndex; ++i) {
-				maxChildSize = Math.max(maxChildSize, childSizeHash[i] || defaultChildSize);
-				if ((i + 1) % dimensions.itemsPerWrapGroup === 0) {
-					this.cachedPageSize += maxChildSize * dimensions.itemsPerWrapGroup;
-					maxChildSize = 0;
-				}
-			}
-
-			this.cachedPageSize /= dimensions.itemsPerWrapGroup;
-			newPadding -= this.cachedPageSize;
-
-			this.previousScrollNumberElements = this.previousViewPort.arrayStartIndex - arrayStartIndex;
-		} else {
-			newPadding += dimensions[this._childScrollDim] * (arrayStartIndex - this.previousViewPort.arrayStartIndex) / dimensions.itemsPerWrapGroup;
-		}
-
-		return Math.round(newPadding) + offset;
+		let wrapGroups = Math.ceil(arrayStartIndex / dimensions.itemsPerWrapGroup);
+		return dimensions[this._childScrollDim] * wrapGroups;
 	}
 
 	protected calculatePageInfo(scrollPosition: number, dimensions: IDimensions): IPageInfo {
@@ -684,7 +625,7 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
 		let arrayEndIndex = Math.ceil(startingArrayIndex_fractional) + dimensions.itemsPerPage - 1;
 		arrayEndIndex += (dimensions.itemsPerWrapGroup - (arrayEndIndex+1) % dimensions.itemsPerWrapGroup); // round up to end of wrapGroup
 
-		let bufferSize = this.bufferAmount * dimensions.itemsPerWrapGroup;
+		let bufferSize = Math.max(this.bufferAmount, this.enableUnequalChildrenSizes ? 5 : 0) * dimensions.itemsPerWrapGroup;
 		arrayStartIndex -= bufferSize;
 		arrayEndIndex += bufferSize;
 
@@ -713,65 +654,7 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
 		}
 		scrollPosition = Math.max(0, scrollPosition);
 
-		let content = (this.containerElementRef && this.containerElementRef.nativeElement) || this.contentElementRef.nativeElement;
-
-		let pageInfo;
-
-		if (this.enableUnequalChildrenSizes_Experimental) {
-			let indexByScroll = this.previousViewPort.arrayStartIndex / dimensions.itemsPerWrapGroup;
-			if (this.previousViewPort.padding > scrollPosition) {
-				// scroll up
-				indexByScroll -= (this.previousViewPort.padding - scrollPosition) / dimensions[this._childScrollDim];
-			} else {
-				// scroll down
-
-				let childSizeOverride = this.horizontal ? this.childWidth : this.childHeight;
-
-				let paddingCurrent = this.previousViewPort.padding;
-				for (let child of content.children) {
-					let childSize = childSizeOverride;
-					if (!childSize) {
-						let boundingRect = child.getBoundingClientRect();
-						childSize = this.horizontal ? boundingRect.width : boundingRect.height;
-					}
-					paddingCurrent += childSize;
-					if (paddingCurrent > scrollPosition) {
-						indexByScroll += 1 - (paddingCurrent - scrollPosition) / childSize;
-						break;
-					} else {
-						++indexByScroll;
-					}
-				}
-
-				if (scrollPosition > paddingCurrent) {
-					indexByScroll += (scrollPosition - paddingCurrent) / dimensions[this._childScrollDim];
-				}
-			}
-
-			let newEnd = Math.min(dimensions.itemCount, (Math.ceil(indexByScroll) + dimensions.wrapGroupsPerPage + 1) * dimensions.itemsPerWrapGroup);
-			let maxStartEnd = newEnd;
-
-			const modEnd = newEnd % dimensions.itemsPerWrapGroup;
-			if (modEnd) {
-				maxStartEnd = newEnd + dimensions.itemsPerWrapGroup - modEnd;
-			}
-			let maxStart = Math.max(0, maxStartEnd - dimensions.wrapGroupsPerPage * dimensions.itemsPerWrapGroup - dimensions.itemsPerWrapGroup);
-			let newStart = Math.min(maxStart, Math.floor(indexByScroll) * dimensions.itemsPerWrapGroup);
-
-			newStart = !isNaN(newStart) ? newStart : -1;
-			newEnd = !isNaN(newEnd) ? newEnd : -1;
-			newStart = Math.max(0, Math.min(dimensions.itemCount - 1, newStart));
-			newEnd = Math.max(0, Math.min(dimensions.itemCount - 1, newEnd));
-
-			pageInfo = {
-				start: newStart,
-				end: newEnd
-			};
-		}
-		else {
-			pageInfo = this.calculatePageInfo(scrollPosition, dimensions);
-		}
-
+		let pageInfo = this.calculatePageInfo(scrollPosition, dimensions);
 		let newPadding = this.calculatePadding(pageInfo.arrayStartIndex, dimensions, true);
 		let newScrollLength = dimensions.scrollLength;
 

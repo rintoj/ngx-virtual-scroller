@@ -23,6 +23,7 @@ import { VirtualScrollComponent } from 'angular2-virtual-scroll';
       </div>
 
     <virtual-scroll
+      [enableUnequalChildrenSizes]="randomHeight"
       [items]="filteredList"
       (update)="scrollItems = $event"
       (change)="indices = $event">

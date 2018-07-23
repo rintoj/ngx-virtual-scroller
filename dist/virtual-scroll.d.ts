@@ -28,7 +28,8 @@ export declare class VirtualScrollComponent implements OnInit, OnChanges, OnDest
     protected readonly zone: NgZone;
     viewPortItems: any[];
     window: Window;
-    enableUnequalChildrenSizes_Experimental: boolean;
+    protected _enableUnequalChildrenSizes: boolean;
+    enableUnequalChildrenSizes: boolean;
     scrollbarWidth: number;
     scrollbarHeight: number;
     childWidth: number;
@@ -75,12 +76,6 @@ export declare class VirtualScrollComponent implements OnInit, OnChanges, OnDest
     protected padding: number;
     protected previousViewPort: IViewport;
     protected currentTween: tween.Tween;
-    protected itemsHeight: {
-        [key: number]: number;
-    };
-    protected itemsWidth: {
-        [key: number]: number;
-    };
     protected cachedItemsLength: number;
     protected disposeScrollHandler: () => void | undefined;
     protected disposeResizeHandler: () => void | undefined;
@@ -91,6 +86,8 @@ export declare class VirtualScrollComponent implements OnInit, OnChanges, OnDest
     protected getElementsOffset(): number;
     protected countItemsPerWrapGroup(): number;
     protected getScrollPosition(): number;
+    private minMeasuredChildWidth;
+    private minMeasuredChildHeight;
     protected calculateDimensions(): IDimensions;
     protected cachedPageSize: number;
     protected previousScrollNumberElements: number;

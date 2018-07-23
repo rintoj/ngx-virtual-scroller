@@ -5,6 +5,12 @@ import { ListItem } from './list-item.component';
 @Component({
   selector: 'horizontal-list',
   template: `
+    <style>
+      ::ng-deep list-item.inline {
+        width: 400px;
+      }
+    </style>
+
     <button (click)="sortByName()">Sort By Name</button>
     <button (click)="sortByIndex()">Sort By Index</button>
     <button (click)="reduceListToEmpty()">Reduce to 0 Items</button>
@@ -21,6 +27,7 @@ import { ListItem } from './list-item.component';
       </div>
 
     <virtual-scroll
+      [enableUnequalChildrenSizes]="randomWidth"
       [horizontal]="true"
       [items]="filteredList"
       (update)="scrollItems = $event"

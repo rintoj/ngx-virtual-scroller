@@ -10,7 +10,7 @@ var VirtualScrollComponent = (function () {
         this.renderer = renderer;
         this.zone = zone;
         this.window = window;
-        this.enableUnequalChildrenSizes_Experimental = false;
+        this._enableUnequalChildrenSizes = false;
         this.bufferAmount = 0;
         this.scrollAnimationTime = 750;
         this.resizeBypassRefreshTheshold = 5;
@@ -27,12 +27,25 @@ var VirtualScrollComponent = (function () {
         this.calculatedScrollbarHeight = 0;
         this.padding = 0;
         this.previousViewPort = {};
-        this.itemsHeight = {};
-        this.itemsWidth = {};
         this.cachedPageSize = 0;
         this.previousScrollNumberElements = 0;
         this.horizontal = false;
     }
+    Object.defineProperty(VirtualScrollComponent.prototype, "enableUnequalChildrenSizes", {
+        get: function () {
+            return this._enableUnequalChildrenSizes;
+        },
+        set: function (value) {
+            if (this._enableUnequalChildrenSizes === value) {
+                return;
+            }
+            this._enableUnequalChildrenSizes = value;
+            this.minMeasuredChildWidth = undefined;
+            this.minMeasuredChildHeight = undefined;
+        },
+        enumerable: true,
+        configurable: true
+    });
     Object.defineProperty(VirtualScrollComponent.prototype, "checkResizeInterval", {
         get: function () {
             return this._checkResizeInterval;
@@ -217,8 +230,8 @@ var VirtualScrollComponent = (function () {
     VirtualScrollComponent.prototype.refresh_internal = function (itemsArrayModified, maxRunTimes) {
         //note: maxRunTimes is to force it to keep recalculating if the previous iteration caused a re-render (different sliced items in viewport or scrollPosition changed). 
         //The default of 2x max will probably be accurate enough without causing too large a performance bottleneck
-        //The code would typically quit out on the 2nd iteration anyways. The main time it'd think more than 2 runs would be necessary would be for vastly different sized child items.
-        //Without maxRunTimes, If the user is actively scrolling this code would run indefinitely. However, we want to short-circuit it because there are separate scroll event handlers which call this function & we don't want to do the work 2x.
+        //The code would typically quit out on the 2nd iteration anyways. The main time it'd think more than 2 runs would be necessary would be for vastly different sized child items or if this is the 1st time the items array was initialized.
+        //Without maxRunTimes, If the user is actively scrolling this code would become an infinite loop until they stopped scrolling. This would be okay, except each scroll event would start an additional infinte loop. We want to short-circuit it to prevent his.
         var _this = this;
         if (maxRunTimes === void 0) { maxRunTimes = 2; }
         this.zone.runOutsideAngular(function () {
@@ -351,44 +364,25 @@ var VirtualScrollComponent = (function () {
         var viewWidth = scrollElement.clientWidth - (this.scrollbarWidth || this.calculatedScrollbarWidth || (this.horizontal ? 0 : maxCalculatedScrollBarSize));
         var viewHeight = scrollElement.clientHeight - (this.scrollbarHeight || this.calculatedScrollbarHeight || (this.horizontal ? maxCalculatedScrollBarSize : 0));
         var content = (this.containerElementRef && this.containerElementRef.nativeElement) || this.contentElementRef.nativeElement;
-        var contentDimensions = { width: viewWidth, height: viewHeight };
-        if (!this.childWidth || !this.childHeight) {
-            var firstChild = content.children.length > 0 ? content.children[0] : undefined;
-            if (firstChild) {
-                contentDimensions = firstChild.getBoundingClientRect();
+        if ((!this.childWidth || !this.childHeight) && content.children.length > 0) {
+            if (!this.minMeasuredChildWidth) {
+                this.minMeasuredChildWidth = viewWidth;
             }
-        }
-        var childWidth = this.childWidth || contentDimensions.width;
-        var childHeight = this.childHeight || contentDimensions.height;
-        var itemsPerRow = Math.ceil(viewWidth / childWidth);
-        var itemsPerCol = Math.ceil(viewHeight / childHeight);
-        if (this.enableUnequalChildrenSizes_Experimental) {
-            var maxHeightInRow = 0;
-            var maxWidthInRow = 0;
-            var sumOfCurrentChildHeight = 0;
-            var sumOfCurrentChildWidth = 0;
-            for (var i = 0; i < content.children.length; ++i) {
+            if (!this.minMeasuredChildHeight) {
+                this.minMeasuredChildHeight = viewHeight;
+            }
+            var childrenLength = this.enableUnequalChildrenSizes ? content.children.length : 1;
+            for (var i = 0; i < childrenLength; ++i) {
                 var child = content.children[i];
-                var index = this.previousViewPort.arrayStartIndex + i;
-                var clientRect = (!this.childHeight || !this.childWidth) ? child.getBoundingClientRect() : undefined;
-                this.itemsHeight[index] = this.childHeight || clientRect.height;
-                this.itemsWidth[index] = this.childWidth || clientRect.width;
-                maxHeightInRow = Math.max(maxHeightInRow, this.itemsHeight[index]);
-                maxWidthInRow = Math.max(maxWidthInRow, this.itemsWidth[index]);
-                if ((index + 1) % itemsPerRow === 0) {
-                    sumOfCurrentChildHeight += maxHeightInRow * itemsPerRow;
-                    maxHeightInRow = 0;
-                }
-                if ((index + 1) % itemsPerCol === 0) {
-                    sumOfCurrentChildWidth += maxWidthInRow * itemsPerCol;
-                    maxWidthInRow = 0;
-                }
+                var clientRect = child.getBoundingClientRect();
+                this.minMeasuredChildWidth = Math.min(this.minMeasuredChildWidth, clientRect.width);
+                this.minMeasuredChildHeight = Math.min(this.minMeasuredChildHeight, clientRect.height);
             }
-            //scrollHeight = Math.ceil((childHeight * (itemCount - this.previousViewPort.arrayEndIndex) + sumOfCurrentChildHeight) / itemsPerRow + this.previousViewPort.padding);
-            //scrollWidth = Math.ceil((childWidth * (itemCount - this.previousViewPort.arrayEndIndex) + sumOfCurrentChildWidth) / itemsPerCol + this.previousViewPort.padding);
         }
-        itemsPerCol = Math.max(itemsPerCol, 1);
-        itemsPerRow = Math.max(itemsPerRow, 1);
+        var childWidth = this.childWidth || this.minMeasuredChildWidth || viewWidth;
+        var childHeight = this.childHeight || this.minMeasuredChildHeight || viewHeight;
+        var itemsPerRow = Math.max(Math.ceil(viewWidth / childWidth), 1);
+        var itemsPerCol = Math.max(Math.ceil(viewHeight / childHeight), 1);
         var itemsPerWrapGroup = this.countItemsPerWrapGroup();
         var wrapGroupsPerPage = this.horizontal ? itemsPerRow : itemsPerCol;
         var itemsPerPage = itemsPerWrapGroup * wrapGroupsPerPage;
@@ -410,45 +404,8 @@ var VirtualScrollComponent = (function () {
         if (dimensions.itemCount === 0) {
             return 0;
         }
-        //UnequalChildrenSizes_Experimental isn't "pure", because it relies on & modifies previous viewport. It seems risky to call it during scrollInto since the original PR didn't. Once it's "pure" we can re-use it in both places.
-        if (!allowUnequalChildrenSizes_Experimental || !this.enableUnequalChildrenSizes_Experimental) {
-            var wrapGroups = Math.ceil(arrayStartIndex / dimensions.itemsPerWrapGroup);
-            return dimensions[this._childScrollDim] * wrapGroups;
-        }
-        var offset = this.getElementsOffset();
-        if (arrayStartIndex === 0) {
-            return 0;
-        }
-        var newPadding = this.previousViewPort.padding;
-        var content = (this.containerElementRef && this.containerElementRef.nativeElement) || this.contentElementRef.nativeElement;
-        var childSizeOverride = this.horizontal ? this.childWidth : this.childHeight;
-        if (!childSizeOverride && this.cachedPageSize && this.previousScrollNumberElements && content.children[this.previousScrollNumberElements - dimensions.itemsPerWrapGroup]) {
-            var firstChild = content.children[0].getBoundingClientRect();
-            var lastChild = content.children[this.previousScrollNumberElements - dimensions.itemsPerWrapGroup].getBoundingClientRect();
-            newPadding -= (this.horizontal ? lastChild.right : lastChild.bottom) - (this.horizontal ? firstChild.left : firstChild.top) - this.cachedPageSize;
-            this.cachedPageSize = 0;
-            this.previousScrollNumberElements = 0;
-        }
-        if (arrayStartIndex < this.previousViewPort.arrayStartIndex) {
-            this.cachedPageSize = 0;
-            var childSizeHash = this.horizontal ? this.itemsWidth : this.itemsHeight;
-            var defaultChildSize = dimensions[this._childScrollDim];
-            var maxChildSize = 0;
-            for (var i = arrayStartIndex; i < this.previousViewPort.arrayStartIndex; ++i) {
-                maxChildSize = Math.max(maxChildSize, childSizeHash[i] || defaultChildSize);
-                if ((i + 1) % dimensions.itemsPerWrapGroup === 0) {
-                    this.cachedPageSize += maxChildSize * dimensions.itemsPerWrapGroup;
-                    maxChildSize = 0;
-                }
-            }
-            this.cachedPageSize /= dimensions.itemsPerWrapGroup;
-            newPadding -= this.cachedPageSize;
-            this.previousScrollNumberElements = this.previousViewPort.arrayStartIndex - arrayStartIndex;
-        }
-        else {
-            newPadding += dimensions[this._childScrollDim] * (arrayStartIndex - this.previousViewPort.arrayStartIndex) / dimensions.itemsPerWrapGroup;
-        }
-        return Math.round(newPadding) + offset;
+        var wrapGroups = Math.ceil(arrayStartIndex / dimensions.itemsPerWrapGroup);
+        return dimensions[this._childScrollDim] * wrapGroups;
     };
     VirtualScrollComponent.prototype.calculatePageInfo = function (scrollPosition, dimensions) {
         var scrollPercentage = scrollPosition / dimensions.scrollLength;
@@ -458,7 +415,7 @@ var VirtualScrollComponent = (function () {
         arrayStartIndex -= arrayStartIndex % dimensions.itemsPerWrapGroup; // round down to start of wrapGroup
         var arrayEndIndex = Math.ceil(startingArrayIndex_fractional) + dimensions.itemsPerPage - 1;
         arrayEndIndex += (dimensions.itemsPerWrapGroup - (arrayEndIndex + 1) % dimensions.itemsPerWrapGroup); // round up to end of wrapGroup
-        var bufferSize = this.bufferAmount * dimensions.itemsPerWrapGroup;
+        var bufferSize = Math.max(this.bufferAmount, this.enableUnequalChildrenSizes ? 5 : 0) * dimensions.itemsPerWrapGroup;
         arrayStartIndex -= bufferSize;
         arrayEndIndex += bufferSize;
         if (isNaN(arrayStartIndex)) {
@@ -484,58 +441,7 @@ var VirtualScrollComponent = (function () {
             scrollPosition -= offset;
         }
         scrollPosition = Math.max(0, scrollPosition);
-        var content = (this.containerElementRef && this.containerElementRef.nativeElement) || this.contentElementRef.nativeElement;
-        var pageInfo;
-        if (this.enableUnequalChildrenSizes_Experimental) {
-            var indexByScroll = this.previousViewPort.arrayStartIndex / dimensions.itemsPerWrapGroup;
-            if (this.previousViewPort.padding > scrollPosition) {
-                // scroll up
-                indexByScroll -= (this.previousViewPort.padding - scrollPosition) / dimensions[this._childScrollDim];
-            }
-            else {
-                // scroll down
-                var childSizeOverride = this.horizontal ? this.childWidth : this.childHeight;
-                var paddingCurrent = this.previousViewPort.padding;
-                for (var _i = 0, _a = content.children; _i < _a.length; _i++) {
-                    var child = _a[_i];
-                    var childSize = childSizeOverride;
-                    if (!childSize) {
-                        var boundingRect = child.getBoundingClientRect();
-                        childSize = this.horizontal ? boundingRect.width : boundingRect.height;
-                    }
-                    paddingCurrent += childSize;
-                    if (paddingCurrent > scrollPosition) {
-                        indexByScroll += 1 - (paddingCurrent - scrollPosition) / childSize;
-                        break;
-                    }
-                    else {
-                        ++indexByScroll;
-                    }
-                }
-                if (scrollPosition > paddingCurrent) {
-                    indexByScroll += (scrollPosition - paddingCurrent) / dimensions[this._childScrollDim];
-                }
-            }
-            var newEnd = Math.min(dimensions.itemCount, (Math.ceil(indexByScroll) + dimensions.wrapGroupsPerPage + 1) * dimensions.itemsPerWrapGroup);
-            var maxStartEnd = newEnd;
-            var modEnd = newEnd % dimensions.itemsPerWrapGroup;
-            if (modEnd) {
-                maxStartEnd = newEnd + dimensions.itemsPerWrapGroup - modEnd;
-            }
-            var maxStart = Math.max(0, maxStartEnd - dimensions.wrapGroupsPerPage * dimensions.itemsPerWrapGroup - dimensions.itemsPerWrapGroup);
-            var newStart = Math.min(maxStart, Math.floor(indexByScroll) * dimensions.itemsPerWrapGroup);
-            newStart = !isNaN(newStart) ? newStart : -1;
-            newEnd = !isNaN(newEnd) ? newEnd : -1;
-            newStart = Math.max(0, Math.min(dimensions.itemCount - 1, newStart));
-            newEnd = Math.max(0, Math.min(dimensions.itemCount - 1, newEnd));
-            pageInfo = {
-                start: newStart,
-                end: newEnd
-            };
-        }
-        else {
-            pageInfo = this.calculatePageInfo(scrollPosition, dimensions);
-        }
+        var pageInfo = this.calculatePageInfo(scrollPosition, dimensions);
         var newPadding = this.calculatePadding(pageInfo.arrayStartIndex, dimensions, true);
         var newScrollLength = dimensions.scrollLength;
         return {
@@ -565,7 +471,7 @@ var VirtualScrollComponent = (function () {
         { type: core_1.NgZone, },
     ]; };
     VirtualScrollComponent.propDecorators = {
-        'enableUnequalChildrenSizes_Experimental': [{ type: core_1.Input },],
+        'enableUnequalChildrenSizes': [{ type: core_1.Input },],
         'scrollbarWidth': [{ type: core_1.Input },],
         'scrollbarHeight': [{ type: core_1.Input },],
         'childWidth': [{ type: core_1.Input },],
