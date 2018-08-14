@@ -151,6 +151,9 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
 	@Input()
 	public resizeBypassRefreshTheshold: number = 5;
 
+	@Input()
+	public scrollThrottlingTime: number = 100;
+
 	protected checkScrollElementResizedTimer: number;
 	protected _checkResizeInterval: number = 1000;
 	@Input()
@@ -312,7 +315,7 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
 			.start();
 
 		const animate = (time?: number) => {
-			if (!newTween.isPlaying()) {
+			if (!newTween["isPlaying"]()) {
 				return;
 			}
 
@@ -386,6 +389,16 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
 		this.refresh();
 	};
 
+	private throttle(fn, wait): () => void {
+		let time = Date.now();
+		return function () {
+			if ((time + wait - Date.now()) < 0) {
+				fn();
+				time = Date.now();
+			}
+		};
+	}
+
 	protected calculatedScrollbarWidth: number = 0;
 	protected calculatedScrollbarHeight: number = 0;
 
@@ -398,13 +411,17 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
 	protected disposeResizeHandler: () => void | undefined;
 
 	protected refresh_internal(itemsArrayModified: boolean, maxRunTimes: number = 2) {
-		//note: maxRunTimes is to force it to keep recalculating if the previous iteration caused a re-render (different sliced items in viewport or scrollPosition changed). 
+		//note: maxRunTimes is to force it to keep recalculating if the previous iteration caused a re-render (different sliced items in viewport or scrollPosition changed).
 		//The default of 2x max will probably be accurate enough without causing too large a performance bottleneck
 		//The code would typically quit out on the 2nd iteration anyways. The main time it'd think more than 2 runs would be necessary would be for vastly different sized child items or if this is the 1st time the items array was initialized.
 		//Without maxRunTimes, If the user is actively scrolling this code would become an infinite loop until they stopped scrolling. This would be okay, except each scroll event would start an additional infinte loop. We want to short-circuit it to prevent his.
 
 		this.zone.runOutsideAngular(() => {
 			requestAnimationFrame(() => {
+
+				if (itemsArrayModified) {
+					this.itemsParameters = {};
+				}
 				let viewport = this.calculateViewport(itemsArrayModified);
 
 				let startChanged = itemsArrayModified || viewport.arrayStartIndex !== this.previousViewPort.arrayStartIndex;
@@ -476,11 +493,11 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
 
 		this.zone.runOutsideAngular(() => {
 			if (this.parentScroll instanceof Window) {
-				this.disposeScrollHandler = this.renderer.listen('window', 'scroll', this.refreshHandler);
-				this.disposeResizeHandler = this.renderer.listen('window', 'resize', this.refreshHandler);
+				this.disposeScrollHandler = this.renderer.listen('window', 'scroll', this.throttle(this.refreshHandler, this.scrollThrottlingTime));
+				this.disposeResizeHandler = this.renderer.listen('window', 'resize', this.throttle(this.refreshHandler, this.scrollThrottlingTime));
 			}
 			else {
-				this.disposeScrollHandler = this.renderer.listen(scrollElement, 'scroll', this.refreshHandler);
+				this.disposeScrollHandler = this.renderer.listen(scrollElement, 'scroll', this.throttle(this.refreshHandler, this.scrollThrottlingTime));
 				if (this._checkResizeInterval > 0) {
 					this.checkScrollElementResizedTimer = <any>setInterval(() => { this.checkScrollElementResized(); }, this._checkResizeInterval);
 				}
@@ -559,6 +576,8 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
 
 	private minMeasuredChildWidth: number;
 	private minMeasuredChildHeight: number;
+	private itemsParameters: { [key: number]: { childWidth?: number, childHeight?: number } } = {};
+
 	protected calculateDimensions(): IDimensions {
 		let scrollElement = this.getScrollElement();
 		let itemCount = this.items.length;
@@ -572,6 +591,9 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
 
 		let content = (this.containerElementRef && this.containerElementRef.nativeElement) || this.contentElementRef.nativeElement;
 
+		let itemsPerWrapGroup = this.countItemsPerWrapGroup();
+		let wrapGroupsPerPage = 0;
+
 		if ((!this.childWidth || !this.childHeight) && content.children.length > 0) {
 			if (!this.minMeasuredChildWidth) {
 				this.minMeasuredChildWidth = viewWidth;
@@ -580,10 +602,43 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
 				this.minMeasuredChildHeight = viewHeight;
 			}
 
+			let index = this.previousViewPort.arrayStartIndex || 0;
+			let wrapGroups = Math.ceil(index / itemsPerWrapGroup);
+
+			let maxWidth = 0;
+			let maxHeight = 0;
+			let sumOfMaxWidth = 0;
+			let sumOfMaxHeight = 0;
+
 			let childrenLength = this.enableUnequalChildrenSizes ? content.children.length : 1;
+
 			for (let i = 0; i < childrenLength; ++i) {
 				let child = content.children[i];
 				let clientRect = child.getBoundingClientRect();
+
+				maxWidth = Math.max(maxWidth, clientRect.width);
+				maxHeight = Math.max(maxHeight, clientRect.height);
+
+				if (!((index + 1) % itemsPerWrapGroup)) {
+					this.itemsParameters[wrapGroups] = {};
+					this.itemsParameters[wrapGroups].childWidth = maxWidth;
+					this.itemsParameters[wrapGroups].childHeight = maxHeight;
+					sumOfMaxWidth += maxWidth;
+					sumOfMaxHeight += maxHeight;
+
+					if (this.horizontal) {
+						(viewWidth > sumOfMaxWidth) && wrapGroupsPerPage++;
+					} else {
+						(viewHeight > sumOfMaxHeight) && wrapGroupsPerPage++;
+					}
+
+					wrapGroups++;
+
+					maxWidth = 0;
+					maxHeight = 0;
+				}
+				index++;
+
 				this.minMeasuredChildWidth = Math.min(this.minMeasuredChildWidth, clientRect.width);
 				this.minMeasuredChildHeight = Math.min(this.minMeasuredChildHeight, clientRect.height);
 			}
@@ -594,12 +649,28 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
 
 		let itemsPerRow = Math.max(Math.ceil(viewWidth / childWidth), 1);
 		let itemsPerCol = Math.max(Math.ceil(viewHeight / childHeight), 1);
-		let itemsPerWrapGroup = this.countItemsPerWrapGroup();
-		let wrapGroupsPerPage = this.horizontal ? itemsPerRow : itemsPerCol;
+
+		wrapGroupsPerPage = this.enableUnequalChildrenSizes ? wrapGroupsPerPage : (this.horizontal ? itemsPerRow : itemsPerCol);
+
 		let itemsPerPage = itemsPerWrapGroup * wrapGroupsPerPage;
 		let pageCount_fractional = itemCount / itemsPerPage;
 		let numberOfWrapGroups = Math.ceil(itemCount / itemsPerWrapGroup);
-		let scrollLength = numberOfWrapGroups * (this.horizontal ? childWidth : childHeight);
+
+		let scrollLength = 0;
+
+		if (this.enableUnequalChildrenSizes) {
+			for (let i = 0; i < numberOfWrapGroups; i++) {
+				if (!this.itemsParameters[i]) {
+					this.itemsParameters[i] = {};
+				}
+				if (!this.itemsParameters[i][this._childScrollDim]) {
+					this.itemsParameters[i][this._childScrollDim] = this.horizontal ? childWidth : childHeight;
+				}
+				scrollLength += this.itemsParameters[i][this._childScrollDim];
+			}
+		} else {
+			scrollLength = numberOfWrapGroups * (this.horizontal ? childWidth : childHeight);
+		}
 
 		return {
 			itemCount: itemCount,
@@ -621,12 +692,47 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
 			return 0;
 		}
 
-		let wrapGroups = Math.ceil(arrayStartIndex / dimensions.itemsPerWrapGroup);
-		return dimensions[this._childScrollDim] * wrapGroups;
+		let wrapGroups = Math.ceil(arrayStartIndex / dimensions.itemsPerWrapGroup) || 0;
+		let padding = 0;
+
+		if (this.enableUnequalChildrenSizes) {
+			if (this.itemsParameters[wrapGroups]) {
+				for (let i = 0; i < wrapGroups; i++) {
+					if (this.itemsParameters[i]) {
+						padding += this.itemsParameters[i][this._childScrollDim] || 0;
+					} else {
+						padding += dimensions[this._childScrollDim];
+					}
+				}
+			}
+		} else {
+			padding = dimensions[this._childScrollDim] * wrapGroups;
+		}
+
+		return padding;
 	}
 
 	protected calculatePageInfo(scrollPosition: number, dimensions: IDimensions): IPageInfo {
-		let scrollPercentage = scrollPosition / dimensions.scrollLength;
+		let scrollPercentage = 0;
+
+		if (this.enableUnequalChildrenSizes) {
+			const numberOfWrapGroups = Math.ceil(dimensions.itemCount / dimensions.itemsPerWrapGroup);
+			let sumOfItemsParameters = 0;
+			let numberOfHiddenItems = 0;
+
+			for (let i = 0; i < numberOfWrapGroups; i++) {
+				sumOfItemsParameters += this.itemsParameters[i][this._childScrollDim];
+
+				if (scrollPosition < sumOfItemsParameters) {
+					numberOfHiddenItems = i;
+					break;
+				}
+			}
+			scrollPercentage = numberOfHiddenItems / numberOfWrapGroups;
+		} else {
+			scrollPercentage = scrollPosition / dimensions.scrollLength;
+		}
+
 		let startingArrayIndex_fractional = Math.min(Math.max(scrollPercentage * dimensions.pageCount_fractional, 0), dimensions.pageCount_fractional) * dimensions.itemsPerPage;
 
 		let maxStart = dimensions.itemCount - dimensions.itemsPerPage - 1;
@@ -634,7 +740,7 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
 		arrayStartIndex -= arrayStartIndex % dimensions.itemsPerWrapGroup; // round down to start of wrapGroup
 
 		let arrayEndIndex = Math.ceil(startingArrayIndex_fractional) + dimensions.itemsPerPage - 1;
-		arrayEndIndex += (dimensions.itemsPerWrapGroup - (arrayEndIndex+1) % dimensions.itemsPerWrapGroup); // round up to end of wrapGroup
+		arrayEndIndex += (dimensions.itemsPerWrapGroup - (arrayEndIndex + 1) % dimensions.itemsPerWrapGroup); // round up to end of wrapGroup
 
 		let bufferSize = Math.max(this.bufferAmount, this.enableUnequalChildrenSizes ? 5 : 0) * dimensions.itemsPerWrapGroup;
 		arrayStartIndex -= bufferSize;
