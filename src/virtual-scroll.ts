@@ -389,12 +389,23 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
 		this.refresh();
 	};
 
-	private throttle(fn, wait): () => void {
-		let time = Date.now();
+	private throttle(func: () => void, wait: number): () => void {
+		let timeout: any = null;
+		let previous = 0;
 		return function () {
-			if ((time + wait - Date.now()) < 0) {
-				fn();
-				time = Date.now();
+			const now = Date.now();
+			const remaining = wait - (now - previous);
+			if (remaining <= 0) {
+				clearTimeout(timeout);
+				timeout = null;
+				previous = now;
+				func();
+			} else if (!timeout) {
+				timeout = setTimeout(() => {
+					previous = Date.now();
+					timeout = null;
+					func();
+				}, remaining);
 			}
 		};
 	}
