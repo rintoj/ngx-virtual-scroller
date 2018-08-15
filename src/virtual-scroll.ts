@@ -83,6 +83,10 @@ export interface IViewport extends IPageInfo {
       max-height: 100vh;
       position: absolute;
     }
+
+	.scrollable-content ::ng-deep > * {
+		box-sizing: border-box;
+	}
 	
 	:host.horizontal {
 		white-space: nowrap;
