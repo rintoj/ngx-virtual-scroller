@@ -396,7 +396,7 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
 
 	constructor(protected readonly element: ElementRef, protected readonly renderer: Renderer2, protected readonly zone: NgZone) {
 		this.horizontal = false;
-		this.scrollThrottlingTime = 100;
+		this.scrollThrottlingTime = 0;
 		this.resetWrapGroupDimensions();
 	}
 
@@ -680,16 +680,34 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
 		let content = (this.containerElementRef && this.containerElementRef.nativeElement) || this.contentElementRef.nativeElement;
 
 		let itemsPerWrapGroup = this.countItemsPerWrapGroup();
-		let wrapGroupsPerPage = 0;
+		let wrapGroupsPerPage;
 
-		if ((!this.childWidth || !this.childHeight) && content.children.length > 0) {
-			if (!this.minMeasuredChildWidth) {
-				this.minMeasuredChildWidth = viewWidth;
-			}
-			if (!this.minMeasuredChildHeight) {
-				this.minMeasuredChildHeight = viewHeight;
+		let defaultChildWidth;
+		let defaultChildHeight;
+
+		if (!this.enableUnequalChildrenSizes) {
+			if (content.children.length > 0) {
+				if (!this.childWidth || !this.childHeight) {
+					if (!this.minMeasuredChildWidth) {
+						this.minMeasuredChildWidth = viewWidth;
+					}
+					if (!this.minMeasuredChildHeight) {
+						this.minMeasuredChildHeight = viewHeight;
+					}
+				}
+
+				let child = content.children[0];
+				let clientRect = child.getBoundingClientRect();
+				this.minMeasuredChildWidth = Math.min(this.minMeasuredChildWidth, clientRect.width);
+				this.minMeasuredChildHeight = Math.min(this.minMeasuredChildHeight, clientRect.height);
 			}
 
+			defaultChildWidth = this.childWidth || this.minMeasuredChildWidth || viewWidth;
+			defaultChildHeight = this.childHeight || this.minMeasuredChildHeight || viewHeight;
+			let itemsPerRow = Math.max(Math.ceil(viewWidth / defaultChildWidth), 1);
+			let itemsPerCol = Math.max(Math.ceil(viewHeight / defaultChildHeight), 1);
+			wrapGroupsPerPage = this.horizontal ? itemsPerRow : itemsPerCol;
+		} else {
 			let arrayStartIndex = this.previousViewPort.arrayStartIndex || 0;
 			let wrapGroupIndex = Math.ceil(arrayStartIndex / itemsPerWrapGroup);
 
@@ -697,15 +715,11 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
 			let maxHeightForWrapGroup = 0;
 			let sumOfVisibleMaxWidths = 0;
 			let sumOfVisibleMaxHeights = 0;
+			wrapGroupsPerPage = 0;
 
-			let childrenLength = this.enableUnequalChildrenSizes ? content.children.length : 1;
-
-			for (let i = 0; i < childrenLength; ++i) {
+			for (let i = 0; i < content.children.length; ++i) {
 				let child = content.children[i];
 				let clientRect = child.getBoundingClientRect();
-
-				this.minMeasuredChildWidth = Math.min(this.minMeasuredChildWidth, clientRect.width);
-				this.minMeasuredChildHeight = Math.min(this.minMeasuredChildHeight, clientRect.height);
 
 				maxWidthForWrapGroup = Math.max(maxWidthForWrapGroup, clientRect.width);
 				maxHeightForWrapGroup = Math.max(maxHeightForWrapGroup, clientRect.height);
@@ -742,15 +756,12 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
 					maxHeightForWrapGroup = 0;
 				}
 			}
+
+			let averageChildWidth = this.wrapGroupDimensions.sumOfKnownWrapGroupChildWidths / this.wrapGroupDimensions.numberOfKnownWrapGroupChildSizes;
+			let averageChildHeight = this.wrapGroupDimensions.sumOfKnownWrapGroupChildHeights / this.wrapGroupDimensions.numberOfKnownWrapGroupChildSizes;
+			defaultChildWidth = this.childWidth || averageChildWidth || viewWidth;
+			defaultChildHeight = this.childHeight || averageChildHeight || viewHeight;
 		}
-
-		let childWidth = this.childWidth || this.minMeasuredChildWidth || viewWidth;
-		let childHeight = this.childHeight || this.minMeasuredChildHeight || viewHeight;
-
-		let itemsPerRow = Math.max(Math.ceil(viewWidth / childWidth), 1);
-		let itemsPerCol = Math.max(Math.ceil(viewHeight / childHeight), 1);
-
-		wrapGroupsPerPage = this.enableUnequalChildrenSizes ? wrapGroupsPerPage : (this.horizontal ? itemsPerRow : itemsPerCol);
 
 		let itemsPerPage = itemsPerWrapGroup * wrapGroupsPerPage;
 		let pageCount_fractional = itemCount / itemsPerPage;
@@ -758,7 +769,7 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
 
 		let scrollLength = 0;
 
-		let defaultScrollLengthPerWrapGroup = this.horizontal ? childWidth : childHeight;
+		let defaultScrollLengthPerWrapGroup = this.horizontal ? defaultChildWidth : defaultChildHeight;
 		if (this.enableUnequalChildrenSizes) {
 			let numUnknownChildSizes = 0;
 			for (let i = 0; i < numberOfWrapGroups; ++i) {
@@ -770,9 +781,7 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
 				}
 			}
 
-			let averageChildSize = (this.horizontal ? this.wrapGroupDimensions.sumOfKnownWrapGroupChildWidths : this.wrapGroupDimensions.sumOfKnownWrapGroupChildHeights) / this.wrapGroupDimensions.numberOfKnownWrapGroupChildSizes;
-			scrollLength += Math.round(numUnknownChildSizes * (averageChildSize || defaultScrollLengthPerWrapGroup));
-
+			scrollLength += Math.round(numUnknownChildSizes * defaultScrollLengthPerWrapGroup);
 		} else {
 			scrollLength = numberOfWrapGroups * defaultScrollLengthPerWrapGroup;
 		}
@@ -783,8 +792,8 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
 			wrapGroupsPerPage: wrapGroupsPerPage,
 			itemsPerPage: itemsPerPage,
 			pageCount_fractional: pageCount_fractional,
-			childWidth: childWidth,
-			childHeight: childHeight,
+			childWidth: defaultChildWidth,
+			childHeight: defaultChildHeight,
 			scrollLength: scrollLength
 		};
 	}
@@ -814,8 +823,7 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
 				++numUnknownChildSizes;
 			}
 		}
-		let averageChildSize = (this.horizontal ? this.wrapGroupDimensions.sumOfKnownWrapGroupChildWidths : this.wrapGroupDimensions.sumOfKnownWrapGroupChildHeights) / this.wrapGroupDimensions.numberOfKnownWrapGroupChildSizes;
-		result += Math.round(numUnknownChildSizes * (averageChildSize || defaultScrollLengthPerWrapGroup));
+		result += Math.round(numUnknownChildSizes * defaultScrollLengthPerWrapGroup);
 
 		return result;
 	}
@@ -825,14 +833,13 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
 		if (this.enableUnequalChildrenSizes) {
 			const numberOfWrapGroups = Math.ceil(dimensions.itemCount / dimensions.itemsPerWrapGroup);
 			let totalScrolledLength = 0;
-			let averageChildSize = (this.horizontal ? this.wrapGroupDimensions.sumOfKnownWrapGroupChildWidths : this.wrapGroupDimensions.sumOfKnownWrapGroupChildHeights) / this.wrapGroupDimensions.numberOfKnownWrapGroupChildSizes;
 			let defaultScrollLengthPerWrapGroup = dimensions[this._childScrollDim];
 			for (let i = 0; i < numberOfWrapGroups; ++i) {
 				let childSize = this.wrapGroupDimensions.maxChildSizePerWrapGroup[i] && this.wrapGroupDimensions.maxChildSizePerWrapGroup[i][this._childScrollDim];
 				if (childSize) {
 					totalScrolledLength += childSize;
 				} else {
-					totalScrolledLength += averageChildSize || defaultScrollLengthPerWrapGroup;
+					totalScrolledLength += defaultScrollLengthPerWrapGroup;
 				}
 
 				if (scrollPosition < totalScrolledLength) {

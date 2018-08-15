@@ -1,3 +1,7 @@
+# v0.4.9
+
+* Default scrollThrottlingTime to 0.
+
 # v0.4.8
 
 * Improvements to "enableUnequalChildrenSizes". Thanks to Pavel Kukushkin (kykint) for Pull-Request.

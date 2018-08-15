@@ -27,7 +27,7 @@ var VirtualScrollComponent = (function () {
         this.cachedPageSize = 0;
         this.previousScrollNumberElements = 0;
         this.horizontal = false;
-        this.scrollThrottlingTime = 100;
+        this.scrollThrottlingTime = 0;
         this.resetWrapGroupDimensions();
     }
     Object.defineProperty(VirtualScrollComponent.prototype, "viewPortIndices", {
@@ -466,26 +466,41 @@ var VirtualScrollComponent = (function () {
         var viewHeight = scrollElement.clientHeight - (this.scrollbarHeight || this.calculatedScrollbarHeight || (this.horizontal ? maxCalculatedScrollBarSize : 0));
         var content = (this.containerElementRef && this.containerElementRef.nativeElement) || this.contentElementRef.nativeElement;
         var itemsPerWrapGroup = this.countItemsPerWrapGroup();
-        var wrapGroupsPerPage = 0;
-        if ((!this.childWidth || !this.childHeight) && content.children.length > 0) {
-            if (!this.minMeasuredChildWidth) {
-                this.minMeasuredChildWidth = viewWidth;
+        var wrapGroupsPerPage;
+        var defaultChildWidth;
+        var defaultChildHeight;
+        if (!this.enableUnequalChildrenSizes) {
+            if (content.children.length > 0) {
+                if (!this.childWidth || !this.childHeight) {
+                    if (!this.minMeasuredChildWidth) {
+                        this.minMeasuredChildWidth = viewWidth;
+                    }
+                    if (!this.minMeasuredChildHeight) {
+                        this.minMeasuredChildHeight = viewHeight;
+                    }
+                }
+                var child = content.children[0];
+                var clientRect = child.getBoundingClientRect();
+                this.minMeasuredChildWidth = Math.min(this.minMeasuredChildWidth, clientRect.width);
+                this.minMeasuredChildHeight = Math.min(this.minMeasuredChildHeight, clientRect.height);
             }
-            if (!this.minMeasuredChildHeight) {
-                this.minMeasuredChildHeight = viewHeight;
-            }
+            defaultChildWidth = this.childWidth || this.minMeasuredChildWidth || viewWidth;
+            defaultChildHeight = this.childHeight || this.minMeasuredChildHeight || viewHeight;
+            var itemsPerRow = Math.max(Math.ceil(viewWidth / defaultChildWidth), 1);
+            var itemsPerCol = Math.max(Math.ceil(viewHeight / defaultChildHeight), 1);
+            wrapGroupsPerPage = this.horizontal ? itemsPerRow : itemsPerCol;
+        }
+        else {
             var arrayStartIndex = this.previousViewPort.arrayStartIndex || 0;
             var wrapGroupIndex = Math.ceil(arrayStartIndex / itemsPerWrapGroup);
             var maxWidthForWrapGroup = 0;
             var maxHeightForWrapGroup = 0;
             var sumOfVisibleMaxWidths = 0;
             var sumOfVisibleMaxHeights = 0;
-            var childrenLength = this.enableUnequalChildrenSizes ? content.children.length : 1;
-            for (var i = 0; i < childrenLength; ++i) {
+            wrapGroupsPerPage = 0;
+            for (var i = 0; i < content.children.length; ++i) {
                 var child = content.children[i];
                 var clientRect = child.getBoundingClientRect();
-                this.minMeasuredChildWidth = Math.min(this.minMeasuredChildWidth, clientRect.width);
-                this.minMeasuredChildHeight = Math.min(this.minMeasuredChildHeight, clientRect.height);
                 maxWidthForWrapGroup = Math.max(maxWidthForWrapGroup, clientRect.width);
                 maxHeightForWrapGroup = Math.max(maxHeightForWrapGroup, clientRect.height);
                 if ((arrayStartIndex + i + 1) % itemsPerWrapGroup === 0) {
@@ -516,17 +531,16 @@ var VirtualScrollComponent = (function () {
                     maxHeightForWrapGroup = 0;
                 }
             }
+            var averageChildWidth = this.wrapGroupDimensions.sumOfKnownWrapGroupChildWidths / this.wrapGroupDimensions.numberOfKnownWrapGroupChildSizes;
+            var averageChildHeight = this.wrapGroupDimensions.sumOfKnownWrapGroupChildHeights / this.wrapGroupDimensions.numberOfKnownWrapGroupChildSizes;
+            defaultChildWidth = this.childWidth || averageChildWidth || viewWidth;
+            defaultChildHeight = this.childHeight || averageChildHeight || viewHeight;
         }
-        var childWidth = this.childWidth || this.minMeasuredChildWidth || viewWidth;
-        var childHeight = this.childHeight || this.minMeasuredChildHeight || viewHeight;
-        var itemsPerRow = Math.max(Math.ceil(viewWidth / childWidth), 1);
-        var itemsPerCol = Math.max(Math.ceil(viewHeight / childHeight), 1);
-        wrapGroupsPerPage = this.enableUnequalChildrenSizes ? wrapGroupsPerPage : (this.horizontal ? itemsPerRow : itemsPerCol);
         var itemsPerPage = itemsPerWrapGroup * wrapGroupsPerPage;
         var pageCount_fractional = itemCount / itemsPerPage;
         var numberOfWrapGroups = Math.ceil(itemCount / itemsPerWrapGroup);
         var scrollLength = 0;
-        var defaultScrollLengthPerWrapGroup = this.horizontal ? childWidth : childHeight;
+        var defaultScrollLengthPerWrapGroup = this.horizontal ? defaultChildWidth : defaultChildHeight;
         if (this.enableUnequalChildrenSizes) {
             var numUnknownChildSizes = 0;
             for (var i = 0; i < numberOfWrapGroups; ++i) {
@@ -538,8 +552,7 @@ var VirtualScrollComponent = (function () {
                     ++numUnknownChildSizes;
                 }
             }
-            var averageChildSize = (this.horizontal ? this.wrapGroupDimensions.sumOfKnownWrapGroupChildWidths : this.wrapGroupDimensions.sumOfKnownWrapGroupChildHeights) / this.wrapGroupDimensions.numberOfKnownWrapGroupChildSizes;
-            scrollLength += Math.round(numUnknownChildSizes * (averageChildSize || defaultScrollLengthPerWrapGroup));
+            scrollLength += Math.round(numUnknownChildSizes * defaultScrollLengthPerWrapGroup);
         }
         else {
             scrollLength = numberOfWrapGroups * defaultScrollLengthPerWrapGroup;
@@ -550,8 +563,8 @@ var VirtualScrollComponent = (function () {
             wrapGroupsPerPage: wrapGroupsPerPage,
             itemsPerPage: itemsPerPage,
             pageCount_fractional: pageCount_fractional,
-            childWidth: childWidth,
-            childHeight: childHeight,
+            childWidth: defaultChildWidth,
+            childHeight: defaultChildHeight,
             scrollLength: scrollLength
         };
     };
@@ -575,8 +588,7 @@ var VirtualScrollComponent = (function () {
                 ++numUnknownChildSizes;
             }
         }
-        var averageChildSize = (this.horizontal ? this.wrapGroupDimensions.sumOfKnownWrapGroupChildWidths : this.wrapGroupDimensions.sumOfKnownWrapGroupChildHeights) / this.wrapGroupDimensions.numberOfKnownWrapGroupChildSizes;
-        result += Math.round(numUnknownChildSizes * (averageChildSize || defaultScrollLengthPerWrapGroup));
+        result += Math.round(numUnknownChildSizes * defaultScrollLengthPerWrapGroup);
         return result;
     };
     VirtualScrollComponent.prototype.calculatePageInfo = function (scrollPosition, dimensions) {
@@ -584,7 +596,6 @@ var VirtualScrollComponent = (function () {
         if (this.enableUnequalChildrenSizes) {
             var numberOfWrapGroups = Math.ceil(dimensions.itemCount / dimensions.itemsPerWrapGroup);
             var totalScrolledLength = 0;
-            var averageChildSize = (this.horizontal ? this.wrapGroupDimensions.sumOfKnownWrapGroupChildWidths : this.wrapGroupDimensions.sumOfKnownWrapGroupChildHeights) / this.wrapGroupDimensions.numberOfKnownWrapGroupChildSizes;
             var defaultScrollLengthPerWrapGroup = dimensions[this._childScrollDim];
             for (var i = 0; i < numberOfWrapGroups; ++i) {
                 var childSize = this.wrapGroupDimensions.maxChildSizePerWrapGroup[i] && this.wrapGroupDimensions.maxChildSizePerWrapGroup[i][this._childScrollDim];
@@ -592,7 +603,7 @@ var VirtualScrollComponent = (function () {
                     totalScrolledLength += childSize;
                 }
                 else {
-                    totalScrolledLength += averageChildSize || defaultScrollLengthPerWrapGroup;
+                    totalScrolledLength += defaultScrollLengthPerWrapGroup;
                 }
                 if (scrollPosition < totalScrolledLength) {
                     scrollPercentage = i / numberOfWrapGroups;
