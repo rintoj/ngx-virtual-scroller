@@ -2,6 +2,7 @@
 
 * Improvements to "enableUnequalChildrenSizes". Thanks to Pavel Kukushkin (kykint) for Pull-Request.
 * Add scrollThrottlingTime parameter for performance reasons.
+* Use style box-sizing: border-box on child elements of viewport to enable padding/border to be taken into account when calculating sizes.
 
 # v0.4.7
 
