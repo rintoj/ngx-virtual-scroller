@@ -42,7 +42,7 @@ export class ListItemComponent {
       return undefined;
     }
 
-    return (350 + this.stringToHash(this.item.name) % 100).toString() + 'px';
+    return (100 + this.stringToHash(this.item.name) % 900).toString() + 'px';
   }
 
   @HostBinding('style.height')
@@ -51,7 +51,7 @@ export class ListItemComponent {
       return undefined;
     }
 
-    return (50 + this.stringToHash(this.item.name) % 50).toString() + 'px';
+    return (50 + this.stringToHash(this.item.name) % 450).toString() + 'px';
   }
 
   @HostBinding('style.border')

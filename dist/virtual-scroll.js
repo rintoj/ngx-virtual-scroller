@@ -5,14 +5,13 @@ var common_1 = require("@angular/common");
 var tween = require("@tweenjs/tween.js");
 var VirtualScrollComponent = (function () {
     function VirtualScrollComponent(element, renderer, zone) {
-        var _this = this;
         this.element = element;
         this.renderer = renderer;
         this.zone = zone;
         this.window = window;
         this._enableUnequalChildrenSizes = false;
         this.useMarginInsteadOfTranslate = false;
-        this.bufferAmount = 0;
+        this._bufferAmount = 0;
         this.scrollAnimationTime = 750;
         this.resizeBypassRefreshTheshold = 5;
         this._checkResizeInterval = 1000;
@@ -21,9 +20,6 @@ var VirtualScrollComponent = (function () {
         this.change = new core_1.EventEmitter();
         this.start = new core_1.EventEmitter();
         this.end = new core_1.EventEmitter();
-        this.refreshHandler = function () {
-            _this.refresh();
-        };
         this.calculatedScrollbarWidth = 0;
         this.calculatedScrollbarHeight = 0;
         this.padding = 0;
@@ -31,7 +27,20 @@ var VirtualScrollComponent = (function () {
         this.cachedPageSize = 0;
         this.previousScrollNumberElements = 0;
         this.horizontal = false;
+        this.scrollThrottlingTime = 100;
+        this.resetWrapGroupDimensions();
     }
+    Object.defineProperty(VirtualScrollComponent.prototype, "viewPortIndices", {
+        get: function () {
+            var pageInfo = this.previousViewPort || {};
+            return {
+                arrayStartIndex: pageInfo.arrayStartIndex || 0,
+                arrayEndIndex: pageInfo.arrayEndIndex || 0
+            };
+        },
+        enumerable: true,
+        configurable: true
+    });
     Object.defineProperty(VirtualScrollComponent.prototype, "enableUnequalChildrenSizes", {
         get: function () {
             return this._enableUnequalChildrenSizes;
@@ -43,6 +52,30 @@ var VirtualScrollComponent = (function () {
             this._enableUnequalChildrenSizes = value;
             this.minMeasuredChildWidth = undefined;
             this.minMeasuredChildHeight = undefined;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(VirtualScrollComponent.prototype, "bufferAmount", {
+        get: function () {
+            return Math.max(this._bufferAmount, this.enableUnequalChildrenSizes ? 5 : 0);
+        },
+        set: function (value) {
+            this._bufferAmount = value;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(VirtualScrollComponent.prototype, "scrollThrottlingTime", {
+        get: function () {
+            return this._scrollThrottlingTime;
+        },
+        set: function (value) {
+            var _this = this;
+            this._scrollThrottlingTime = value;
+            this.refresh_throttled = this.throttleTrailing(function () {
+                _this.refresh();
+            }, this._scrollThrottlingTime);
         },
         enumerable: true,
         configurable: true
@@ -143,7 +176,34 @@ var VirtualScrollComponent = (function () {
         if (additionalOffset === void 0) { additionalOffset = 0; }
         if (animationMilliseconds === void 0) { animationMilliseconds = undefined; }
         if (animationCompletedCallback === void 0) { animationCompletedCallback = undefined; }
-        animationCompletedCallback = animationCompletedCallback || (function () { });
+        var maxRetries = 5;
+        var retryIfNeeded = function () {
+            --maxRetries;
+            if (maxRetries <= 0) {
+                if (animationCompletedCallback) {
+                    animationCompletedCallback();
+                }
+                return;
+            }
+            var dimensions = _this.calculateDimensions();
+            var bufferSize = _this.bufferAmount * dimensions.itemsPerWrapGroup;
+            var desiredStartIndex = Math.min(Math.max(index - bufferSize, 0), dimensions.itemCount - 1);
+            if (_this.previousViewPort.arrayStartIndex === desiredStartIndex) {
+                if (animationCompletedCallback) {
+                    animationCompletedCallback();
+                }
+                return;
+            }
+            _this.scrollToIndex_internal(index, alignToBeginning, additionalOffset, 0, retryIfNeeded);
+        };
+        this.scrollToIndex_internal(index, alignToBeginning, additionalOffset, animationMilliseconds, retryIfNeeded);
+    };
+    VirtualScrollComponent.prototype.scrollToIndex_internal = function (index, alignToBeginning, additionalOffset, animationMilliseconds, animationCompletedCallback) {
+        var _this = this;
+        if (alignToBeginning === void 0) { alignToBeginning = true; }
+        if (additionalOffset === void 0) { additionalOffset = 0; }
+        if (animationMilliseconds === void 0) { animationMilliseconds = undefined; }
+        if (animationCompletedCallback === void 0) { animationCompletedCallback = undefined; }
         animationMilliseconds = animationMilliseconds === undefined ? this.scrollAnimationTime : animationMilliseconds;
         var scrollElement = this.getScrollElement();
         var offset = this.getElementsOffset();
@@ -159,8 +219,7 @@ var VirtualScrollComponent = (function () {
         }
         if (!animationMilliseconds) {
             this.renderer.setProperty(scrollElement, this._scrollType, scroll);
-            this.refresh();
-            animationCompletedCallback();
+            this.refresh_internal(false, animationCompletedCallback);
             return;
         }
         var tweenConfigObj = { scroll: scrollElement[this._scrollType] };
@@ -179,12 +238,12 @@ var VirtualScrollComponent = (function () {
         })
             .start();
         var animate = function (time) {
-            if (!newTween.isPlaying()) {
+            if (!newTween["isPlaying"]()) {
                 return;
             }
             newTween.update(time);
             if (tweenConfigObj.scroll === scroll) {
-                animationCompletedCallback();
+                _this.refresh_internal(false, animationCompletedCallback);
                 return;
             }
             _this.zone.runOutsideAngular(function () {
@@ -230,15 +289,34 @@ var VirtualScrollComponent = (function () {
             this._scrollType = 'scrollTop';
         }
     };
-    VirtualScrollComponent.prototype.refresh_internal = function (itemsArrayModified, maxRunTimes) {
-        //note: maxRunTimes is to force it to keep recalculating if the previous iteration caused a re-render (different sliced items in viewport or scrollPosition changed). 
+    VirtualScrollComponent.prototype.throttleTrailing = function (func, wait) {
+        var timeout = undefined;
+        var result = function () {
+            var _this = this;
+            var _arguments = arguments;
+            if (timeout) {
+                return;
+            }
+            timeout = setTimeout(function () {
+                timeout = undefined;
+                func.apply(_this, _arguments);
+            }, wait);
+        };
+        return result;
+    };
+    VirtualScrollComponent.prototype.refresh_internal = function (itemsArrayModified, refreshCompletedCallback, maxRunTimes) {
+        //note: maxRunTimes is to force it to keep recalculating if the previous iteration caused a re-render (different sliced items in viewport or scrollPosition changed).
         //The default of 2x max will probably be accurate enough without causing too large a performance bottleneck
         //The code would typically quit out on the 2nd iteration anyways. The main time it'd think more than 2 runs would be necessary would be for vastly different sized child items or if this is the 1st time the items array was initialized.
         //Without maxRunTimes, If the user is actively scrolling this code would become an infinite loop until they stopped scrolling. This would be okay, except each scroll event would start an additional infinte loop. We want to short-circuit it to prevent his.
         var _this = this;
+        if (refreshCompletedCallback === void 0) { refreshCompletedCallback = undefined; }
         if (maxRunTimes === void 0) { maxRunTimes = 2; }
         this.zone.runOutsideAngular(function () {
             requestAnimationFrame(function () {
+                if (itemsArrayModified) {
+                    _this.resetWrapGroupDimensions();
+                }
                 var viewport = _this.calculateViewport(itemsArrayModified);
                 var startChanged = itemsArrayModified || viewport.arrayStartIndex !== _this.previousViewPort.arrayStartIndex;
                 var endChanged = itemsArrayModified || viewport.arrayEndIndex !== _this.previousViewPort.arrayEndIndex;
@@ -275,14 +353,21 @@ var VirtualScrollComponent = (function () {
                             }
                         }
                         if (maxRunTimes > 0) {
-                            _this.refresh_internal(false, maxRunTimes - 1);
+                            _this.refresh_internal(false, refreshCompletedCallback, maxRunTimes - 1);
                             return;
+                        }
+                        if (refreshCompletedCallback) {
+                            refreshCompletedCallback();
                         }
                     });
                 }
-                else if (maxRunTimes > 0) {
-                    if (scrollLengthChanged || paddingChanged) {
-                        _this.refresh_internal(false, maxRunTimes - 1);
+                else {
+                    if (maxRunTimes > 0 && (scrollLengthChanged || paddingChanged)) {
+                        _this.refresh_internal(false, refreshCompletedCallback, maxRunTimes - 1);
+                        return;
+                    }
+                    if (refreshCompletedCallback) {
+                        refreshCompletedCallback();
                     }
                 }
             });
@@ -297,11 +382,11 @@ var VirtualScrollComponent = (function () {
         this.removeScrollEventHandlers();
         this.zone.runOutsideAngular(function () {
             if (_this.parentScroll instanceof Window) {
-                _this.disposeScrollHandler = _this.renderer.listen('window', 'scroll', _this.refreshHandler);
-                _this.disposeResizeHandler = _this.renderer.listen('window', 'resize', _this.refreshHandler);
+                _this.disposeScrollHandler = _this.renderer.listen('window', 'scroll', _this.refresh_throttled);
+                _this.disposeResizeHandler = _this.renderer.listen('window', 'resize', _this.refresh_throttled);
             }
             else {
-                _this.disposeScrollHandler = _this.renderer.listen(scrollElement, 'scroll', _this.refreshHandler);
+                _this.disposeScrollHandler = _this.renderer.listen(scrollElement, 'scroll', _this.refresh_throttled);
                 if (_this._checkResizeInterval > 0) {
                     _this.checkScrollElementResizedTimer = setInterval(function () { _this.checkScrollElementResized(); }, _this._checkResizeInterval);
                 }
@@ -363,6 +448,14 @@ var VirtualScrollComponent = (function () {
         }
         return windowScrollValue || this.getScrollElement()[this._scrollType] || 0;
     };
+    VirtualScrollComponent.prototype.resetWrapGroupDimensions = function () {
+        this.wrapGroupDimensions = {
+            maxChildSizePerWrapGroup: {},
+            numberOfKnownWrapGroupChildSizes: 0,
+            sumOfKnownWrapGroupChildWidths: 0,
+            sumOfKnownWrapGroupChildHeights: 0
+        };
+    };
     VirtualScrollComponent.prototype.calculateDimensions = function () {
         var scrollElement = this.getScrollElement();
         var itemCount = this.items.length;
@@ -372,6 +465,8 @@ var VirtualScrollComponent = (function () {
         var viewWidth = scrollElement.clientWidth - (this.scrollbarWidth || this.calculatedScrollbarWidth || (this.horizontal ? 0 : maxCalculatedScrollBarSize));
         var viewHeight = scrollElement.clientHeight - (this.scrollbarHeight || this.calculatedScrollbarHeight || (this.horizontal ? maxCalculatedScrollBarSize : 0));
         var content = (this.containerElementRef && this.containerElementRef.nativeElement) || this.contentElementRef.nativeElement;
+        var itemsPerWrapGroup = this.countItemsPerWrapGroup();
+        var wrapGroupsPerPage = 0;
         if ((!this.childWidth || !this.childHeight) && content.children.length > 0) {
             if (!this.minMeasuredChildWidth) {
                 this.minMeasuredChildWidth = viewWidth;
@@ -379,24 +474,76 @@ var VirtualScrollComponent = (function () {
             if (!this.minMeasuredChildHeight) {
                 this.minMeasuredChildHeight = viewHeight;
             }
+            var arrayStartIndex = this.previousViewPort.arrayStartIndex || 0;
+            var wrapGroupIndex = Math.ceil(arrayStartIndex / itemsPerWrapGroup);
+            var maxWidthForWrapGroup = 0;
+            var maxHeightForWrapGroup = 0;
+            var sumOfVisibleMaxWidths = 0;
+            var sumOfVisibleMaxHeights = 0;
             var childrenLength = this.enableUnequalChildrenSizes ? content.children.length : 1;
             for (var i = 0; i < childrenLength; ++i) {
                 var child = content.children[i];
                 var clientRect = child.getBoundingClientRect();
                 this.minMeasuredChildWidth = Math.min(this.minMeasuredChildWidth, clientRect.width);
                 this.minMeasuredChildHeight = Math.min(this.minMeasuredChildHeight, clientRect.height);
+                maxWidthForWrapGroup = Math.max(maxWidthForWrapGroup, clientRect.width);
+                maxHeightForWrapGroup = Math.max(maxHeightForWrapGroup, clientRect.height);
+                if ((arrayStartIndex + i + 1) % itemsPerWrapGroup === 0) {
+                    var oldValue = this.wrapGroupDimensions.maxChildSizePerWrapGroup[wrapGroupIndex];
+                    if (oldValue) {
+                        --this.wrapGroupDimensions.numberOfKnownWrapGroupChildSizes;
+                        this.wrapGroupDimensions.sumOfKnownWrapGroupChildWidths -= oldValue.childWidth || 0;
+                        this.wrapGroupDimensions.sumOfKnownWrapGroupChildHeights -= oldValue.childHeight || 0;
+                    }
+                    ++this.wrapGroupDimensions.numberOfKnownWrapGroupChildSizes;
+                    this.wrapGroupDimensions.maxChildSizePerWrapGroup[wrapGroupIndex] = { childWidth: maxWidthForWrapGroup, childHeight: maxHeightForWrapGroup };
+                    this.wrapGroupDimensions.sumOfKnownWrapGroupChildWidths += maxWidthForWrapGroup;
+                    this.wrapGroupDimensions.sumOfKnownWrapGroupChildHeights += maxHeightForWrapGroup;
+                    sumOfVisibleMaxWidths += maxWidthForWrapGroup;
+                    sumOfVisibleMaxHeights += maxHeightForWrapGroup;
+                    if (this.horizontal) {
+                        if (viewWidth > sumOfVisibleMaxWidths) {
+                            ++wrapGroupsPerPage;
+                        }
+                    }
+                    else {
+                        if (viewHeight > sumOfVisibleMaxHeights) {
+                            ++wrapGroupsPerPage;
+                        }
+                    }
+                    ++wrapGroupIndex;
+                    maxWidthForWrapGroup = 0;
+                    maxHeightForWrapGroup = 0;
+                }
             }
         }
         var childWidth = this.childWidth || this.minMeasuredChildWidth || viewWidth;
         var childHeight = this.childHeight || this.minMeasuredChildHeight || viewHeight;
         var itemsPerRow = Math.max(Math.ceil(viewWidth / childWidth), 1);
         var itemsPerCol = Math.max(Math.ceil(viewHeight / childHeight), 1);
-        var itemsPerWrapGroup = this.countItemsPerWrapGroup();
-        var wrapGroupsPerPage = this.horizontal ? itemsPerRow : itemsPerCol;
+        wrapGroupsPerPage = this.enableUnequalChildrenSizes ? wrapGroupsPerPage : (this.horizontal ? itemsPerRow : itemsPerCol);
         var itemsPerPage = itemsPerWrapGroup * wrapGroupsPerPage;
         var pageCount_fractional = itemCount / itemsPerPage;
         var numberOfWrapGroups = Math.ceil(itemCount / itemsPerWrapGroup);
-        var scrollLength = numberOfWrapGroups * (this.horizontal ? childWidth : childHeight);
+        var scrollLength = 0;
+        var defaultScrollLengthPerWrapGroup = this.horizontal ? childWidth : childHeight;
+        if (this.enableUnequalChildrenSizes) {
+            var numUnknownChildSizes = 0;
+            for (var i = 0; i < numberOfWrapGroups; ++i) {
+                var childSize = this.wrapGroupDimensions.maxChildSizePerWrapGroup[i] && this.wrapGroupDimensions.maxChildSizePerWrapGroup[i][this._childScrollDim];
+                if (childSize) {
+                    scrollLength += childSize;
+                }
+                else {
+                    ++numUnknownChildSizes;
+                }
+            }
+            var averageChildSize = (this.horizontal ? this.wrapGroupDimensions.sumOfKnownWrapGroupChildWidths : this.wrapGroupDimensions.sumOfKnownWrapGroupChildHeights) / this.wrapGroupDimensions.numberOfKnownWrapGroupChildSizes;
+            scrollLength += Math.round(numUnknownChildSizes * (averageChildSize || defaultScrollLengthPerWrapGroup));
+        }
+        else {
+            scrollLength = numberOfWrapGroups * defaultScrollLengthPerWrapGroup;
+        }
         return {
             itemCount: itemCount,
             itemsPerWrapGroup: itemsPerWrapGroup,
@@ -412,18 +559,57 @@ var VirtualScrollComponent = (function () {
         if (dimensions.itemCount === 0) {
             return 0;
         }
-        var wrapGroups = Math.ceil(arrayStartIndex / dimensions.itemsPerWrapGroup);
-        return dimensions[this._childScrollDim] * wrapGroups;
+        var defaultScrollLengthPerWrapGroup = dimensions[this._childScrollDim];
+        var startingWrapGroupIndex = Math.ceil(arrayStartIndex / dimensions.itemsPerWrapGroup) || 0;
+        if (!this.enableUnequalChildrenSizes) {
+            return defaultScrollLengthPerWrapGroup * startingWrapGroupIndex;
+        }
+        var numUnknownChildSizes = 0;
+        var result = 0;
+        for (var i = 0; i < startingWrapGroupIndex; ++i) {
+            var childSize = this.wrapGroupDimensions.maxChildSizePerWrapGroup[i] && this.wrapGroupDimensions.maxChildSizePerWrapGroup[i][this._childScrollDim];
+            if (childSize) {
+                result += childSize;
+            }
+            else {
+                ++numUnknownChildSizes;
+            }
+        }
+        var averageChildSize = (this.horizontal ? this.wrapGroupDimensions.sumOfKnownWrapGroupChildWidths : this.wrapGroupDimensions.sumOfKnownWrapGroupChildHeights) / this.wrapGroupDimensions.numberOfKnownWrapGroupChildSizes;
+        result += Math.round(numUnknownChildSizes * (averageChildSize || defaultScrollLengthPerWrapGroup));
+        return result;
     };
     VirtualScrollComponent.prototype.calculatePageInfo = function (scrollPosition, dimensions) {
-        var scrollPercentage = scrollPosition / dimensions.scrollLength;
+        var scrollPercentage = 0;
+        if (this.enableUnequalChildrenSizes) {
+            var numberOfWrapGroups = Math.ceil(dimensions.itemCount / dimensions.itemsPerWrapGroup);
+            var totalScrolledLength = 0;
+            var averageChildSize = (this.horizontal ? this.wrapGroupDimensions.sumOfKnownWrapGroupChildWidths : this.wrapGroupDimensions.sumOfKnownWrapGroupChildHeights) / this.wrapGroupDimensions.numberOfKnownWrapGroupChildSizes;
+            var defaultScrollLengthPerWrapGroup = dimensions[this._childScrollDim];
+            for (var i = 0; i < numberOfWrapGroups; ++i) {
+                var childSize = this.wrapGroupDimensions.maxChildSizePerWrapGroup[i] && this.wrapGroupDimensions.maxChildSizePerWrapGroup[i][this._childScrollDim];
+                if (childSize) {
+                    totalScrolledLength += childSize;
+                }
+                else {
+                    totalScrolledLength += averageChildSize || defaultScrollLengthPerWrapGroup;
+                }
+                if (scrollPosition < totalScrolledLength) {
+                    scrollPercentage = i / numberOfWrapGroups;
+                    break;
+                }
+            }
+        }
+        else {
+            scrollPercentage = scrollPosition / dimensions.scrollLength;
+        }
         var startingArrayIndex_fractional = Math.min(Math.max(scrollPercentage * dimensions.pageCount_fractional, 0), dimensions.pageCount_fractional) * dimensions.itemsPerPage;
         var maxStart = dimensions.itemCount - dimensions.itemsPerPage - 1;
         var arrayStartIndex = Math.min(Math.floor(startingArrayIndex_fractional), maxStart);
         arrayStartIndex -= arrayStartIndex % dimensions.itemsPerWrapGroup; // round down to start of wrapGroup
         var arrayEndIndex = Math.ceil(startingArrayIndex_fractional) + dimensions.itemsPerPage - 1;
-        arrayEndIndex += (dimensions.itemsPerWrapGroup - (arrayEndIndex + 1) % dimensions.itemsPerWrapGroup); // round up to end of wrapGroup
-        var bufferSize = Math.max(this.bufferAmount, this.enableUnequalChildrenSizes ? 5 : 0) * dimensions.itemsPerWrapGroup;
+        arrayEndIndex += (dimensions.itemsPerWrapGroup - ((arrayEndIndex + 1) % dimensions.itemsPerWrapGroup)); // round up to end of wrapGroup
+        var bufferSize = this.bufferAmount * dimensions.itemsPerWrapGroup;
         arrayStartIndex -= bufferSize;
         arrayEndIndex += bufferSize;
         if (isNaN(arrayStartIndex)) {
@@ -488,6 +674,7 @@ var VirtualScrollComponent = (function () {
         'bufferAmount': [{ type: core_1.Input },],
         'scrollAnimationTime': [{ type: core_1.Input },],
         'resizeBypassRefreshTheshold': [{ type: core_1.Input },],
+        'scrollThrottlingTime': [{ type: core_1.Input },],
         'checkResizeInterval': [{ type: core_1.Input },],
         'items': [{ type: core_1.Input },],
         'horizontal': [{ type: core_1.Input },],
