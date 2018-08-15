@@ -1,3 +1,8 @@
+# v0.4.8
+
+* Improvements to "enableUnequalChildrenSizes". Thanks to Pavel Kukushkin (kykint) for Pull-Request.
+* Add scrollThrottlingTime parameter for performance reasons.
+
 # v0.4.7
 
 * useMarginInsteadOfTranslate flag. Defaults to false. This can affect performance (better/worse depending on your circumstances), and also creates a workaround for the transform+position:fixed browser bug.
