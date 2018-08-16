@@ -21,7 +21,6 @@ import { ListItem } from './list-item.component';
 
     <virtual-scroll
       [items]="filteredList"
-      [childHeight]="43"
       (update)="scrollItems = $event"
       (change)="indices = $event">
       <table>
