@@ -627,7 +627,7 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
 
 	protected countItemsPerWrapGroup() {
 		let propertyName = this.horizontal ? 'offsetLeft' : 'offsetTop';
-		let children = this.contentElementRef.nativeElement.children;
+		let children = ((this.containerElementRef && this.containerElementRef.nativeElement) || this.contentElementRef.nativeElement).children;
 
 		let childrenLength = children ? children.length : 0;
 		if (childrenLength === 0) {

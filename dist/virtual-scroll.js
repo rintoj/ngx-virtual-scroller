@@ -429,7 +429,7 @@ var VirtualScrollComponent = (function () {
     };
     VirtualScrollComponent.prototype.countItemsPerWrapGroup = function () {
         var propertyName = this.horizontal ? 'offsetLeft' : 'offsetTop';
-        var children = this.contentElementRef.nativeElement.children;
+        var children = ((this.containerElementRef && this.containerElementRef.nativeElement) || this.contentElementRef.nativeElement).children;
         var childrenLength = children ? children.length : 0;
         if (childrenLength === 0) {
             return 1;
