@@ -25,13 +25,15 @@ import { ListItem } from './list-item.component';
       (update)="scrollItems = $event"
       (change)="indices = $event">
       <table>
-        <tr *ngFor="let item of scrollItems">
-          <td>{{item.index}}</td>
-          <td>{{item.name}}</td>
-          <td>{{item.gender}}</td>
-          <td>{{item.age}}</td>
-          <td>{{item.address}}</td>
-        </tr>
+		  <tbody #container>
+			<tr *ngFor="let item of scrollItems">
+			  <td>{{item.index}}</td>
+			  <td>{{item.name}}</td>
+			  <td>{{item.gender}}</td>
+			  <td>{{item.age}}</td>
+			  <td>{{item.address}}</td>
+			</tr>
+		  </tbody>
       </table>
     </virtual-scroll>
   `,
