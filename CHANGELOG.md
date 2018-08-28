@@ -1,3 +1,10 @@
+# v0.4.10
+
+* Minor bug fixes.
+* Prevent delay if scrollThrottlingTime is set to 0.
+* Fix bug where children would not be re-measured if their original measurement was 0 (due to elements still initializing)
+* Add vs* prefix to event names to prevent conflicts with native DOM events, example: <virtual-scroll (vsChange)=""><input (change)="" /></virtual-scroll>
+
 # v0.4.9
 
 * Default scrollThrottlingTime to 0.
