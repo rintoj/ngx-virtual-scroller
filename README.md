@@ -181,10 +181,26 @@ If you want to nest additional elements inside virtual scroll besides the list i
 
 ## Use parent scrollbar
 
-If you want to use the scrollbar of a parent element, set `parentScroll`.
+If you want to use the scrollbar of a parent element, set `parentScroll` to a native DOM element.
 
 ```html
 <div #scrollingBlock>
+    <virtual-scroll [items]="items"
+        [parentScroll]="scrollingBlock"
+        (update)="viewPortItems = $event">
+        <input type="search">
+        <div #container>
+            <my-custom-component *ngFor="let item of viewPortItems">
+            </my-custom-component>
+        </div>
+    </virtual-scroll>
+</div>
+```
+
+If the parentScroll is a custom angular component (instead of a native HTML element such as DIV), Angular will wrap the #scrollingBlock variable in an ElementRef https://angular.io/api/core/ElementRef in which case you'll need to use the .nativeElement property to get to the underlying javascript DOM element reference.
+
+```html
+<custom-angular-component #scrollingBlock>
     <virtual-scroll [items]="items"
         [parentScroll]="scrollingBlock.nativeElement"
         (update)="viewPortItems = $event">
@@ -194,7 +210,7 @@ If you want to use the scrollbar of a parent element, set `parentScroll`.
             </my-custom-component>
         </div>
     </virtual-scroll>
-</div>
+</custom-angular-component>
 ```
 
 Note: The parent element should have a width and height defined.
