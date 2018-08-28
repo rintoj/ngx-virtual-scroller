@@ -477,10 +477,10 @@ var VirtualScrollComponent = (function () {
         if (!this.enableUnequalChildrenSizes) {
             if (content.children.length > 0) {
                 if (!this.childWidth || !this.childHeight) {
-                    if (!this.minMeasuredChildWidth) {
+                    if (!this.minMeasuredChildWidth && viewWidth > 0) {
                         this.minMeasuredChildWidth = viewWidth;
                     }
-                    if (!this.minMeasuredChildHeight) {
+                    if (!this.minMeasuredChildHeight && viewHeight > 0) {
                         this.minMeasuredChildHeight = viewHeight;
                     }
                 }
