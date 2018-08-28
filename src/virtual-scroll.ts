@@ -459,15 +459,14 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
 				return;
 			}
 
-			if(wait == 0) {
-                func.apply(_this, _arguments);
+			if (wait <= 0) {
+				func.apply(_this, _arguments);
 			} else {
-                timeout = setTimeout(function () {
-                    timeout = undefined;
-                    func.apply(_this, _arguments);
-                }, wait);
+				timeout = setTimeout(function () {
+					timeout = undefined;
+					func.apply(_this, _arguments);
+				}, wait);
 			}
-
 		};
 
 		return result;

@@ -297,10 +297,15 @@ var VirtualScrollComponent = (function () {
             if (timeout) {
                 return;
             }
-            timeout = setTimeout(function () {
-                timeout = undefined;
+            if (wait <= 0) {
                 func.apply(_this, _arguments);
-            }, wait);
+            }
+            else {
+                timeout = setTimeout(function () {
+                    timeout = undefined;
+                    func.apply(_this, _arguments);
+                }, wait);
+            }
         };
         return result;
     };
