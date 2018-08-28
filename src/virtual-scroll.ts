@@ -249,15 +249,23 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
 
 	@Output()
 	public update: EventEmitter<any[]> = new EventEmitter<any[]>();
+	@Output()
+	public vsUpdate: EventEmitter<any[]> = new EventEmitter<any[]>();
 
 	@Output()
 	public change: EventEmitter<ChangeEvent> = new EventEmitter<ChangeEvent>();
+	@Output()
+	public vsChange: EventEmitter<ChangeEvent> = new EventEmitter<ChangeEvent>();
 
 	@Output()
 	public start: EventEmitter<ChangeEvent> = new EventEmitter<ChangeEvent>();
+	@Output()
+	public vsStart: EventEmitter<ChangeEvent> = new EventEmitter<ChangeEvent>();
 
 	@Output()
 	public end: EventEmitter<ChangeEvent> = new EventEmitter<ChangeEvent>();
+	@Output()
+	public vsEnd: EventEmitter<ChangeEvent> = new EventEmitter<ChangeEvent>();
 
 	@ViewChild('content', { read: ElementRef })
 	public contentElementRef: ElementRef;
@@ -526,18 +534,22 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
 						// update the scroll list to trigger re-render of components in viewport
 						this.viewPortItems = viewport.arrayStartIndex >= 0 && viewport.arrayEndIndex >= 0 ? this.items.slice(viewport.arrayStartIndex, viewport.arrayEndIndex + 1) : [];
 						this.update.emit(this.viewPortItems);
+						this.vsUpdate.emit(this.viewPortItems);
 
 						if (emitIndexChangedEvents) {
 							if (startChanged) {
 								this.start.emit({ start: viewport.arrayStartIndex, end: viewport.arrayEndIndex });
+								this.vsStart.emit({ start: viewport.arrayStartIndex, end: viewport.arrayEndIndex });
 							}
 
 							if (endChanged) {
 								this.end.emit({ start: viewport.arrayStartIndex, end: viewport.arrayEndIndex });
+								this.vsEnd.emit({ start: viewport.arrayStartIndex, end: viewport.arrayEndIndex });
 							}
 
 							if (startChanged || endChanged) {
 								this.change.emit({ start: viewport.arrayStartIndex, end: viewport.arrayEndIndex });
+								this.vsChange.emit({ start: viewport.arrayStartIndex, end: viewport.arrayEndIndex });
 							}
 						}
 

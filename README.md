@@ -32,7 +32,7 @@ This method is effective because the number of DOM elements are always constant 
 ## Usage
 
 ```html
-<virtual-scroll [items]="items" (update)="viewPortItems = $event">
+<virtual-scroll [items]="items" (vsUpdate)="viewPortItems = $event">
 
     <my-custom-component *ngFor="let item of viewPortItems">
     </my-custom-component>
@@ -54,7 +54,7 @@ alternatively
 alternatively
 
 ```html
-<div virtualScroll [items]="items" (update)="viewPortItems = $event">
+<div virtualScroll [items]="items" (vsUpdate)="viewPortItems = $event">
 
     <my-custom-component *ngFor="let item of viewPortItems">
     </my-custom-component>
@@ -92,7 +92,7 @@ export class AppModule { }
 **Step 3:** Wrap virtual-scroll tag around elements;
 
 ```ts
-<virtual-scroll [items]="items" (update)="viewPortItems = $event">
+<virtual-scroll [items]="items" (vsUpdate)="viewPortItems = $event">
 
     <my-custom-component *ngFor="let item of viewPortItems">
     </my-custom-component>
@@ -124,7 +124,7 @@ my-custom-component {
 Child component is not necessary if your item is simple enough. See below.
 
 ```html
-<virtual-scroll [items]="items" (update)="viewPortItems = $event">
+<virtual-scroll [items]="items" (vsUpdate)="viewPortItems = $event">
     <div *ngFor="let item of viewPortItems">{{item?.name}}</div>
 </virtual-scroll>
 ```
@@ -145,11 +145,14 @@ Child component is not necessary if your item is simple enough. See below.
 | bufferAmount (DEPRECATED)   | number | The the number of elements to be rendered above & below the current container's viewport. Use this if enableUnequalChildrenSizes isn't working well enough. (defaults to enableUnequalChildrenSizes ? 5 : 0)
 | scrollAnimationTime | number | The time in milliseconds for the scroll animation to run for. Default value is 750. 0 will completely disable the tween/animation.
 | parentScroll   | Element / Window | Element (or window), which will have scrollbar. This element must be one of the parents of virtual-scroll
-| start         | Event  | This event is fired every time `start` index changes and emits `ChangeEvent` which of format: `{ start: number, end: number }`
-| end         | Event  | This event is fired every time `end` index changes and emits `ChangeEvent` which of format: `{ start: number, end: number }`
-| update         | Event  | This event is fired every time the `start` or `end` indexes change and emits the list of items which should be visible based on the current scroll position from `start` to `end`. The list emitted by this event must be used with `*ngFor` to render the actual list of items within `<virtual-scroll>`
-| change         | Event  | This event is fired every time the `start` or `end` indexes change and emits `ChangeEvent` which of format: `{ start: number, end: number }`
+| start (DEPRECATED) / vsStart         | Event  | This event is fired every time `start` index changes and emits `ChangeEvent` which of format: `{ start: number, end: number }`
+| end (DEPRECATED) / vsEnd         | Event  | This event is fired every time `end` index changes and emits `ChangeEvent` which of format: `{ start: number, end: number }`
+| update (DEPRECATED) / vsUpdate         | Event  | This event is fired every time the `start` or `end` indexes change and emits the list of items which should be visible based on the current scroll position from `start` to `end`. The list emitted by this event must be used with `*ngFor` to render the actual list of items within `<virtual-scroll>`
+| change (DEPRECATED) / vsChange         | Event  | This event is fired every time the `start` or `end` indexes change and emits `ChangeEvent` which of format: `{ start: number, end: number }`
 | viewPortIndices | { arrayStartIndex: number, arrayEndIndex: number } | Allows querying the visible item indexes in the viewport on-demand.
+
+Note: The Events without the "vs" prefix have been deprecated because they might conflict with native DOM events due to their "bubbling" nature. See https://github.com/angular/angular/issues/13997
+An example is if an <input> element inside <virtual-scroll> emits a "change" event which bubbles up to the (change) handler of virtual-scroll. Using the vs prefix will prevent this bubbling conflict because there are currently no official DOM events prefixed with vs.
 
 ## Getting view port items without events
 
@@ -170,7 +173,7 @@ If you want to nest additional elements inside virtual scroll besides the list i
 
 ```html
 <virtual-scroll [items]="items"
-    (update)="viewPortItems = $event">
+    (vsUpdate)="viewPortItems = $event">
     <input type="search">
     <div #container>
         <my-custom-component *ngFor="let item of viewPortItems">
@@ -187,7 +190,7 @@ If you want to use the scrollbar of a parent element, set `parentScroll` to a na
 <div #scrollingBlock>
     <virtual-scroll [items]="items"
         [parentScroll]="scrollingBlock"
-        (update)="viewPortItems = $event">
+        (vsUpdate)="viewPortItems = $event">
         <input type="search">
         <div #container>
             <my-custom-component *ngFor="let item of viewPortItems">
@@ -203,7 +206,7 @@ If the parentScroll is a custom angular component (instead of a native HTML elem
 <custom-angular-component #scrollingBlock>
     <virtual-scroll [items]="items"
         [parentScroll]="scrollingBlock.nativeElement"
-        (update)="viewPortItems = $event">
+        (vsUpdate)="viewPortItems = $event">
         <input type="search">
         <div #container>
             <my-custom-component *ngFor="let item of viewPortItems">
@@ -241,7 +244,7 @@ Items must have fixed height and width for this module to work perfectly. If not
 ```html
 <virtual-scroll [items]="items"
     [enableUnequalChildrenSizes]="true"
-    (update)="viewPortItems = $event">
+    (vsUpdate)="viewPortItems = $event">
 
     <my-custom-component *ngFor="let item of viewPortItems">
     </my-custom-component>
@@ -254,7 +257,7 @@ or
 ```html
 <virtual-scroll [items]="items"
     [enableUnequalChildrenSizes]="true"
-    (update)="viewPortItems = $event">
+    (vsUpdate)="viewPortItems = $event">
 
     <my-custom-component *ngFor="let item of viewPortItems">
     </my-custom-component>
@@ -274,8 +277,8 @@ import { ChangeEvent } from 'angular2-virtual-scroll';
 @Component({
     selector: 'list-with-api',
     template: `
-        <virtual-scroll [items]="buffer" (update)="scrollItems = $event"
-            (end)="fetchMore($event)">
+        <virtual-scroll [items]="buffer" (vsUpdate)="scrollItems = $event"
+            (vsEnd)="fetchMore($event)">
 
             <my-custom-component *ngFor="let item of scrollItems"> </my-custom-component>
             <div *ngIf="loading" class="loader">Loading...</div>
@@ -324,7 +327,7 @@ import { VirtualScrollComponent } from 'angular2-virtual-scroll';
 @Component({
     selector: 'rj-list',
     template: `
-        <virtual-scroll [items]="items" (update)="scrollList = $event">
+        <virtual-scroll [items]="items" (vsUpdate)="scrollList = $event">
             <div *ngFor="let item of scrollList; let i = index"> {{i}}: {{item}} </div>
         </virtual-scroll>
     `
@@ -356,7 +359,7 @@ import { VirtualScrollComponent } from 'angular2-virtual-scroll';
 @Component({
     selector: 'rj-list',
     template: `
-        <virtual-scroll [items]="items" (update)="scrollList = $event">
+        <virtual-scroll [items]="items" (vsUpdate)="scrollList = $event">
             <div *ngFor="let item of scrollList; let i = index"> {{i}}: {{item}} </div>
         </virtual-scroll>
     `

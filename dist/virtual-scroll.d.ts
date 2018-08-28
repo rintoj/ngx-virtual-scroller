@@ -63,9 +63,13 @@ export declare class VirtualScrollComponent implements OnInit, OnChanges, OnDest
     protected _parentScroll: Element | Window;
     parentScroll: Element | Window;
     update: EventEmitter<any[]>;
+    vsUpdate: EventEmitter<any[]>;
     change: EventEmitter<ChangeEvent>;
+    vsChange: EventEmitter<ChangeEvent>;
     start: EventEmitter<ChangeEvent>;
+    vsStart: EventEmitter<ChangeEvent>;
     end: EventEmitter<ChangeEvent>;
+    vsEnd: EventEmitter<ChangeEvent>;
     contentElementRef: ElementRef;
     invisiblePaddingElementRef: ElementRef;
     containerElementRef: ElementRef;

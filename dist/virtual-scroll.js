@@ -17,9 +17,13 @@ var VirtualScrollComponent = (function () {
         this._checkResizeInterval = 1000;
         this._items = [];
         this.update = new core_1.EventEmitter();
+        this.vsUpdate = new core_1.EventEmitter();
         this.change = new core_1.EventEmitter();
+        this.vsChange = new core_1.EventEmitter();
         this.start = new core_1.EventEmitter();
+        this.vsStart = new core_1.EventEmitter();
         this.end = new core_1.EventEmitter();
+        this.vsEnd = new core_1.EventEmitter();
         this.calculatedScrollbarWidth = 0;
         this.calculatedScrollbarHeight = 0;
         this.padding = 0;
@@ -346,15 +350,19 @@ var VirtualScrollComponent = (function () {
                         // update the scroll list to trigger re-render of components in viewport
                         _this.viewPortItems = viewport.arrayStartIndex >= 0 && viewport.arrayEndIndex >= 0 ? _this.items.slice(viewport.arrayStartIndex, viewport.arrayEndIndex + 1) : [];
                         _this.update.emit(_this.viewPortItems);
+                        _this.vsUpdate.emit(_this.viewPortItems);
                         if (emitIndexChangedEvents) {
                             if (startChanged) {
                                 _this.start.emit({ start: viewport.arrayStartIndex, end: viewport.arrayEndIndex });
+                                _this.vsStart.emit({ start: viewport.arrayStartIndex, end: viewport.arrayEndIndex });
                             }
                             if (endChanged) {
                                 _this.end.emit({ start: viewport.arrayStartIndex, end: viewport.arrayEndIndex });
+                                _this.vsEnd.emit({ start: viewport.arrayStartIndex, end: viewport.arrayEndIndex });
                             }
                             if (startChanged || endChanged) {
                                 _this.change.emit({ start: viewport.arrayStartIndex, end: viewport.arrayEndIndex });
+                                _this.vsChange.emit({ start: viewport.arrayStartIndex, end: viewport.arrayEndIndex });
                             }
                         }
                         if (maxRunTimes > 0) {
@@ -696,9 +704,13 @@ var VirtualScrollComponent = (function () {
         'horizontal': [{ type: core_1.Input },],
         'parentScroll': [{ type: core_1.Input },],
         'update': [{ type: core_1.Output },],
+        'vsUpdate': [{ type: core_1.Output },],
         'change': [{ type: core_1.Output },],
+        'vsChange': [{ type: core_1.Output },],
         'start': [{ type: core_1.Output },],
+        'vsStart': [{ type: core_1.Output },],
         'end': [{ type: core_1.Output },],
+        'vsEnd': [{ type: core_1.Output },],
         'contentElementRef': [{ type: core_1.ViewChild, args: ['content', { read: core_1.ElementRef },] },],
         'invisiblePaddingElementRef': [{ type: core_1.ViewChild, args: ['invisiblePadding', { read: core_1.ElementRef },] },],
         'containerElementRef': [{ type: core_1.ContentChild, args: ['container', { read: core_1.ElementRef },] },],
