@@ -23,11 +23,17 @@ export interface ChangeEvent {
 	end?: number;
 }
 
-export interface IWrapGroupDimensions {
+export interface WrapGroupDimensions {
 	numberOfKnownWrapGroupChildSizes: number;
 	sumOfKnownWrapGroupChildWidths: number;
 	sumOfKnownWrapGroupChildHeights: number;
-	maxChildSizePerWrapGroup: { [wrapGroupIndex: number]: { childWidth: number, childHeight: number } };
+	maxChildSizePerWrapGroup: { [wrapGroupIndex: number]: WrapGroupDimension };
+}
+
+export interface WrapGroupDimension {
+	childWidth: number;
+	childHeight: number;
+	items: any[];
 }
 
 export interface IDimensions {
@@ -216,6 +222,9 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
 		this._items = value || [];
 		this.refresh_internal(true);
 	}
+	
+	@Input()
+	public compareItems: (item1: any, item2: any) => boolean = (item1: any, item2: any) => item1 === item2;
 
 	protected _horizontal: boolean;
 	@Input()
@@ -671,15 +680,40 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
 	protected minMeasuredChildWidth: number;
 	protected minMeasuredChildHeight: number;
 
-	protected wrapGroupDimensions: IWrapGroupDimensions;
+	protected wrapGroupDimensions: WrapGroupDimensions;
 
 	protected resetWrapGroupDimensions(): void {
+		const oldWrapGroupDimensions = this.wrapGroupDimensions;
 		this.wrapGroupDimensions = {
 			maxChildSizePerWrapGroup: {},
 			numberOfKnownWrapGroupChildSizes: 0,
 			sumOfKnownWrapGroupChildWidths: 0,
 			sumOfKnownWrapGroupChildHeights: 0
 		};
+
+		if (oldWrapGroupDimensions && oldWrapGroupDimensions.numberOfKnownWrapGroupChildSizes) {
+			const itemsPerWrapGroup: number = this.countItemsPerWrapGroup();
+			
+			for (const wrapGroupIndex in oldWrapGroupDimensions.maxChildSizePerWrapGroup) {
+				const wrapGroupDimension: WrapGroupDimension = oldWrapGroupDimensions.maxChildSizePerWrapGroup[wrapGroupIndex];
+				const items: any[] = [];
+				for (const i in wrapGroupDimension.items) {
+					const item: any = this.items[itemsPerWrapGroup * (<any>wrapGroupIndex) + i];
+					items[i] = item;
+					if (!this.compareItems(wrapGroupDimension.items[i], item)){
+						break;
+					}
+				}
+				this.wrapGroupDimensions.numberOfKnownWrapGroupChildSizes++;
+				this.wrapGroupDimensions.sumOfKnownWrapGroupChildWidths += wrapGroupDimension.childWidth || 0;
+				this.wrapGroupDimensions.sumOfKnownWrapGroupChildHeights += wrapGroupDimension.childHeight || 0;
+				this.wrapGroupDimensions.maxChildSizePerWrapGroup[wrapGroupIndex] = {
+					childWidth: wrapGroupDimension.childWidth, 
+					childHeight: wrapGroupDimension.childHeight,
+					items: items
+				};
+			}
+		}
 	}
 
 	protected calculateDimensions(): IDimensions {
@@ -749,7 +783,15 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
 					}
 
 					++this.wrapGroupDimensions.numberOfKnownWrapGroupChildSizes;
-					this.wrapGroupDimensions.maxChildSizePerWrapGroup[wrapGroupIndex] = { childWidth: maxWidthForWrapGroup, childHeight: maxHeightForWrapGroup };
+					const items = [];
+					for (let j = 0; j < itemsPerWrapGroup; j++) {
+						items.push(this.items[wrapGroupIndex * itemsPerWrapGroup] + j);
+					}
+					this.wrapGroupDimensions.maxChildSizePerWrapGroup[wrapGroupIndex] = { 
+						childWidth: maxWidthForWrapGroup, 
+						childHeight: maxHeightForWrapGroup,
+						items: items
+					};
 					this.wrapGroupDimensions.sumOfKnownWrapGroupChildWidths += maxWidthForWrapGroup;
 					this.wrapGroupDimensions.sumOfKnownWrapGroupChildHeights += maxHeightForWrapGroup;
 
