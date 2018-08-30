@@ -16,6 +16,7 @@ var VirtualScrollComponent = (function () {
         this.resizeBypassRefreshTheshold = 5;
         this._checkResizeInterval = 1000;
         this._items = [];
+        this.compareItems = function (item1, item2) { return item1 === item2; };
         this.update = new core_1.EventEmitter();
         this.vsUpdate = new core_1.EventEmitter();
         this.change = new core_1.EventEmitter();
@@ -462,12 +463,40 @@ var VirtualScrollComponent = (function () {
         return windowScrollValue || this.getScrollElement()[this._scrollType] || 0;
     };
     VirtualScrollComponent.prototype.resetWrapGroupDimensions = function () {
+        var oldWrapGroupDimensions = this.wrapGroupDimensions;
         this.wrapGroupDimensions = {
-            maxChildSizePerWrapGroup: {},
+            maxChildSizePerWrapGroup: [],
             numberOfKnownWrapGroupChildSizes: 0,
             sumOfKnownWrapGroupChildWidths: 0,
             sumOfKnownWrapGroupChildHeights: 0
         };
+        if (!oldWrapGroupDimensions || oldWrapGroupDimensions.numberOfKnownWrapGroupChildSizes === 0) {
+            return;
+        }
+        var itemsPerWrapGroup = this.countItemsPerWrapGroup();
+        for (var wrapGroupIndex = 0; wrapGroupIndex < oldWrapGroupDimensions.maxChildSizePerWrapGroup.length; ++wrapGroupIndex) {
+            var oldWrapGroupDimension = oldWrapGroupDimensions.maxChildSizePerWrapGroup[wrapGroupIndex];
+            if (!oldWrapGroupDimension || !oldWrapGroupDimension.items || !oldWrapGroupDimension.items.length) {
+                continue;
+            }
+            if (oldWrapGroupDimension.items.length !== itemsPerWrapGroup) {
+                return;
+            }
+            var itemsChanged = false;
+            var arrayStartIndex = itemsPerWrapGroup * wrapGroupIndex;
+            for (var i = 0; i < itemsPerWrapGroup; ++i) {
+                if (!this.compareItems(oldWrapGroupDimension.items[i], this.items[arrayStartIndex + i])) {
+                    itemsChanged = true;
+                    break;
+                }
+            }
+            if (!itemsChanged) {
+                ++this.wrapGroupDimensions.numberOfKnownWrapGroupChildSizes;
+                this.wrapGroupDimensions.sumOfKnownWrapGroupChildWidths += oldWrapGroupDimension.childWidth || 0;
+                this.wrapGroupDimensions.sumOfKnownWrapGroupChildHeights += oldWrapGroupDimension.childHeight || 0;
+                this.wrapGroupDimensions.maxChildSizePerWrapGroup[wrapGroupIndex] = oldWrapGroupDimension;
+            }
+        }
     };
     VirtualScrollComponent.prototype.calculateDimensions = function () {
         var scrollElement = this.getScrollElement();
@@ -512,11 +541,12 @@ var VirtualScrollComponent = (function () {
             var sumOfVisibleMaxHeights = 0;
             wrapGroupsPerPage = 0;
             for (var i = 0; i < content.children.length; ++i) {
+                ++arrayStartIndex;
                 var child = content.children[i];
                 var clientRect = child.getBoundingClientRect();
                 maxWidthForWrapGroup = Math.max(maxWidthForWrapGroup, clientRect.width);
                 maxHeightForWrapGroup = Math.max(maxHeightForWrapGroup, clientRect.height);
-                if ((arrayStartIndex + i + 1) % itemsPerWrapGroup === 0) {
+                if (arrayStartIndex % itemsPerWrapGroup === 0) {
                     var oldValue = this.wrapGroupDimensions.maxChildSizePerWrapGroup[wrapGroupIndex];
                     if (oldValue) {
                         --this.wrapGroupDimensions.numberOfKnownWrapGroupChildSizes;
@@ -524,7 +554,12 @@ var VirtualScrollComponent = (function () {
                         this.wrapGroupDimensions.sumOfKnownWrapGroupChildHeights -= oldValue.childHeight || 0;
                     }
                     ++this.wrapGroupDimensions.numberOfKnownWrapGroupChildSizes;
-                    this.wrapGroupDimensions.maxChildSizePerWrapGroup[wrapGroupIndex] = { childWidth: maxWidthForWrapGroup, childHeight: maxHeightForWrapGroup };
+                    var items = this.items.slice(arrayStartIndex - itemsPerWrapGroup, arrayStartIndex);
+                    this.wrapGroupDimensions.maxChildSizePerWrapGroup[wrapGroupIndex] = {
+                        childWidth: maxWidthForWrapGroup,
+                        childHeight: maxHeightForWrapGroup,
+                        items: items
+                    };
                     this.wrapGroupDimensions.sumOfKnownWrapGroupChildWidths += maxWidthForWrapGroup;
                     this.wrapGroupDimensions.sumOfKnownWrapGroupChildHeights += maxHeightForWrapGroup;
                     sumOfVisibleMaxWidths += maxWidthForWrapGroup;
@@ -701,6 +736,7 @@ var VirtualScrollComponent = (function () {
         'scrollThrottlingTime': [{ type: core_1.Input },],
         'checkResizeInterval': [{ type: core_1.Input },],
         'items': [{ type: core_1.Input },],
+        'compareItems': [{ type: core_1.Input },],
         'horizontal': [{ type: core_1.Input },],
         'parentScroll': [{ type: core_1.Input },],
         'update': [{ type: core_1.Output },],

@@ -27,7 +27,7 @@ export interface WrapGroupDimensions {
 	numberOfKnownWrapGroupChildSizes: number;
 	sumOfKnownWrapGroupChildWidths: number;
 	sumOfKnownWrapGroupChildHeights: number;
-	maxChildSizePerWrapGroup: { [wrapGroupIndex: number]: WrapGroupDimension };
+	maxChildSizePerWrapGroup: WrapGroupDimension[];
 }
 
 export interface WrapGroupDimension {
@@ -685,33 +685,41 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
 	protected resetWrapGroupDimensions(): void {
 		const oldWrapGroupDimensions = this.wrapGroupDimensions;
 		this.wrapGroupDimensions = {
-			maxChildSizePerWrapGroup: {},
+			maxChildSizePerWrapGroup: [],
 			numberOfKnownWrapGroupChildSizes: 0,
 			sumOfKnownWrapGroupChildWidths: 0,
 			sumOfKnownWrapGroupChildHeights: 0
 		};
 
-		if (oldWrapGroupDimensions && oldWrapGroupDimensions.numberOfKnownWrapGroupChildSizes) {
-			const itemsPerWrapGroup: number = this.countItemsPerWrapGroup();
-			
-			for (const wrapGroupIndex in oldWrapGroupDimensions.maxChildSizePerWrapGroup) {
-				const wrapGroupDimension: WrapGroupDimension = oldWrapGroupDimensions.maxChildSizePerWrapGroup[wrapGroupIndex];
-				const items: any[] = [];
-				for (const i in wrapGroupDimension.items) {
-					const item: any = this.items[itemsPerWrapGroup * (<any>wrapGroupIndex) + i];
-					items[i] = item;
-					if (!this.compareItems(wrapGroupDimension.items[i], item)){
-						break;
-					}
+		if (!oldWrapGroupDimensions || oldWrapGroupDimensions.numberOfKnownWrapGroupChildSizes === 0) {
+			return;
+		}
+
+		const itemsPerWrapGroup: number = this.countItemsPerWrapGroup();
+		for (let wrapGroupIndex = 0; wrapGroupIndex < oldWrapGroupDimensions.maxChildSizePerWrapGroup.length; ++wrapGroupIndex) {
+			const oldWrapGroupDimension: WrapGroupDimension = oldWrapGroupDimensions.maxChildSizePerWrapGroup[wrapGroupIndex];
+			if (!oldWrapGroupDimension || !oldWrapGroupDimension.items || !oldWrapGroupDimension.items.length) {
+				continue;
+			}
+
+			if (oldWrapGroupDimension.items.length !== itemsPerWrapGroup) {
+				return;
+			}
+
+			let itemsChanged = false;
+			let arrayStartIndex = itemsPerWrapGroup * wrapGroupIndex;
+			for (let i = 0; i < itemsPerWrapGroup; ++i) {
+				if (!this.compareItems(oldWrapGroupDimension.items[i], this.items[arrayStartIndex + i])) {
+					itemsChanged = true;
+					break;
 				}
-				this.wrapGroupDimensions.numberOfKnownWrapGroupChildSizes++;
-				this.wrapGroupDimensions.sumOfKnownWrapGroupChildWidths += wrapGroupDimension.childWidth || 0;
-				this.wrapGroupDimensions.sumOfKnownWrapGroupChildHeights += wrapGroupDimension.childHeight || 0;
-				this.wrapGroupDimensions.maxChildSizePerWrapGroup[wrapGroupIndex] = {
-					childWidth: wrapGroupDimension.childWidth, 
-					childHeight: wrapGroupDimension.childHeight,
-					items: items
-				};
+			}
+
+			if (!itemsChanged) {
+				++this.wrapGroupDimensions.numberOfKnownWrapGroupChildSizes;
+				this.wrapGroupDimensions.sumOfKnownWrapGroupChildWidths += oldWrapGroupDimension.childWidth || 0;
+				this.wrapGroupDimensions.sumOfKnownWrapGroupChildHeights += oldWrapGroupDimension.childHeight || 0;
+				this.wrapGroupDimensions.maxChildSizePerWrapGroup[wrapGroupIndex] = oldWrapGroupDimension;
 			}
 		}
 	}
@@ -768,13 +776,14 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
 			wrapGroupsPerPage = 0;
 
 			for (let i = 0; i < content.children.length; ++i) {
+				++arrayStartIndex;
 				let child = content.children[i];
 				let clientRect = child.getBoundingClientRect();
 
 				maxWidthForWrapGroup = Math.max(maxWidthForWrapGroup, clientRect.width);
 				maxHeightForWrapGroup = Math.max(maxHeightForWrapGroup, clientRect.height);
 
-				if ((arrayStartIndex + i + 1) % itemsPerWrapGroup === 0) {
+				if (arrayStartIndex % itemsPerWrapGroup === 0) {
 					let oldValue = this.wrapGroupDimensions.maxChildSizePerWrapGroup[wrapGroupIndex];
 					if (oldValue) {
 						--this.wrapGroupDimensions.numberOfKnownWrapGroupChildSizes;
@@ -783,10 +792,7 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
 					}
 
 					++this.wrapGroupDimensions.numberOfKnownWrapGroupChildSizes;
-					const items = [];
-					for (let j = 0; j < itemsPerWrapGroup; j++) {
-						items.push(this.items[wrapGroupIndex * itemsPerWrapGroup] + j);
-					}
+					const items = this.items.slice(arrayStartIndex - itemsPerWrapGroup, arrayStartIndex);
 					this.wrapGroupDimensions.maxChildSizePerWrapGroup[wrapGroupIndex] = { 
 						childWidth: maxWidthForWrapGroup, 
 						childHeight: maxHeightForWrapGroup,

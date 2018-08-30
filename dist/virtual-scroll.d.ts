@@ -4,16 +4,16 @@ export interface ChangeEvent {
     start?: number;
     end?: number;
 }
-export interface IWrapGroupDimensions {
+export interface WrapGroupDimensions {
     numberOfKnownWrapGroupChildSizes: number;
     sumOfKnownWrapGroupChildWidths: number;
     sumOfKnownWrapGroupChildHeights: number;
-    maxChildSizePerWrapGroup: {
-        [wrapGroupIndex: number]: {
-            childWidth: number;
-            childHeight: number;
-        };
-    };
+    maxChildSizePerWrapGroup: WrapGroupDimension[];
+}
+export interface WrapGroupDimension {
+    childWidth: number;
+    childHeight: number;
+    items: any[];
 }
 export interface IDimensions {
     itemCount: number;
@@ -58,6 +58,7 @@ export declare class VirtualScrollComponent implements OnInit, OnChanges, OnDest
     checkResizeInterval: number;
     protected _items: any[];
     items: any[];
+    compareItems: (item1: any, item2: any) => boolean;
     protected _horizontal: boolean;
     horizontal: boolean;
     protected _parentScroll: Element | Window;
@@ -111,7 +112,7 @@ export declare class VirtualScrollComponent implements OnInit, OnChanges, OnDest
     protected getScrollPosition(): number;
     protected minMeasuredChildWidth: number;
     protected minMeasuredChildHeight: number;
-    protected wrapGroupDimensions: IWrapGroupDimensions;
+    protected wrapGroupDimensions: WrapGroupDimensions;
     protected resetWrapGroupDimensions(): void;
     protected calculateDimensions(): IDimensions;
     protected cachedPageSize: number;

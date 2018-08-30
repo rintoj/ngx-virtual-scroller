@@ -22,7 +22,6 @@ import { SimpleChanges } from '@angular/core';
     <virtual-scroll
       [enableUnequalChildrenSizes]="randomHeight"
       [items]="buffer"
-	  [compareItems]="compareItems"
       (update)="scrollItems = $event"
       (end)="fetchMore($event)">
 
@@ -47,8 +46,6 @@ export class ListWithApiComponent implements OnChanges {
   timer;
   loading: boolean;
   
-  compareItems = (item1, item2) => true;
-
   @ViewChild(VirtualScrollComponent)
   private virtualScroll: VirtualScrollComponent;
 
