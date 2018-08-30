@@ -236,6 +236,7 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
 		this.updateDirection();
 	}
 
+	private oldParentScrollOverflow: {x: string, y: string};
 	protected _parentScroll: Element | Window;
 	@Input()
 	public get parentScroll(): Element | Window {
@@ -245,12 +246,19 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
 		if (this._parentScroll === value) {
 			return;
 		}
+		if (this._parentScroll && this.oldParentScrollOverflow) {
+			const oldScrollElement = this.getScrollElement();
+			oldScrollElement.style['overflow-y'] = this.oldParentScrollOverflow.y;
+			oldScrollElement.style['overflow-x'] = this.oldParentScrollOverflow.x;
+			this.oldParentScrollOverflow = null;
+		}
 
 		this._parentScroll = value;
 		this.addScrollEventHandlers();
 
-		let scrollElement = this.getScrollElement();
+		const scrollElement = this.getScrollElement();
 		if (scrollElement !== this.element.nativeElement) {
+			this.oldParentScrollOverflow = {x: scrollElement.style['overflow-x'], y: scrollElement.style['overflow-y']};
 			scrollElement.style['overflow-y'] = this.horizontal ? 'visible' : 'auto';
 			scrollElement.style['overflow-x'] = this.horizontal ? 'auto' : 'visible';
 		}
@@ -291,6 +299,11 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
 
 	public ngOnDestroy() {
 		this.removeScrollEventHandlers();
+		if (this._parentScroll && this.oldParentScrollOverflow) {
+			const oldScrollElement = this.getScrollElement();
+			oldScrollElement.style['overflow-y'] = this.oldParentScrollOverflow.y;
+			oldScrollElement.style['overflow-x'] = this.oldParentScrollOverflow.x;
+		}
 	}
 
 	public ngOnChanges(changes: any) {
