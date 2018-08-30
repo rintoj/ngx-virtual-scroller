@@ -48,11 +48,16 @@ export interface IDimensions {
 }
 
 export interface IPageInfo {
-	arrayStartIndex: number;
-	arrayEndIndex: number;
+	startIndex: number;
+	endIndex: number;
 }
 
-export interface IViewport extends IPageInfo {
+export interface IPageInfoWithBuffer extends IPageInfo {
+	startIndexWithBuffer: number;
+	endIndexWithBuffer: number;
+}
+
+export interface IViewport extends IPageInfoWithBuffer {
 	padding: number;
 	scrollLength: number;
 }
@@ -132,8 +137,8 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
 	public get viewPortIndices(): IPageInfo {
 		let pageInfo: IPageInfo = this.previousViewPort || <any>{};
 		return {
-			arrayStartIndex: pageInfo.arrayStartIndex || 0,
-			arrayEndIndex: pageInfo.arrayEndIndex || 0
+			startIndex: pageInfo.startIndex || 0,
+			endIndex: pageInfo.endIndex || 0
 		};
 	}
 
@@ -348,9 +353,8 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
 			}
 
 			let dimensions = this.calculateDimensions();
-			let bufferSize = this.bufferAmount * dimensions.itemsPerWrapGroup;
-			let desiredStartIndex = Math.min(Math.max(index - bufferSize, 0), dimensions.itemCount - 1);
-			if (this.previousViewPort.arrayStartIndex === desiredStartIndex) {
+			let desiredStartIndex = Math.min(Math.max(index, 0), dimensions.itemCount - 1);
+			if (this.previousViewPort.startIndex === desiredStartIndex) {
 				if (animationCompletedCallback) {
 					animationCompletedCallback();
 				}
@@ -528,8 +532,8 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
 				}
 				let viewport = this.calculateViewport();
 
-				let startChanged = itemsArrayModified || viewport.arrayStartIndex !== this.previousViewPort.arrayStartIndex;
-				let endChanged = itemsArrayModified || viewport.arrayEndIndex !== this.previousViewPort.arrayEndIndex;
+				let startChanged = itemsArrayModified || viewport.startIndexWithBuffer !== this.previousViewPort.startIndexWithBuffer;
+				let endChanged = itemsArrayModified || viewport.endIndexWithBuffer !== this.previousViewPort.endIndexWithBuffer;
 				let scrollLengthChanged = viewport.scrollLength !== this.previousViewPort.scrollLength;
 				let paddingChanged = viewport.padding !== this.previousViewPort.padding;
 
@@ -555,24 +559,24 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
 					this.zone.run(() => {
 
 						// update the scroll list to trigger re-render of components in viewport
-						this.viewPortItems = viewport.arrayStartIndex >= 0 && viewport.arrayEndIndex >= 0 ? this.items.slice(viewport.arrayStartIndex, viewport.arrayEndIndex + 1) : [];
+						this.viewPortItems = viewport.startIndexWithBuffer >= 0 && viewport.endIndexWithBuffer >= 0 ? this.items.slice(viewport.startIndexWithBuffer, viewport.endIndexWithBuffer + 1) : [];
 						this.update.emit(this.viewPortItems);
 						this.vsUpdate.emit(this.viewPortItems);
 
 						if (emitIndexChangedEvents) {
 							if (startChanged) {
-								this.start.emit({ start: viewport.arrayStartIndex, end: viewport.arrayEndIndex });
-								this.vsStart.emit({ start: viewport.arrayStartIndex, end: viewport.arrayEndIndex });
+								this.start.emit({ start: viewport.startIndex, end: viewport.endIndex });
+								this.vsStart.emit({ start: viewport.startIndex, end: viewport.endIndex });
 							}
 
 							if (endChanged) {
-								this.end.emit({ start: viewport.arrayStartIndex, end: viewport.arrayEndIndex });
-								this.vsEnd.emit({ start: viewport.arrayStartIndex, end: viewport.arrayEndIndex });
+								this.end.emit({ start: viewport.startIndex, end: viewport.endIndex });
+								this.vsEnd.emit({ start: viewport.startIndex, end: viewport.endIndex });
 							}
 
 							if (startChanged || endChanged) {
-								this.change.emit({ start: viewport.arrayStartIndex, end: viewport.arrayEndIndex });
-								this.vsChange.emit({ start: viewport.arrayStartIndex, end: viewport.arrayEndIndex });
+								this.change.emit({ start: viewport.startIndex, end: viewport.endIndex });
+								this.vsChange.emit({ start: viewport.startIndex, end: viewport.endIndex });
 							}
 						}
 
@@ -780,7 +784,7 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
 			let itemsPerCol = Math.max(Math.ceil(viewHeight / defaultChildHeight), 1);
 			wrapGroupsPerPage = this.horizontal ? itemsPerRow : itemsPerCol;
 		} else {
-			let arrayStartIndex = this.previousViewPort.arrayStartIndex || 0;
+			let arrayStartIndex = this.previousViewPort.startIndexWithBuffer || 0;
 			let wrapGroupIndex = Math.ceil(arrayStartIndex / itemsPerWrapGroup);
 
 			let maxWidthForWrapGroup = 0;
@@ -879,13 +883,13 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
 	protected cachedPageSize: number = 0;
 	protected previousScrollNumberElements: number = 0;
 
-	protected calculatePadding(arrayStartIndex: number, dimensions: IDimensions, allowUnequalChildrenSizes_Experimental: boolean): number {
+	protected calculatePadding(arrayStartIndexWithBuffer: number, dimensions: IDimensions, allowUnequalChildrenSizes_Experimental: boolean): number {
 		if (dimensions.itemCount === 0) {
 			return 0;
 		}
 
 		let defaultScrollLengthPerWrapGroup = dimensions[this._childScrollDim];
-		let startingWrapGroupIndex = Math.ceil(arrayStartIndex / dimensions.itemsPerWrapGroup) || 0;
+		let startingWrapGroupIndex = Math.ceil(arrayStartIndexWithBuffer / dimensions.itemsPerWrapGroup) || 0;
 
 		if (!this.enableUnequalChildrenSizes) {
 			return defaultScrollLengthPerWrapGroup * startingWrapGroupIndex;
@@ -906,7 +910,7 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
 		return result;
 	}
 
-	protected calculatePageInfo(scrollPosition: number, dimensions: IDimensions): IPageInfo {
+	protected calculatePageInfo(scrollPosition: number, dimensions: IDimensions): IPageInfoWithBuffer {
 		let scrollPercentage = 0;
 		if (this.enableUnequalChildrenSizes) {
 			const numberOfWrapGroups = Math.ceil(dimensions.itemCount / dimensions.itemsPerWrapGroup);
@@ -938,20 +942,25 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
 		let arrayEndIndex = Math.ceil(startingArrayIndex_fractional) + dimensions.itemsPerPage - 1;
 		arrayEndIndex += (dimensions.itemsPerWrapGroup - ((arrayEndIndex + 1) % dimensions.itemsPerWrapGroup)); // round up to end of wrapGroup
 
-		let bufferSize = this.bufferAmount * dimensions.itemsPerWrapGroup;
-		arrayStartIndex -= bufferSize;
-		arrayEndIndex += bufferSize;
-
 		if (isNaN(arrayStartIndex)) {
-			arrayStartIndex = -1;
+			arrayStartIndex = 0;
 		}
 		if (isNaN(arrayEndIndex)) {
-			arrayEndIndex = -1;
+			arrayEndIndex = 0;
 		}
 
+		arrayStartIndex = Math.min(Math.max(arrayStartIndex, 0), dimensions.itemCount - 1);
+		arrayEndIndex = Math.min(Math.max(arrayEndIndex, 0), dimensions.itemCount - 1);
+
+		let bufferSize = this.bufferAmount * dimensions.itemsPerWrapGroup;
+		let startIndexWithBuffer = Math.min(Math.max(arrayStartIndex - bufferSize, 0), dimensions.itemCount - 1);
+		let endIndexWithBuffer = Math.min(Math.max(arrayEndIndex + bufferSize, 0), dimensions.itemCount - 1);
+
 		return {
-			arrayStartIndex: Math.min(Math.max(arrayStartIndex, 0), dimensions.itemCount - 1),
-			arrayEndIndex: Math.min(Math.max(arrayEndIndex, 0), dimensions.itemCount - 1)
+			startIndex: arrayStartIndex,
+			endIndex: arrayEndIndex,
+			startIndexWithBuffer: startIndexWithBuffer,
+			endIndexWithBuffer: endIndexWithBuffer
 		};
 	}
 
@@ -968,12 +977,14 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
 		scrollPosition = Math.max(0, scrollPosition);
 
 		let pageInfo = this.calculatePageInfo(scrollPosition, dimensions);
-		let newPadding = this.calculatePadding(pageInfo.arrayStartIndex, dimensions, true);
+		let newPadding = this.calculatePadding(pageInfo.startIndexWithBuffer, dimensions, true);
 		let newScrollLength = dimensions.scrollLength;
 
 		return {
-			arrayStartIndex: pageInfo.arrayStartIndex,
-			arrayEndIndex: pageInfo.arrayEndIndex,
+			startIndex: pageInfo.startIndex,
+			endIndex: pageInfo.endIndex,
+			startIndexWithBuffer: pageInfo.startIndexWithBuffer,
+			endIndexWithBuffer: pageInfo.endIndexWithBuffer,
 			padding: Math.round(newPadding),
 			scrollLength: Math.round(newScrollLength)
 		};

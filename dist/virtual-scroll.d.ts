@@ -26,10 +26,14 @@ export interface IDimensions {
     scrollLength: number;
 }
 export interface IPageInfo {
-    arrayStartIndex: number;
-    arrayEndIndex: number;
+    startIndex: number;
+    endIndex: number;
 }
-export interface IViewport extends IPageInfo {
+export interface IPageInfoWithBuffer extends IPageInfo {
+    startIndexWithBuffer: number;
+    endIndexWithBuffer: number;
+}
+export interface IViewport extends IPageInfoWithBuffer {
     padding: number;
     scrollLength: number;
 }
@@ -122,8 +126,8 @@ export declare class VirtualScrollComponent implements OnInit, OnChanges, OnDest
     protected calculateDimensions(): IDimensions;
     protected cachedPageSize: number;
     protected previousScrollNumberElements: number;
-    protected calculatePadding(arrayStartIndex: number, dimensions: IDimensions, allowUnequalChildrenSizes_Experimental: boolean): number;
-    protected calculatePageInfo(scrollPosition: number, dimensions: IDimensions): IPageInfo;
+    protected calculatePadding(arrayStartIndexWithBuffer: number, dimensions: IDimensions, allowUnequalChildrenSizes_Experimental: boolean): number;
+    protected calculatePageInfo(scrollPosition: number, dimensions: IDimensions): IPageInfoWithBuffer;
     protected calculateViewport(): IViewport;
 }
 export declare class VirtualScrollModule {

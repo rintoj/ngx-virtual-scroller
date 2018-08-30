@@ -39,8 +39,8 @@ var VirtualScrollComponent = (function () {
         get: function () {
             var pageInfo = this.previousViewPort || {};
             return {
-                arrayStartIndex: pageInfo.arrayStartIndex || 0,
-                arrayEndIndex: pageInfo.arrayEndIndex || 0
+                startIndex: pageInfo.startIndex || 0,
+                endIndex: pageInfo.endIndex || 0
             };
         },
         enumerable: true,
@@ -202,9 +202,8 @@ var VirtualScrollComponent = (function () {
                 return;
             }
             var dimensions = _this.calculateDimensions();
-            var bufferSize = _this.bufferAmount * dimensions.itemsPerWrapGroup;
-            var desiredStartIndex = Math.min(Math.max(index - bufferSize, 0), dimensions.itemCount - 1);
-            if (_this.previousViewPort.arrayStartIndex === desiredStartIndex) {
+            var desiredStartIndex = Math.min(Math.max(index, 0), dimensions.itemCount - 1);
+            if (_this.previousViewPort.startIndex === desiredStartIndex) {
                 if (animationCompletedCallback) {
                     animationCompletedCallback();
                 }
@@ -339,8 +338,8 @@ var VirtualScrollComponent = (function () {
                     _this.resetWrapGroupDimensions();
                 }
                 var viewport = _this.calculateViewport();
-                var startChanged = itemsArrayModified || viewport.arrayStartIndex !== _this.previousViewPort.arrayStartIndex;
-                var endChanged = itemsArrayModified || viewport.arrayEndIndex !== _this.previousViewPort.arrayEndIndex;
+                var startChanged = itemsArrayModified || viewport.startIndexWithBuffer !== _this.previousViewPort.startIndexWithBuffer;
+                var endChanged = itemsArrayModified || viewport.endIndexWithBuffer !== _this.previousViewPort.endIndexWithBuffer;
                 var scrollLengthChanged = viewport.scrollLength !== _this.previousViewPort.scrollLength;
                 var paddingChanged = viewport.padding !== _this.previousViewPort.padding;
                 _this.previousViewPort = viewport;
@@ -360,21 +359,21 @@ var VirtualScrollComponent = (function () {
                 if (startChanged || endChanged) {
                     _this.zone.run(function () {
                         // update the scroll list to trigger re-render of components in viewport
-                        _this.viewPortItems = viewport.arrayStartIndex >= 0 && viewport.arrayEndIndex >= 0 ? _this.items.slice(viewport.arrayStartIndex, viewport.arrayEndIndex + 1) : [];
+                        _this.viewPortItems = viewport.startIndexWithBuffer >= 0 && viewport.endIndexWithBuffer >= 0 ? _this.items.slice(viewport.startIndexWithBuffer, viewport.endIndexWithBuffer + 1) : [];
                         _this.update.emit(_this.viewPortItems);
                         _this.vsUpdate.emit(_this.viewPortItems);
                         if (emitIndexChangedEvents) {
                             if (startChanged) {
-                                _this.start.emit({ start: viewport.arrayStartIndex, end: viewport.arrayEndIndex });
-                                _this.vsStart.emit({ start: viewport.arrayStartIndex, end: viewport.arrayEndIndex });
+                                _this.start.emit({ start: viewport.startIndex, end: viewport.endIndex });
+                                _this.vsStart.emit({ start: viewport.startIndex, end: viewport.endIndex });
                             }
                             if (endChanged) {
-                                _this.end.emit({ start: viewport.arrayStartIndex, end: viewport.arrayEndIndex });
-                                _this.vsEnd.emit({ start: viewport.arrayStartIndex, end: viewport.arrayEndIndex });
+                                _this.end.emit({ start: viewport.startIndex, end: viewport.endIndex });
+                                _this.vsEnd.emit({ start: viewport.startIndex, end: viewport.endIndex });
                             }
                             if (startChanged || endChanged) {
-                                _this.change.emit({ start: viewport.arrayStartIndex, end: viewport.arrayEndIndex });
-                                _this.vsChange.emit({ start: viewport.arrayStartIndex, end: viewport.arrayEndIndex });
+                                _this.change.emit({ start: viewport.startIndex, end: viewport.endIndex });
+                                _this.vsChange.emit({ start: viewport.startIndex, end: viewport.endIndex });
                             }
                         }
                         if (maxRunTimes > 0) {
@@ -544,7 +543,7 @@ var VirtualScrollComponent = (function () {
             wrapGroupsPerPage = this.horizontal ? itemsPerRow : itemsPerCol;
         }
         else {
-            var arrayStartIndex = this.previousViewPort.arrayStartIndex || 0;
+            var arrayStartIndex = this.previousViewPort.startIndexWithBuffer || 0;
             var wrapGroupIndex = Math.ceil(arrayStartIndex / itemsPerWrapGroup);
             var maxWidthForWrapGroup = 0;
             var maxHeightForWrapGroup = 0;
@@ -627,12 +626,12 @@ var VirtualScrollComponent = (function () {
             scrollLength: scrollLength
         };
     };
-    VirtualScrollComponent.prototype.calculatePadding = function (arrayStartIndex, dimensions, allowUnequalChildrenSizes_Experimental) {
+    VirtualScrollComponent.prototype.calculatePadding = function (arrayStartIndexWithBuffer, dimensions, allowUnequalChildrenSizes_Experimental) {
         if (dimensions.itemCount === 0) {
             return 0;
         }
         var defaultScrollLengthPerWrapGroup = dimensions[this._childScrollDim];
-        var startingWrapGroupIndex = Math.ceil(arrayStartIndex / dimensions.itemsPerWrapGroup) || 0;
+        var startingWrapGroupIndex = Math.ceil(arrayStartIndexWithBuffer / dimensions.itemsPerWrapGroup) || 0;
         if (!this.enableUnequalChildrenSizes) {
             return defaultScrollLengthPerWrapGroup * startingWrapGroupIndex;
         }
@@ -679,18 +678,22 @@ var VirtualScrollComponent = (function () {
         arrayStartIndex -= arrayStartIndex % dimensions.itemsPerWrapGroup; // round down to start of wrapGroup
         var arrayEndIndex = Math.ceil(startingArrayIndex_fractional) + dimensions.itemsPerPage - 1;
         arrayEndIndex += (dimensions.itemsPerWrapGroup - ((arrayEndIndex + 1) % dimensions.itemsPerWrapGroup)); // round up to end of wrapGroup
-        var bufferSize = this.bufferAmount * dimensions.itemsPerWrapGroup;
-        arrayStartIndex -= bufferSize;
-        arrayEndIndex += bufferSize;
         if (isNaN(arrayStartIndex)) {
-            arrayStartIndex = -1;
+            arrayStartIndex = 0;
         }
         if (isNaN(arrayEndIndex)) {
-            arrayEndIndex = -1;
+            arrayEndIndex = 0;
         }
+        arrayStartIndex = Math.min(Math.max(arrayStartIndex, 0), dimensions.itemCount - 1);
+        arrayEndIndex = Math.min(Math.max(arrayEndIndex, 0), dimensions.itemCount - 1);
+        var bufferSize = this.bufferAmount * dimensions.itemsPerWrapGroup;
+        var startIndexWithBuffer = Math.min(Math.max(arrayStartIndex - bufferSize, 0), dimensions.itemCount - 1);
+        var endIndexWithBuffer = Math.min(Math.max(arrayEndIndex + bufferSize, 0), dimensions.itemCount - 1);
         return {
-            arrayStartIndex: Math.min(Math.max(arrayStartIndex, 0), dimensions.itemCount - 1),
-            arrayEndIndex: Math.min(Math.max(arrayEndIndex, 0), dimensions.itemCount - 1)
+            startIndex: arrayStartIndex,
+            endIndex: arrayEndIndex,
+            startIndexWithBuffer: startIndexWithBuffer,
+            endIndexWithBuffer: endIndexWithBuffer
         };
     };
     VirtualScrollComponent.prototype.calculateViewport = function () {
@@ -705,11 +708,13 @@ var VirtualScrollComponent = (function () {
         }
         scrollPosition = Math.max(0, scrollPosition);
         var pageInfo = this.calculatePageInfo(scrollPosition, dimensions);
-        var newPadding = this.calculatePadding(pageInfo.arrayStartIndex, dimensions, true);
+        var newPadding = this.calculatePadding(pageInfo.startIndexWithBuffer, dimensions, true);
         var newScrollLength = dimensions.scrollLength;
         return {
-            arrayStartIndex: pageInfo.arrayStartIndex,
-            arrayEndIndex: pageInfo.arrayEndIndex,
+            startIndex: pageInfo.startIndex,
+            endIndex: pageInfo.endIndex,
+            startIndexWithBuffer: pageInfo.startIndexWithBuffer,
+            endIndexWithBuffer: pageInfo.endIndexWithBuffer,
             padding: Math.round(newPadding),
             scrollLength: Math.round(newScrollLength)
         };
