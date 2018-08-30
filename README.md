@@ -142,7 +142,7 @@ Child component is not necessary if your item is simple enough. See below.
 | items          | any[]  | The data that builds the templates within the virtual scroll. This is the same data that you'd pass to ngFor. It's important to note that when this data has changed, then the entire virtual scroll is refreshed.
 | childWidth (DEPRECATED)     | number | The minimum width of the item template's cell. Use this if enableUnequalChildrenSizes isn't working well enough. (The actual rendered size of the first cell is used by default if not specified.)
 | childHeight (DEPRECATED)    | number | The minimum height of the item template's cell. Use this if enableUnequalChildrenSizes isn't working well enough. (The actual rendered size of the first cell is used by default if not specified.)
-| bufferAmount (DEPRECATED)   | number | The the number of elements to be rendered above & below the current container's viewport. Use this if enableUnequalChildrenSizes isn't working well enough. (defaults to enableUnequalChildrenSizes ? 5 : 0)
+| bufferAmount (DEPRECATED)   | number | The number of elements to be rendered above & below the current container's viewport. Use this if enableUnequalChildrenSizes isn't working well enough. (defaults to enableUnequalChildrenSizes ? 5 : 0)
 | scrollAnimationTime | number | The time in milliseconds for the scroll animation to run for. Default value is 750. 0 will completely disable the tween/animation.
 | parentScroll   | Element / Window | Element (or window), which will have scrollbar. This element must be one of the parents of virtual-scroll
 | compareItems   | Function | Predicate of syntax (item1:any, item2:any)=>boolean which is used when items array is modified to determine which items have been changed (determines if cached child size measurements need to be refreshed or not for enableUnequalChildrenSizes). Defaults to === comparison.
@@ -150,7 +150,7 @@ Child component is not necessary if your item is simple enough. See below.
 | end (DEPRECATED) / vsEnd         | Event  | This event is fired every time `end` index changes and emits `ChangeEvent` which is of format: `{ start: number, end: number }`
 | update (DEPRECATED) / vsUpdate         | Event  | This event is fired every time the `start` or `end` indexes change and emits the list of items which should be visible based on the current scroll position from `start` to `end`. The list emitted by this event must be used with `*ngFor` to render the actual list of items within `<virtual-scroll>`
 | change (DEPRECATED) / vsChange         | Event  | This event is fired every time the `start` or `end` indexes change and emits `ChangeEvent` which is of format: `{ start: number, end: number }`
-| viewPortIndices | { arrayStartIndex: number, arrayEndIndex: number } | Allows querying the visible item indexes in the viewport on-demand.
+| viewPortIndices | { arrayStartIndex: number, arrayEndIndex: number } | Allows querying the visible item indexes in the viewport on demand rather than listening for events.
 
 Note: The Events without the "vs" prefix have been deprecated because they might conflict with native DOM events due to their "bubbling" nature. See https://github.com/angular/angular/issues/13997
 An example is if an <input> element inside <virtual-scroll> emits a "change" event which bubbles up to the (change) handler of virtual-scroll. Using the vs prefix will prevent this bubbling conflict because there are currently no official DOM events prefixed with vs.
@@ -312,6 +312,33 @@ export class ListWithApiComponent implements OnChanges {
 }
 ```
 
+## With HTML Table
+
+Note: There is no support for a fixed-to-top-header.
+
+```
+<virtual-scroll #scroll [items]="myItems">
+	<table>
+		<thead>
+			<th>Index</th>
+			<th>Name</th>
+			<th>Gender</th>
+			<th>Age</th>
+			<th>Address</th>
+		</thead>
+		<tbody #container>
+			<tr *ngFor="let item of scroll.viewPortItems">
+				<td>{{item.index}}</td>
+				<td>{{item.name}}</td>
+				<td>{{item.gender}}</td>
+				<td>{{item.age}}</td>
+				<td>{{item.address}}</td>
+			</tr>
+		</tbody>
+	</table>
+</virtual-scroll>
+```
+
 ## If container size changes
 
 Note: This should now be auto-detected, however the 'refresh' method can still force it if neeeded.
@@ -393,9 +420,10 @@ sort() {
 ## Contributing
 Contributions are very welcome! Just send a pull request. Feel free to contact me or checkout my [GitHub](https://github.com/rintoj) page.
 
-## Author
+## Authors
 
 * **Rinto Jose** (rintoj)
+* **Devin Garner** (speige)
 * **Pavel Kukushkin** (kykint)
 
 ### Hope this module is helpful to you. Please make sure to checkout my other [projects](https://github.com/rintoj) and [articles](https://medium.com/@rintoj). Enjoy coding!
