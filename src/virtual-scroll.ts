@@ -222,7 +222,7 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
 		this._items = value || [];
 		this.refresh_internal(true);
 	}
-	
+
 	@Input()
 	public compareItems: (item1: any, item2: any) => boolean = (item1: any, item2: any) => item1 === item2;
 
@@ -236,7 +236,17 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
 		this.updateDirection();
 	}
 
-	private oldParentScrollOverflow: {x: string, y: string};
+	protected revertParentOverscroll(): void {
+		const scrollElement = this.getScrollElement();
+		if (scrollElement && this.oldParentScrollOverflow) {
+			scrollElement.style['overflow-y'] = this.oldParentScrollOverflow.y;
+			scrollElement.style['overflow-x'] = this.oldParentScrollOverflow.x;
+		}
+
+		this.oldParentScrollOverflow = undefined;
+	}
+
+	protected oldParentScrollOverflow: { x: string, y: string };
 	protected _parentScroll: Element | Window;
 	@Input()
 	public get parentScroll(): Element | Window {
@@ -246,19 +256,14 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
 		if (this._parentScroll === value) {
 			return;
 		}
-		if (this._parentScroll && this.oldParentScrollOverflow) {
-			const oldScrollElement = this.getScrollElement();
-			oldScrollElement.style['overflow-y'] = this.oldParentScrollOverflow.y;
-			oldScrollElement.style['overflow-x'] = this.oldParentScrollOverflow.x;
-			this.oldParentScrollOverflow = null;
-		}
 
+		this.revertParentOverscroll();
 		this._parentScroll = value;
 		this.addScrollEventHandlers();
 
 		const scrollElement = this.getScrollElement();
 		if (scrollElement !== this.element.nativeElement) {
-			this.oldParentScrollOverflow = {x: scrollElement.style['overflow-x'], y: scrollElement.style['overflow-y']};
+			this.oldParentScrollOverflow = { x: scrollElement.style['overflow-x'], y: scrollElement.style['overflow-y'] };
 			scrollElement.style['overflow-y'] = this.horizontal ? 'visible' : 'auto';
 			scrollElement.style['overflow-x'] = this.horizontal ? 'auto' : 'visible';
 		}
@@ -299,11 +304,7 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
 
 	public ngOnDestroy() {
 		this.removeScrollEventHandlers();
-		if (this._parentScroll && this.oldParentScrollOverflow) {
-			const oldScrollElement = this.getScrollElement();
-			oldScrollElement.style['overflow-y'] = this.oldParentScrollOverflow.y;
-			oldScrollElement.style['overflow-x'] = this.oldParentScrollOverflow.x;
-		}
+		this.revertParentOverscroll();
 	}
 
 	public ngOnChanges(changes: any) {
@@ -513,7 +514,7 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
 	protected disposeScrollHandler: () => void | undefined;
 	protected disposeResizeHandler: () => void | undefined;
 
-	protected refresh_internal(itemsArrayModified: boolean, refreshCompletedCallback: ()=>void = undefined, maxRunTimes: number = 2) {
+	protected refresh_internal(itemsArrayModified: boolean, refreshCompletedCallback: () => void = undefined, maxRunTimes: number = 2) {
 		//note: maxRunTimes is to force it to keep recalculating if the previous iteration caused a re-render (different sliced items in viewport or scrollPosition changed).
 		//The default of 2x max will probably be accurate enough without causing too large a performance bottleneck
 		//The code would typically quit out on the 2nd iteration anyways. The main time it'd think more than 2 runs would be necessary would be for vastly different sized child items or if this is the 1st time the items array was initialized.
@@ -806,8 +807,8 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
 
 					++this.wrapGroupDimensions.numberOfKnownWrapGroupChildSizes;
 					const items = this.items.slice(arrayStartIndex - itemsPerWrapGroup, arrayStartIndex);
-					this.wrapGroupDimensions.maxChildSizePerWrapGroup[wrapGroupIndex] = { 
-						childWidth: maxWidthForWrapGroup, 
+					this.wrapGroupDimensions.maxChildSizePerWrapGroup[wrapGroupIndex] = {
+						childWidth: maxWidthForWrapGroup,
 						childHeight: maxHeightForWrapGroup,
 						items: items
 					};

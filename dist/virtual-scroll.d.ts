@@ -61,6 +61,11 @@ export declare class VirtualScrollComponent implements OnInit, OnChanges, OnDest
     compareItems: (item1: any, item2: any) => boolean;
     protected _horizontal: boolean;
     horizontal: boolean;
+    protected revertParentOverscroll(): void;
+    protected oldParentScrollOverflow: {
+        x: string;
+        y: string;
+    };
     protected _parentScroll: Element | Window;
     parentScroll: Element | Window;
     update: EventEmitter<any[]>;

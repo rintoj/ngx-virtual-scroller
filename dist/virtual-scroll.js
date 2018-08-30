@@ -124,6 +124,14 @@ var VirtualScrollComponent = (function () {
         enumerable: true,
         configurable: true
     });
+    VirtualScrollComponent.prototype.revertParentOverscroll = function () {
+        var scrollElement = this.getScrollElement();
+        if (scrollElement && this.oldParentScrollOverflow) {
+            scrollElement.style['overflow-y'] = this.oldParentScrollOverflow.y;
+            scrollElement.style['overflow-x'] = this.oldParentScrollOverflow.x;
+        }
+        this.oldParentScrollOverflow = undefined;
+    };
     Object.defineProperty(VirtualScrollComponent.prototype, "parentScroll", {
         get: function () {
             return this._parentScroll;
@@ -132,10 +140,12 @@ var VirtualScrollComponent = (function () {
             if (this._parentScroll === value) {
                 return;
             }
+            this.revertParentOverscroll();
             this._parentScroll = value;
             this.addScrollEventHandlers();
             var scrollElement = this.getScrollElement();
             if (scrollElement !== this.element.nativeElement) {
+                this.oldParentScrollOverflow = { x: scrollElement.style['overflow-x'], y: scrollElement.style['overflow-y'] };
                 scrollElement.style['overflow-y'] = this.horizontal ? 'visible' : 'auto';
                 scrollElement.style['overflow-x'] = this.horizontal ? 'auto' : 'visible';
             }
@@ -148,6 +158,7 @@ var VirtualScrollComponent = (function () {
     };
     VirtualScrollComponent.prototype.ngOnDestroy = function () {
         this.removeScrollEventHandlers();
+        this.revertParentOverscroll();
     };
     VirtualScrollComponent.prototype.ngOnChanges = function (changes) {
         var indexLengthChanged = this.cachedItemsLength !== this.items.length;
