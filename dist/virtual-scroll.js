@@ -79,7 +79,7 @@ var VirtualScrollComponent = (function () {
             var _this = this;
             this._scrollThrottlingTime = value;
             this.refresh_throttled = this.throttleTrailing(function () {
-                _this.refresh();
+                _this.refresh_internal(false);
             }, this._scrollThrottlingTime);
         },
         enumerable: true,
@@ -162,7 +162,7 @@ var VirtualScrollComponent = (function () {
         }
     };
     VirtualScrollComponent.prototype.refresh = function () {
-        this.refresh_internal(false);
+        this.refresh_internal(true);
     };
     VirtualScrollComponent.prototype.scrollInto = function (item, alignToBeginning, additionalOffset, animationMilliseconds, animationCompletedCallback) {
         if (alignToBeginning === void 0) { alignToBeginning = true; }
@@ -236,7 +236,7 @@ var VirtualScrollComponent = (function () {
                 return;
             }
             _this.renderer.setProperty(scrollElement, _this._scrollType, data.scroll);
-            _this.refresh();
+            _this.refresh_internal(false);
         })
             .onStop(function () {
             cancelAnimationFrame(animationRequest);
@@ -271,7 +271,7 @@ var VirtualScrollComponent = (function () {
         }
         if (sizeChanged) {
             this.previousScrollBoundingRect = boundingRect;
-            this.refresh();
+            this.refresh_internal(false);
         }
     };
     VirtualScrollComponent.prototype.updateDirection = function () {
@@ -327,7 +327,7 @@ var VirtualScrollComponent = (function () {
                 if (itemsArrayModified) {
                     _this.resetWrapGroupDimensions();
                 }
-                var viewport = _this.calculateViewport(itemsArrayModified);
+                var viewport = _this.calculateViewport();
                 var startChanged = itemsArrayModified || viewport.arrayStartIndex !== _this.previousViewPort.arrayStartIndex;
                 var endChanged = itemsArrayModified || viewport.arrayEndIndex !== _this.previousViewPort.arrayEndIndex;
                 var scrollLengthChanged = viewport.scrollLength !== _this.previousViewPort.scrollLength;
@@ -470,7 +470,7 @@ var VirtualScrollComponent = (function () {
             sumOfKnownWrapGroupChildWidths: 0,
             sumOfKnownWrapGroupChildHeights: 0
         };
-        if (!oldWrapGroupDimensions || oldWrapGroupDimensions.numberOfKnownWrapGroupChildSizes === 0) {
+        if (!this.enableUnequalChildrenSizes || !oldWrapGroupDimensions || oldWrapGroupDimensions.numberOfKnownWrapGroupChildSizes === 0) {
             return;
         }
         var itemsPerWrapGroup = this.countItemsPerWrapGroup();
@@ -682,8 +682,7 @@ var VirtualScrollComponent = (function () {
             arrayEndIndex: Math.min(Math.max(arrayEndIndex, 0), dimensions.itemCount - 1)
         };
     };
-    VirtualScrollComponent.prototype.calculateViewport = function (forceViewportUpdate) {
-        if (forceViewportUpdate === void 0) { forceViewportUpdate = false; }
+    VirtualScrollComponent.prototype.calculateViewport = function () {
         var dimensions = this.calculateDimensions();
         var offset = this.getElementsOffset();
         var scrollPosition = this.getScrollPosition();

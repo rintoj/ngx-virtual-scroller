@@ -190,7 +190,7 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
 	public set scrollThrottlingTime(value: number) {
 		this._scrollThrottlingTime = value;
 		this.refresh_throttled = <any>this.throttleTrailing(() => {
-			this.refresh();
+			this.refresh_internal(false);
 		}, this._scrollThrottlingTime);
 	}
 
@@ -309,7 +309,7 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
 	}
 
 	public refresh() {
-		this.refresh_internal(false);
+		this.refresh_internal(true);
 	}
 
 	public scrollInto(item: any, alignToBeginning: boolean = true, additionalOffset: number = 0, animationMilliseconds: number = undefined, animationCompletedCallback: () => void = undefined) {
@@ -384,7 +384,7 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
 					return;
 				}
 				this.renderer.setProperty(scrollElement, this._scrollType, data.scroll);
-				this.refresh();
+				this.refresh_internal(false);
 			})
 			.onStop(() => {
 				cancelAnimationFrame(animationRequest);
@@ -432,7 +432,7 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
 
 		if (sizeChanged) {
 			this.previousScrollBoundingRect = boundingRect;
-			this.refresh();
+			this.refresh_internal(false);
 		}
 	}
 
@@ -512,7 +512,7 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
 				if (itemsArrayModified) {
 					this.resetWrapGroupDimensions();
 				}
-				let viewport = this.calculateViewport(itemsArrayModified);
+				let viewport = this.calculateViewport();
 
 				let startChanged = itemsArrayModified || viewport.arrayStartIndex !== this.previousViewPort.arrayStartIndex;
 				let endChanged = itemsArrayModified || viewport.arrayEndIndex !== this.previousViewPort.arrayEndIndex;
@@ -691,7 +691,7 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
 			sumOfKnownWrapGroupChildHeights: 0
 		};
 
-		if (!oldWrapGroupDimensions || oldWrapGroupDimensions.numberOfKnownWrapGroupChildSizes === 0) {
+		if (!this.enableUnequalChildrenSizes || !oldWrapGroupDimensions || oldWrapGroupDimensions.numberOfKnownWrapGroupChildSizes === 0) {
 			return;
 		}
 
@@ -941,7 +941,7 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
 		};
 	}
 
-	protected calculateViewport(forceViewportUpdate: boolean = false): IViewport {
+	protected calculateViewport(): IViewport {
 		let dimensions = this.calculateDimensions();
 		let offset = this.getElementsOffset();
 

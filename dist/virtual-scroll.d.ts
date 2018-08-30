@@ -119,7 +119,7 @@ export declare class VirtualScrollComponent implements OnInit, OnChanges, OnDest
     protected previousScrollNumberElements: number;
     protected calculatePadding(arrayStartIndex: number, dimensions: IDimensions, allowUnequalChildrenSizes_Experimental: boolean): number;
     protected calculatePageInfo(scrollPosition: number, dimensions: IDimensions): IPageInfo;
-    protected calculateViewport(forceViewportUpdate?: boolean): IViewport;
+    protected calculateViewport(): IViewport;
 }
 export declare class VirtualScrollModule {
 }
