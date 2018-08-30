@@ -1,3 +1,7 @@
+# v0.4.11
+
+* Bug fix to items array modifications with "enableUnequalChildrenSizes" which caused non-modified items to have to be re-measured.
+
 # v0.4.10
 
 * Minor bug fixes.
