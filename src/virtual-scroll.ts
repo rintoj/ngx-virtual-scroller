@@ -450,7 +450,9 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
 
 		if (sizeChanged) {
 			this.previousScrollBoundingRect = boundingRect;
-			this.refresh_internal(false);
+			if (boundingRect.width > 0 && boundingRect.height > 0) {
+				this.refresh_internal(false);
+			}
 		}
 	}
 
