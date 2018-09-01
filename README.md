@@ -14,7 +14,8 @@ This method is effective because the number of DOM elements are always constant 
 * OpenSource and available in GitHub
 
 ## Breaking Changes:
-* The value of ChangeEvent.end wasn't intuitive. This has been corrected. Both ChangeEvent.start and ChangeEvent.end are the 0-based array indexes of the items being rendered in the viewport. (Previously Change.End was the array index + 1)
+* v0.4.12: The start and end values of the change/start/end events were including bufferAmount, which made them confusing. This has been corrected.
+* v0.4.4: The value of ChangeEvent.end wasn't intuitive. This has been corrected. Both ChangeEvent.start and ChangeEvent.end are the 0-based array indexes of the items being rendered in the viewport. (Previously Change.End was the array index + 1)
 
 ## New features:
 
@@ -142,7 +143,7 @@ Child component is not necessary if your item is simple enough. See below.
 | items          | any[]  | The data that builds the templates within the virtual scroll. This is the same data that you'd pass to ngFor. It's important to note that when this data has changed, then the entire virtual scroll is refreshed.
 | childWidth (DEPRECATED)     | number | The minimum width of the item template's cell. Use this if enableUnequalChildrenSizes isn't working well enough. (The actual rendered size of the first cell is used by default if not specified.)
 | childHeight (DEPRECATED)    | number | The minimum height of the item template's cell. Use this if enableUnequalChildrenSizes isn't working well enough. (The actual rendered size of the first cell is used by default if not specified.)
-| bufferAmount (DEPRECATED)   | number | The number of elements to be rendered above & below the current container's viewport. Use this if enableUnequalChildrenSizes isn't working well enough. (defaults to enableUnequalChildrenSizes ? 5 : 0)
+| bufferAmount   | number | The number of elements to be rendered above & below the current container's viewport. Increase this if enableUnequalChildrenSizes isn't working well enough. (defaults to enableUnequalChildrenSizes ? 5 : 0)
 | scrollAnimationTime | number | The time in milliseconds for the scroll animation to run for. Default value is 750. 0 will completely disable the tween/animation.
 | parentScroll   | Element / Window | Element (or window), which will have scrollbar. This element must be one of the parents of virtual-scroll
 | compareItems   | Function | Predicate of syntax (item1:any, item2:any)=>boolean which is used when items array is modified to determine which items have been changed (determines if cached child size measurements need to be refreshed or not for enableUnequalChildrenSizes). Defaults to === comparison.
@@ -415,6 +416,19 @@ Always be sure to send an immutable copy of items to virtual scroll to avoid uni
 sort() {
   this.items = [].concat(this.items || []).sort()
 }
+```
+
+## Hide Scrollbar
+
+This hacky CSS allows hiding a scrollbar while still enabling scroll through mouseWheel/touch/pageUpDownKeys
+```
+	//hide vertical scrollbar
+	   margin-right: -25px;
+	   padding-right: 25px;
+	
+	//hide horizontal scrollbar
+	   margin-bottom: -25px;
+	   padding-bottom: 25px;
 ```
 
 ## Contributing

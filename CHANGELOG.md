@@ -1,3 +1,10 @@
+# v0.4.12
+
+* Fix scrollbar measurements (horizontal/vertical calculations were backwards)
+* After component is removed it reverts css overflow-x/overflow-y of parentScroll back to their original values.
+* Previously, if scroll parent was resized it would automatically call Refresh. This still occurs, except if new size is 0.
+* Breaking Change: The start and end values of the change/start/end events were including bufferAmount, which made them confusing. This has been corrected.
+
 # v0.4.11
 
 * Bug fix to items array modifications with "enableUnequalChildrenSizes" which caused non-modified items to have to be re-measured.
