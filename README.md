@@ -15,6 +15,7 @@ This method is effective because the number of DOM elements are always constant 
 
 ## Breaking Changes:
 * v0.4.12: The start and end values of the change/start/end events were including bufferAmount, which made them confusing. This has been corrected.
+	viewPortIndices.arrayStartIndex renamed to viewPortIndices.startIndex and viewPortIndices.arrayEndIndex renamed to viewPortIndices.endIndex
 * v0.4.4: The value of ChangeEvent.end wasn't intuitive. This has been corrected. Both ChangeEvent.start and ChangeEvent.end are the 0-based array indexes of the items being rendered in the viewport. (Previously Change.End was the array index + 1)
 
 ## New features:
@@ -151,7 +152,7 @@ Child component is not necessary if your item is simple enough. See below.
 | end (DEPRECATED) / vsEnd         | Event  | This event is fired every time `end` index changes and emits `ChangeEvent` which is of format: `{ start: number, end: number }`
 | update (DEPRECATED) / vsUpdate         | Event  | This event is fired every time the `start` or `end` indexes change and emits the list of items which should be visible based on the current scroll position from `start` to `end`. The list emitted by this event must be used with `*ngFor` to render the actual list of items within `<virtual-scroll>`
 | change (DEPRECATED) / vsChange         | Event  | This event is fired every time the `start` or `end` indexes change and emits `ChangeEvent` which is of format: `{ start: number, end: number }`
-| viewPortIndices | { arrayStartIndex: number, arrayEndIndex: number } | Allows querying the visible item indexes in the viewport on demand rather than listening for events.
+| viewPortIndices | { startIndex: number, endIndex: number } | Allows querying the visible item indexes in the viewport on demand rather than listening for events.
 
 Note: The Events without the "vs" prefix have been deprecated because they might conflict with native DOM events due to their "bubbling" nature. See https://github.com/angular/angular/issues/13997
 An example is if an <input> element inside <virtual-scroll> emits a "change" event which bubbles up to the (change) handler of virtual-scroll. Using the vs prefix will prevent this bubbling conflict because there are currently no official DOM events prefixed with vs.

@@ -1,5 +1,6 @@
 # v0.4.12
 
+* viewPortIndices.arrayStartIndex renamed to viewPortIndices.startIndex and viewPortIndices.arrayEndIndex renamed to viewPortIndices.endIndex
 * Fix scrollbar measurements (horizontal/vertical calculations were backwards)
 * After component is removed it reverts css overflow-x/overflow-y of parentScroll back to their original values.
 * Previously, if scroll parent was resized it would automatically call Refresh. This still occurs, except if new size is 0.
