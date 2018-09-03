@@ -136,16 +136,16 @@ Child component is not necessary if your item is simple enough. See below.
 | Attribute      | Type   | Description
 |----------------|--------|------------
 | enableUnequalChildrenSizes | boolean | If you want to use the "unequal size" children feature. This is not perfect, but hopefully "close-enough" for most situations. Defaults to false.
-| scrollThrottlingTime | number | Milliseconds to delay refreshing viewport if user is scrolling quickly (for performance reasons). Default is 0.
+| scrollThrottlingTime | number | Milliseconds to delay refreshing viewport if user is scrolling quickly (for performance reasons). Default is 0. Can be injected by DI "virtualScroll.scrollThrottlingTime".
 | useMarginInsteadOfTranslate | boolean | Defaults to false. Translate is faster in many scenarios because it can use GPU acceleration, but it can be slower if your scroll container or child elements don't use any transitions or opacity. More importantly, translate creates a new "containing block" which breaks position:fixed because it'll be relative to the transform rather than the window. If you're experiencing issues with position:fixed on your child elements, turn this flag on.
-| scrollbarWidth | number | If you want to override the auto-calculated scrollbar width. This is used to determine the dimensions of the viewable area when calculating the number of items to render.
-| scrollbarHeight | number | If you want to override the auto-calculated scrollbar height. This is used to determine the dimensions of the viewable area when calculating the number of items to render.
+| scrollbarWidth | number | If you want to override the auto-calculated scrollbar width. This is used to determine the dimensions of the viewable area when calculating the number of items to render. Can be injected by DI "virtualScroll.scrollbarWidth".
+| scrollbarHeight | number | If you want to override the auto-calculated scrollbar height. This is used to determine the dimensions of the viewable area when calculating the number of items to render. Can be injected by DI "virtualScroll.scrollbarHeight".
 | horizontal | boolean | Whether the scrollbars should be vertical or horizontal. Defaults to false.
 | items          | any[]  | The data that builds the templates within the virtual scroll. This is the same data that you'd pass to ngFor. It's important to note that when this data has changed, then the entire virtual scroll is refreshed.
 | childWidth (DEPRECATED)     | number | The minimum width of the item template's cell. Use this if enableUnequalChildrenSizes isn't working well enough. (The actual rendered size of the first cell is used by default if not specified.)
 | childHeight (DEPRECATED)    | number | The minimum height of the item template's cell. Use this if enableUnequalChildrenSizes isn't working well enough. (The actual rendered size of the first cell is used by default if not specified.)
 | bufferAmount (DEPRECATED)  | number | The number of elements to be rendered above & below the current container's viewport. Increase this if enableUnequalChildrenSizes isn't working well enough. (defaults to enableUnequalChildrenSizes ? 5 : 0)
-| scrollAnimationTime | number | The time in milliseconds for the scroll animation to run for. Default value is 750. 0 will completely disable the tween/animation.
+| scrollAnimationTime | number | The time in milliseconds for the scroll animation to run for. Default value is 750. 0 will completely disable the tween/animation. Can be injected by DI "virtualScroll.scrollAnimationTime".
 | parentScroll   | Element / Window | Element (or window), which will have scrollbar. This element must be one of the parents of virtual-scroll
 | compareItems   | Function | Predicate of syntax (item1:any, item2:any)=>boolean which is used when items array is modified to determine which items have been changed (determines if cached child size measurements need to be refreshed or not for enableUnequalChildrenSizes). Defaults to === comparison.
 | start (DEPRECATED) / vsStart         | Event  | This event is fired every time `start` index changes and emits `ChangeEvent` which is of format: `{ start: number, end: number }`
@@ -318,7 +318,7 @@ export class ListWithApiComponent implements OnChanges {
 
 Note: There is no support for a fixed-to-top-header.
 
-```
+```html
 <virtual-scroll #scroll [items]="myItems">
 	<table>
 		<thead>
@@ -408,6 +408,33 @@ export class ListComponent {
     }
 }
 ```
+
+## Perfomance improvements
+
+It can be set for virtual scroll
+
+```html
+<virtual-scroll #scroll 
+                [items]="items"
+                [scrollThrottlingTime]="50"
+                [scrollAnimationTime]="800"
+                >
+
+    <my-custom-component *ngFor="let item of scroll.viewPortItems">
+    </my-custom-component>
+
+</virtual-scroll>
+```
+
+or alternative it can be set for all virtual scrolls in your project:
+
+```ts
+ providers: [
+    {  provide: 'virtualScroll.scrollThrottlingTime', useValue: 50  },
+    {  provide: 'virtualScroll.scrollAnimationTime', useValue: 800  }
+  ],
+```
+
 
 ## Sorting Items
 
