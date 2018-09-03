@@ -135,6 +135,8 @@ Child component is not necessary if your item is simple enough. See below.
 
 | Attribute      | Type   | Description
 |----------------|--------|------------
+| checkResizeInterval | number | How often in milliseconds to check if virtual-scroll (or parentScroll) has been resized. If resized, it'll call Refresh() method. Defaults to 1000.
+| resizeBypassRefreshTheshold | number | How many pixels to ignore during resize check if virtual-scroll (or parentScroll) are only resized by a very small amount. Defaults to 5.
 | enableUnequalChildrenSizes | boolean | If you want to use the "unequal size" children feature. This is not perfect, but hopefully "close-enough" for most situations. Defaults to false.
 | scrollThrottlingTime | number | Milliseconds to delay refreshing viewport if user is scrolling quickly (for performance reasons). Default is 0.
 | useMarginInsteadOfTranslate | boolean | Defaults to false. Translate is faster in many scenarios because it can use GPU acceleration, but it can be slower if your scroll container or child elements don't use any transitions or opacity. More importantly, translate creates a new "containing block" which breaks position:fixed because it'll be relative to the transform rather than the window. If you're experiencing issues with position:fixed on your child elements, turn this flag on.
