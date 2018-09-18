@@ -24,7 +24,14 @@ import { ListItem } from './list-item.component';
       (update)="scrollItems = $event"
       (change)="indices = $event">
       <table>
-		  <tbody #container>
+		<thead>
+			<th>Index</th>
+			<th>Name</th>
+			<th>Gender</th>
+			<th>Age</th>
+			<th>Address</th>
+		</thead>
+		<tbody #container>
 			<tr *ngFor="let item of scrollItems">
 			  <td>{{item.index}}</td>
 			  <td>{{item.name}}</td>
