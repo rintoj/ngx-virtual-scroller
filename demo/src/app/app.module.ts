@@ -48,7 +48,10 @@ import { VirtualScrollModule } from 'angular2-virtual-scroll';
     HttpModule,
     VirtualScrollModule
   ],
-  providers: [],
+  providers: [
+    {  provide: 'virtualScroll.scrollThrottlingTime', useValue: 50  },
+    {  provide: 'virtualScroll.scrollAnimationTime', useValue: 800  }
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule {
