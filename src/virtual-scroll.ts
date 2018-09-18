@@ -3,7 +3,8 @@ import {
 	ContentChild,
 	ElementRef,
 	EventEmitter,
-    Inject,
+	Inject,
+	Optional,
 	Input,
 	NgModule,
 	NgZone,
@@ -186,7 +187,7 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
 	public scrollAnimationTime: number = 750;
 
 	@Input()
-	public resizeBypassRefreshTheshold: number = 5;
+	public resizeBypassRefreshThreshold: number = 5;
 
 	protected _scrollThrottlingTime: number;
 	@Input()
@@ -431,21 +432,33 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
 	}
 
 	constructor(protected readonly element: ElementRef,
-				protected readonly renderer: Renderer2,
-				protected readonly zone: NgZone,
-                @Inject('virtualScroll.scrollThrottlingTime') scrollThrottlingTime,
-                @Inject('virtualScroll.scrollAnimationTime') scrollAnimationTime,
-                @Inject('virtualScroll.scrollbarWidth') scrollbarWidth,
-                @Inject('virtualScroll.scrollbarHeight') scrollbarHeight,
-                @Inject('virtualScroll.checkResizeInterval') checkResizeInterval,
-                @Inject('virtualScroll.resizeBypassRefreshTheshold') resizeBypassRefreshTheshold) {
+		protected readonly renderer: Renderer2,
+		protected readonly zone: NgZone,
+		@Optional() @Inject('virtualScroll.scrollThrottlingTime') scrollThrottlingTime,
+		@Optional() @Inject('virtualScroll.scrollAnimationTime') scrollAnimationTime,
+		@Optional() @Inject('virtualScroll.scrollbarWidth') scrollbarWidth,
+		@Optional() @Inject('virtualScroll.scrollbarHeight') scrollbarHeight,
+		@Optional() @Inject('virtualScroll.checkResizeInterval') checkResizeInterval,
+		@Optional() @Inject('virtualScroll.resizeBypassRefreshThreshold') resizeBypassRefreshThreshold) {
+		this.scrollThrottlingTime = typeof (scrollThrottlingTime) === 'number' ? scrollThrottlingTime : 0;
+
+		if (typeof (scrollAnimationTime) === 'number') {
+			this.scrollAnimationTime = scrollAnimationTime;
+		}
+		if (typeof (scrollbarWidth) === 'number') {
+			this.scrollbarWidth = scrollbarWidth;
+		}
+		if (typeof (scrollbarHeight) === 'number') {
+			this.scrollbarHeight = scrollbarHeight;
+		}
+		if (typeof (checkResizeInterval) === 'number') {
+			this.checkResizeInterval = checkResizeInterval;
+		}
+		if (typeof (resizeBypassRefreshThreshold) === 'number') {
+			this.resizeBypassRefreshThreshold = resizeBypassRefreshThreshold;
+		}
+
 		this.horizontal = false;
-		this.scrollThrottlingTime = scrollThrottlingTime || 0;
-		this.scrollAnimationTime = typeof (scrollAnimationTime) === 'number' ? scrollAnimationTime : 750;
-		this.scrollbarWidth = scrollbarWidth;
-		this.scrollbarHeight = scrollbarHeight;
-		this.checkResizeInterval = typeof (checkResizeInterval) === 'number' ? checkResizeInterval : 1000;
-		this.resizeBypassRefreshTheshold = typeof (resizeBypassRefreshTheshold) === 'number' ? resizeBypassRefreshTheshold : 5;
 		this.resetWrapGroupDimensions();
 	}
 
@@ -459,7 +472,7 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
 		} else {
 			let widthChange = Math.abs(boundingRect.width - this.previousScrollBoundingRect.width);
 			let heightChange = Math.abs(boundingRect.height - this.previousScrollBoundingRect.height);
-			sizeChanged = widthChange > this.resizeBypassRefreshTheshold || heightChange > this.resizeBypassRefreshTheshold;
+			sizeChanged = widthChange > this.resizeBypassRefreshThreshold || heightChange > this.resizeBypassRefreshThreshold;
 		}
 
 		if (sizeChanged) {
@@ -801,7 +814,7 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
 			wrapGroupsPerPage = this.horizontal ? itemsPerRow : itemsPerCol;
 		} else {
 			let scrollOffset = scrollElement[this._scrollType] - (this.previousViewPort ? this.previousViewPort.padding : 0);
-			
+
 			let arrayStartIndex = this.previousViewPort.startIndexWithBuffer || 0;
 			let wrapGroupIndex = Math.ceil(arrayStartIndex / itemsPerWrapGroup);
 

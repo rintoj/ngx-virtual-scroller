@@ -4,7 +4,7 @@ var core_1 = require("@angular/core");
 var common_1 = require("@angular/common");
 var tween = require("@tweenjs/tween.js");
 var VirtualScrollComponent = (function () {
-    function VirtualScrollComponent(element, renderer, zone) {
+    function VirtualScrollComponent(element, renderer, zone, scrollThrottlingTime, scrollAnimationTime, scrollbarWidth, scrollbarHeight, checkResizeInterval, resizeBypassRefreshThreshold) {
         this.element = element;
         this.renderer = renderer;
         this.zone = zone;
@@ -13,7 +13,7 @@ var VirtualScrollComponent = (function () {
         this.useMarginInsteadOfTranslate = false;
         this._bufferAmount = 0;
         this.scrollAnimationTime = 750;
-        this.resizeBypassRefreshTheshold = 5;
+        this.resizeBypassRefreshThreshold = 5;
         this._checkResizeInterval = 1000;
         this._items = [];
         this.compareItems = function (item1, item2) { return item1 === item2; };
@@ -31,8 +31,23 @@ var VirtualScrollComponent = (function () {
         this.previousViewPort = {};
         this.cachedPageSize = 0;
         this.previousScrollNumberElements = 0;
+        this.scrollThrottlingTime = typeof (scrollThrottlingTime) === 'number' ? scrollThrottlingTime : 0;
+        if (typeof (scrollAnimationTime) === 'number') {
+            this.scrollAnimationTime = scrollAnimationTime;
+        }
+        if (typeof (scrollbarWidth) === 'number') {
+            this.scrollbarWidth = scrollbarWidth;
+        }
+        if (typeof (scrollbarHeight) === 'number') {
+            this.scrollbarHeight = scrollbarHeight;
+        }
+        if (typeof (checkResizeInterval) === 'number') {
+            this.checkResizeInterval = checkResizeInterval;
+        }
+        if (typeof (resizeBypassRefreshThreshold) === 'number') {
+            this.resizeBypassRefreshThreshold = resizeBypassRefreshThreshold;
+        }
         this.horizontal = false;
-        this.scrollThrottlingTime = 0;
         this.resetWrapGroupDimensions();
     }
     Object.defineProperty(VirtualScrollComponent.prototype, "viewPortIndices", {
@@ -277,7 +292,7 @@ var VirtualScrollComponent = (function () {
         else {
             var widthChange = Math.abs(boundingRect.width - this.previousScrollBoundingRect.width);
             var heightChange = Math.abs(boundingRect.height - this.previousScrollBoundingRect.height);
-            sizeChanged = widthChange > this.resizeBypassRefreshTheshold || heightChange > this.resizeBypassRefreshTheshold;
+            sizeChanged = widthChange > this.resizeBypassRefreshThreshold || heightChange > this.resizeBypassRefreshThreshold;
         }
         if (sizeChanged) {
             this.previousScrollBoundingRect = boundingRect;
@@ -762,6 +777,12 @@ var VirtualScrollComponent = (function () {
         { type: core_1.ElementRef, },
         { type: core_1.Renderer2, },
         { type: core_1.NgZone, },
+        { type: undefined, decorators: [{ type: core_1.Optional }, { type: core_1.Inject, args: ['virtualScroll.scrollThrottlingTime',] },] },
+        { type: undefined, decorators: [{ type: core_1.Optional }, { type: core_1.Inject, args: ['virtualScroll.scrollAnimationTime',] },] },
+        { type: undefined, decorators: [{ type: core_1.Optional }, { type: core_1.Inject, args: ['virtualScroll.scrollbarWidth',] },] },
+        { type: undefined, decorators: [{ type: core_1.Optional }, { type: core_1.Inject, args: ['virtualScroll.scrollbarHeight',] },] },
+        { type: undefined, decorators: [{ type: core_1.Optional }, { type: core_1.Inject, args: ['virtualScroll.checkResizeInterval',] },] },
+        { type: undefined, decorators: [{ type: core_1.Optional }, { type: core_1.Inject, args: ['virtualScroll.resizeBypassRefreshThreshold',] },] },
     ]; };
     VirtualScrollComponent.propDecorators = {
         'enableUnequalChildrenSizes': [{ type: core_1.Input },],
@@ -772,7 +793,7 @@ var VirtualScrollComponent = (function () {
         'childHeight': [{ type: core_1.Input },],
         'bufferAmount': [{ type: core_1.Input },],
         'scrollAnimationTime': [{ type: core_1.Input },],
-        'resizeBypassRefreshTheshold': [{ type: core_1.Input },],
+        'resizeBypassRefreshThreshold': [{ type: core_1.Input },],
         'scrollThrottlingTime': [{ type: core_1.Input },],
         'checkResizeInterval': [{ type: core_1.Input },],
         'items': [{ type: core_1.Input },],
