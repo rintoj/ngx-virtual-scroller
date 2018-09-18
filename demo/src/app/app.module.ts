@@ -54,7 +54,7 @@ import { VirtualScrollModule } from 'angular2-virtual-scroll';
 	{  provide: 'virtualScroll.scrollbarWidth', useValue: undefined  },
 	{  provide: 'virtualScroll.scrollbarHeight', useValue: undefined  },
 	{  provide: 'virtualScroll.checkResizeInterval', useValue: 1000  },
-	{  provide: 'virtualScroll.resizeBypassRefreshThreshold', useValue: 5  },
+	{  provide: 'virtualScroll.resizeBypassRefreshThreshold', useValue: 5  }
   ],
   bootstrap: [AppComponent]
 })
