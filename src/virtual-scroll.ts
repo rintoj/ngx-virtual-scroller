@@ -3,6 +3,7 @@ import {
 	ContentChild,
 	ElementRef,
 	EventEmitter,
+    Inject,
 	Input,
 	NgModule,
 	NgZone,
@@ -429,9 +430,22 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
 		this.currentTween = newTween;
 	}
 
-	constructor(protected readonly element: ElementRef, protected readonly renderer: Renderer2, protected readonly zone: NgZone) {
+	constructor(protected readonly element: ElementRef,
+				protected readonly renderer: Renderer2,
+				protected readonly zone: NgZone,
+                @Inject('virtualScroll.scrollThrottlingTime') scrollThrottlingTime,
+                @Inject('virtualScroll.scrollAnimationTime') scrollAnimationTime,
+                @Inject('virtualScroll.scrollbarWidth') scrollbarWidth,
+                @Inject('virtualScroll.scrollbarHeight') scrollbarHeight,
+                @Inject('virtualScroll.checkResizeInterval') checkResizeInterval,
+                @Inject('virtualScroll.resizeBypassRefreshTheshold') resizeBypassRefreshTheshold) {
 		this.horizontal = false;
-		this.scrollThrottlingTime = 0;
+		this.scrollThrottlingTime = scrollThrottlingTime || 0;
+		this.scrollAnimationTime = typeof (scrollAnimationTime) === 'number' ? scrollAnimationTime : 750;
+		this.scrollbarWidth = scrollbarWidth;
+		this.scrollbarHeight = scrollbarHeight;
+		this.checkResizeInterval = typeof (checkResizeInterval) === 'number' ? checkResizeInterval : 1000;
+		this.resizeBypassRefreshTheshold = typeof (resizeBypassRefreshTheshold) === 'number' ? resizeBypassRefreshTheshold : 5;
 		this.resetWrapGroupDimensions();
 	}
 
