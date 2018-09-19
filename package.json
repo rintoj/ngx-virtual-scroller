@@ -23,9 +23,21 @@
   "keywords": [
     "virtual scroll",
     "scroll",
+	"ngx",
+	"angular",
     "angular 2"
   ],
-  "author": "Rinto Jose (rintoj), Devin Garner (speige)",
+  "contributors": [
+	{
+		"name": "Rinto Jose"
+	},
+	{
+		"name": "Devin Garner"
+	},
+	{
+		"name": "Pavel Kukushkin"
+	}
+  ],
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/rintoj/angular2-virtual-scroll/issues"
