@@ -12,22 +12,22 @@ import { SimpleChanges } from '@angular/core';
     <button (click)="sortByIndex()">Sort By Index</button>
     <button (click)="randomHeight = !randomHeight">Toggle Random Height</button>
     <button *ngIf="randomHeight" (click)="ListItemComponent.ResetSeed();">Re-Randomize Item Sizes</button>
-    <button *ngIf="randomHeight" (click)="virtualScroll.invalidateAllCachedMeasurements();">Invalidate cached measurements</button>
+    <button *ngIf="randomHeight" (click)="scroll.invalidateAllCachedMeasurements();">Invalidate cached measurements</button>
 
     <div class="status">
-      Showing <span class="badge">{{indices?.start}}</span>
-      - <span class="badge">{{indices?.end}}</span>
-      of <span class="badge">{{buffer?.length}}</span>
-      <span>({{scrollItems?.length}} nodes)</span>
+        Showing <span>{{scroll.viewPortInfo.startIndex}}</span>
+        - <span>{{scroll.viewPortInfo.endIndex}}</span>
+        of <span>{{filteredList?.length}}</span>
+      <span>({{scroll.viewPortItems?.length}} nodes)</span>
+      <span>[scrollStartPosition: {{scroll.viewPortInfo.scrollStartPosition}}px, scrollEndPosition: {{scroll.viewPortInfo.scrollEndPosition}}px, maxScrollPosition: {{scroll.viewPortInfo.maxScrollPosition}}px ]</span>
     </div>
 
-    <virtual-scroll
+    <virtual-scroll #scroll
       [enableUnequalChildrenSizes]="randomHeight"
       [items]="buffer"
-      (update)="scrollItems = $event"
       (end)="fetchMore($event)">
 
-      <list-item [randomHeight]="randomHeight" *ngFor="let item of scrollItems" [item]="item"> </list-item>
+      <list-item [randomHeight]="randomHeight" *ngFor="let item of scroll.viewPortItems" [item]="item"> </list-item>
       <div *ngIf="loading" class="loader">Loading...</div>
 
     </virtual-scroll>
@@ -38,13 +38,8 @@ export class ListWithApiComponent implements OnChanges {
   @Input()
   public items: ListItem[];
 
-  @ViewChild(VirtualScrollComponent)
-  public virtualScroll: VirtualScrollComponent;
-
   public ListItemComponent = ListItemComponent;
   public randomHeight = false;
-  public scrollItems: ListItem[];
-  public indices: ChangeEvent;
   public buffer: ListItem[] = [];
   public readonly bufferSize: number = 10;
   public timer;
@@ -59,7 +54,6 @@ export class ListWithApiComponent implements OnChanges {
   }
 
   public fetchMore(event: ChangeEvent) {
-    this.indices = event;
     if (event.end === this.buffer.length - 1) {
       this.loading = true;
       this.fetchNextChunk(this.buffer.length, this.bufferSize, event).then(chunk => {
@@ -87,9 +81,5 @@ export class ListWithApiComponent implements OnChanges {
 
   public sortByIndex() {
     this.buffer = [].concat(this.buffer || []).sort((a, b) => -(a.index < b.index) || +(a.index !== b.index));
-  }
-
-  public scrollTo() {
-    this.virtualScroll.scrollToIndex(50);
   }
 }

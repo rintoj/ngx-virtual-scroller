@@ -1,8 +1,10 @@
 import { ElementRef, EventEmitter, NgZone, OnChanges, OnDestroy, OnInit, Renderer2 } from '@angular/core';
 import * as tween from '@tweenjs/tween.js';
 export interface ChangeEvent {
-    start?: number;
-    end?: number;
+    start: number;
+    end: number;
+    scrollStartPosition: number;
+    scrollEndPosition: number;
 }
 export interface WrapGroupDimensions {
     numberOfKnownWrapGroupChildSizes: number;
@@ -24,10 +26,17 @@ export interface IDimensions {
     childWidth: number;
     childHeight: number;
     scrollLength: number;
+    viewportLength: number;
+    maxScrollPosition: number;
 }
-export interface IPageInfo {
+export interface IViewportIndices {
     startIndex: number;
     endIndex: number;
+}
+export interface IPageInfo extends IViewportIndices {
+    scrollStartPosition: number;
+    scrollEndPosition: number;
+    maxScrollPosition: number;
 }
 export interface IPageInfoWithBuffer extends IPageInfo {
     startIndexWithBuffer: number;
@@ -43,7 +52,8 @@ export declare class VirtualScrollComponent implements OnInit, OnChanges, OnDest
     protected readonly zone: NgZone;
     viewPortItems: any[];
     window: Window;
-    readonly viewPortIndices: IPageInfo;
+    readonly viewPortIndices: IViewportIndices;
+    readonly viewPortInfo: IPageInfo;
     protected _enableUnequalChildrenSizes: boolean;
     enableUnequalChildrenSizes: boolean;
     useMarginInsteadOfTranslate: boolean;
@@ -94,6 +104,7 @@ export declare class VirtualScrollComponent implements OnInit, OnChanges, OnDest
     scrollInto(item: any, alignToBeginning?: boolean, additionalOffset?: number, animationMilliseconds?: number, animationCompletedCallback?: () => void): void;
     scrollToIndex(index: number, alignToBeginning?: boolean, additionalOffset?: number, animationMilliseconds?: number, animationCompletedCallback?: () => void): void;
     protected scrollToIndex_internal(index: number, alignToBeginning?: boolean, additionalOffset?: number, animationMilliseconds?: number, animationCompletedCallback?: () => void): void;
+    scrollToPosition(scrollPosition: number, animationMilliseconds?: number, animationCompletedCallback?: () => void): void;
     constructor(element: ElementRef, renderer: Renderer2, zone: NgZone, scrollThrottlingTime: any, scrollAnimationTime: any, scrollbarWidth: any, scrollbarHeight: any, checkResizeInterval: any, resizeBypassRefreshThreshold: any);
     protected previousScrollBoundingRect: ClientRect;
     protected checkScrollElementResized(): void;
@@ -121,7 +132,7 @@ export declare class VirtualScrollComponent implements OnInit, OnChanges, OnDest
     protected removeScrollEventHandlers(): void;
     protected getElementsOffset(): number;
     protected countItemsPerWrapGroup(): number;
-    protected getScrollPosition(): number;
+    protected getScrollStartPosition(): number;
     protected minMeasuredChildWidth: number;
     protected minMeasuredChildHeight: number;
     protected wrapGroupDimensions: WrapGroupDimensions;
@@ -129,7 +140,7 @@ export declare class VirtualScrollComponent implements OnInit, OnChanges, OnDest
     protected calculateDimensions(): IDimensions;
     protected cachedPageSize: number;
     protected previousScrollNumberElements: number;
-    protected calculatePadding(arrayStartIndexWithBuffer: number, dimensions: IDimensions, allowUnequalChildrenSizes_Experimental: boolean): number;
+    protected calculatePadding(arrayStartIndexWithBuffer: number, dimensions: IDimensions): number;
     protected calculatePageInfo(scrollPosition: number, dimensions: IDimensions): IPageInfoWithBuffer;
     protected calculateViewport(): IViewport;
 }

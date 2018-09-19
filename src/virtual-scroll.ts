@@ -21,8 +21,10 @@ import { CommonModule } from '@angular/common';
 import * as tween from '@tweenjs/tween.js'
 
 export interface ChangeEvent {
-	start?: number;
-	end?: number;
+	start: number;
+	end: number;
+	scrollStartPosition: number;
+	scrollEndPosition: number;
 }
 
 export interface WrapGroupDimensions {
@@ -47,11 +49,19 @@ export interface IDimensions {
 	childWidth: number;
 	childHeight: number;
 	scrollLength: number;
+	viewportLength: number;
+	maxScrollPosition: number;
 }
 
-export interface IPageInfo {
+export interface IViewportIndices {
 	startIndex: number;
 	endIndex: number;
+}
+
+export interface IPageInfo extends IViewportIndices {
+	scrollStartPosition: number;
+	scrollEndPosition: number;
+	maxScrollPosition: number;
 }
 
 export interface IPageInfoWithBuffer extends IPageInfo {
@@ -136,11 +146,22 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
 	public viewPortItems: any[];
 	public window = window;
 
-	public get viewPortIndices(): IPageInfo {
-		let pageInfo: IPageInfo = this.previousViewPort || <any>{};
+	public get viewPortIndices(): IViewportIndices {
+		let pageInfo: IViewport = this.previousViewPort || <any>{};
 		return {
 			startIndex: pageInfo.startIndex || 0,
 			endIndex: pageInfo.endIndex || 0
+		};
+	}
+
+	public get viewPortInfo(): IPageInfo {
+		let pageInfo: IViewport = this.previousViewPort || <any>{};
+		return {
+			startIndex: pageInfo.startIndex || 0,
+			endIndex: pageInfo.endIndex || 0,
+			scrollStartPosition: pageInfo.scrollStartPosition || 0,
+			scrollEndPosition: pageInfo.scrollEndPosition || 0,
+			maxScrollPosition: pageInfo.maxScrollPosition || 0
 		};
 	}
 
@@ -380,7 +401,7 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
 		this.refresh_internal(false);
 	}
 
-	public scrollInto(item: any, alignToBeginning: boolean = true, additionalOffset: number = 0, animationMilliseconds: number = undefined, animationCompletedCallback: () => void = undefined) : void {
+	public scrollInto(item: any, alignToBeginning: boolean = true, additionalOffset: number = 0, animationMilliseconds: number = undefined, animationCompletedCallback: () => void = undefined): void {
 		let index: number = this.items.indexOf(item);
 		if (index === -1) {
 			return;
@@ -419,14 +440,21 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
 	protected scrollToIndex_internal(index: number, alignToBeginning: boolean = true, additionalOffset: number = 0, animationMilliseconds: number = undefined, animationCompletedCallback: () => void = undefined): void {
 		animationMilliseconds = animationMilliseconds === undefined ? this.scrollAnimationTime : animationMilliseconds;
 
-		let scrollElement = this.getScrollElement();
-		let offset = this.getElementsOffset();
-
 		let dimensions = this.calculateDimensions();
-		let scroll = this.calculatePadding(index, dimensions, false) + offset + additionalOffset;
+		let scroll = this.calculatePadding(index, dimensions) + additionalOffset;
 		if (!alignToBeginning) {
 			scroll -= dimensions.wrapGroupsPerPage * dimensions[this._childScrollDim];
 		}
+
+		this.scrollToPosition(scroll, animationMilliseconds, animationCompletedCallback);
+	}
+
+	public scrollToPosition(scrollPosition: number, animationMilliseconds: number = undefined, animationCompletedCallback: () => void = undefined): void {
+		scrollPosition += this.getElementsOffset();
+
+		animationMilliseconds = animationMilliseconds === undefined ? this.scrollAnimationTime : animationMilliseconds;
+
+		let scrollElement = this.getScrollElement();
 
 		let animationRequest: number;
 
@@ -436,21 +464,21 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
 		}
 
 		if (!animationMilliseconds) {
-			this.renderer.setProperty(scrollElement, this._scrollType, scroll);
+			this.renderer.setProperty(scrollElement, this._scrollType, scrollPosition);
 			this.refresh_internal(false, animationCompletedCallback);
 			return;
 		}
 
-		const tweenConfigObj = { scroll: scrollElement[this._scrollType] };
+		const tweenConfigObj = { scrollPosition: scrollElement[this._scrollType] };
 
 		let newTween = new tween.Tween(tweenConfigObj)
-			.to({ scroll }, animationMilliseconds)
+			.to({ scrollPosition }, animationMilliseconds)
 			.easing(tween.Easing.Quadratic.Out)
 			.onUpdate((data) => {
-				if (isNaN(data.scroll)) {
+				if (isNaN(data.scrollPosition)) {
 					return;
 				}
-				this.renderer.setProperty(scrollElement, this._scrollType, data.scroll);
+				this.renderer.setProperty(scrollElement, this._scrollType, data.scrollPosition);
 				this.refresh_internal(false);
 			})
 			.onStop(() => {
@@ -464,7 +492,7 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
 			}
 
 			newTween.update(time);
-			if (tweenConfigObj.scroll === scroll) {
+			if (tweenConfigObj.scrollPosition === scrollPosition) {
 				this.refresh_internal(false, animationCompletedCallback);
 				return;
 			}
@@ -612,6 +640,7 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
 				let endChanged = itemsArrayModified || viewport.endIndex !== this.previousViewPort.endIndex;
 				let scrollLengthChanged = viewport.scrollLength !== this.previousViewPort.scrollLength;
 				let paddingChanged = viewport.padding !== this.previousViewPort.padding;
+				let scrollPositionChanged = viewport.scrollStartPosition !== this.previousViewPort.scrollStartPosition || viewport.scrollEndPosition !== this.previousViewPort.scrollEndPosition || viewport.maxScrollPosition !== this.previousViewPort.maxScrollPosition;
 
 				this.previousViewPort = viewport;
 
@@ -629,9 +658,7 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
 					}
 				}
 
-				let emitIndexChangedEvents = true; // maxReRunTimes === 1 (would need to still run if didn't update if previous iteration had updated)
-
-				if (startChanged || endChanged) {
+				if (startChanged || endChanged || scrollPositionChanged) {
 					this.zone.run(() => {
 
 						// update the scroll list to trigger re-render of components in viewport
@@ -639,21 +666,22 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
 						this.update.emit(this.viewPortItems);
 						this.vsUpdate.emit(this.viewPortItems);
 
-						if (emitIndexChangedEvents) {
-							if (startChanged) {
-								this.start.emit({ start: viewport.startIndex, end: viewport.endIndex });
-								this.vsStart.emit({ start: viewport.startIndex, end: viewport.endIndex });
-							}
+						if (startChanged) {
+							let eventArg = { start: viewport.startIndex, end: viewport.endIndex, scrollStartPosition: viewport.scrollStartPosition, scrollEndPosition: viewport.scrollEndPosition };
+							this.start.emit(eventArg);
+							this.vsStart.emit(eventArg);
+						}
 
-							if (endChanged) {
-								this.end.emit({ start: viewport.startIndex, end: viewport.endIndex });
-								this.vsEnd.emit({ start: viewport.startIndex, end: viewport.endIndex });
-							}
+						if (endChanged) {
+							let eventArg = { start: viewport.startIndex, end: viewport.endIndex, scrollStartPosition: viewport.scrollStartPosition, scrollEndPosition: viewport.scrollEndPosition };
+							this.end.emit(eventArg);
+							this.vsEnd.emit(eventArg);
+						}
 
-							if (startChanged || endChanged) {
-								this.change.emit({ start: viewport.startIndex, end: viewport.endIndex });
-								this.vsChange.emit({ start: viewport.startIndex, end: viewport.endIndex });
-							}
+						if (startChanged || endChanged) {
+							let eventArg = { start: viewport.startIndex, end: viewport.endIndex, scrollStartPosition: viewport.scrollStartPosition, scrollEndPosition: viewport.scrollEndPosition };
+							this.change.emit(eventArg);
+							this.vsChange.emit(eventArg);
 						}
 
 						if (maxRunTimes > 0) {
@@ -762,7 +790,7 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
 		return result;
 	}
 
-	protected getScrollPosition(): number {
+	protected getScrollStartPosition(): number {
 		let windowScrollValue = undefined;
 		if (this.parentScroll instanceof Window) {
 			windowScrollValue = window[this._pageOffsetType];
@@ -815,7 +843,6 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
 
 	protected calculateDimensions(): IDimensions {
 		let scrollElement = this.getScrollElement();
-		let itemCount = this.items.length;
 
 		const maxCalculatedScrollBarSize: number = 25; // Note: Formula to auto-calculate doesn't work for ParentScroll, so we default to this if not set by consuming application
 		this.calculatedScrollbarHeight = Math.max(Math.min(scrollElement.offsetHeight - scrollElement.clientHeight, maxCalculatedScrollBarSize), this.calculatedScrollbarHeight);
@@ -941,6 +968,7 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
 			}
 		}
 
+		let itemCount = this.items.length;
 		let itemsPerPage = itemsPerWrapGroup * wrapGroupsPerPage;
 		let pageCount_fractional = itemCount / itemsPerPage;
 		let numberOfWrapGroups = Math.ceil(itemCount / itemsPerWrapGroup);
@@ -964,6 +992,9 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
 			scrollLength = numberOfWrapGroups * defaultScrollLengthPerWrapGroup;
 		}
 
+		let viewportLength = this.horizontal ? viewWidth : viewHeight;
+		let maxScrollPosition = Math.max(scrollLength - viewportLength, 0);
+
 		return {
 			itemCount: itemCount,
 			itemsPerWrapGroup: itemsPerWrapGroup,
@@ -972,14 +1003,16 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
 			pageCount_fractional: pageCount_fractional,
 			childWidth: defaultChildWidth,
 			childHeight: defaultChildHeight,
-			scrollLength: scrollLength
+			scrollLength: scrollLength,
+			viewportLength: viewportLength,
+			maxScrollPosition: maxScrollPosition
 		};
 	}
 
 	protected cachedPageSize: number = 0;
 	protected previousScrollNumberElements: number = 0;
 
-	protected calculatePadding(arrayStartIndexWithBuffer: number, dimensions: IDimensions, allowUnequalChildrenSizes_Experimental: boolean): number {
+	protected calculatePadding(arrayStartIndexWithBuffer: number, dimensions: IDimensions): number {
 		if (dimensions.itemCount === 0) {
 			return 0;
 		}
@@ -1056,7 +1089,10 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
 			startIndex: arrayStartIndex,
 			endIndex: arrayEndIndex,
 			startIndexWithBuffer: startIndexWithBuffer,
-			endIndexWithBuffer: endIndexWithBuffer
+			endIndexWithBuffer: endIndexWithBuffer,
+			scrollStartPosition: scrollPosition,
+			scrollEndPosition: scrollPosition + dimensions.viewportLength,
+			maxScrollPosition: dimensions.maxScrollPosition
 		};
 	}
 
@@ -1064,16 +1100,16 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
 		let dimensions = this.calculateDimensions();
 		let offset = this.getElementsOffset();
 
-		let scrollPosition = this.getScrollPosition();
-		if (scrollPosition > dimensions.scrollLength && !(this.parentScroll instanceof Window)) {
-			scrollPosition = dimensions.scrollLength;
+		let scrollStartPosition = this.getScrollStartPosition();
+		if (scrollStartPosition > dimensions.scrollLength && !(this.parentScroll instanceof Window)) {
+			scrollStartPosition = dimensions.scrollLength;
 		} else {
-			scrollPosition -= offset;
+			scrollStartPosition -= offset;
 		}
-		scrollPosition = Math.max(0, scrollPosition);
+		scrollStartPosition = Math.max(0, scrollStartPosition);
 
-		let pageInfo = this.calculatePageInfo(scrollPosition, dimensions);
-		let newPadding = this.calculatePadding(pageInfo.startIndexWithBuffer, dimensions, true);
+		let pageInfo = this.calculatePageInfo(scrollStartPosition, dimensions);
+		let newPadding = this.calculatePadding(pageInfo.startIndexWithBuffer, dimensions);
 		let newScrollLength = dimensions.scrollLength;
 
 		return {
@@ -1082,7 +1118,10 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
 			startIndexWithBuffer: pageInfo.startIndexWithBuffer,
 			endIndexWithBuffer: pageInfo.endIndexWithBuffer,
 			padding: Math.round(newPadding),
-			scrollLength: Math.round(newScrollLength)
+			scrollLength: Math.round(newScrollLength),
+			scrollStartPosition: pageInfo.scrollStartPosition,
+			scrollEndPosition: pageInfo.scrollEndPosition,
+			maxScrollPosition: pageInfo.maxScrollPosition
 		};
 	}
 }

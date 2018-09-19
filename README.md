@@ -20,12 +20,15 @@ This method is effective because the number of DOM elements are always constant 
 
 ## New features:
 
-* Added ability to put other elements inside of scroll (Need to wrap list itself in @ContentChild('container'))
-* Added ability to use any parent with scrollbar instead of this element (@Input() parentScroll)
-* Added ability to use horizontal scrollbars
-* New feature is support of elements with different heights *EXPERIMENTAL*
+* Added API to query for current scroll px position (also passed as argument to ChangeEvent listeners)
+* Added API to invalidate cached child item measurements (if your child item sizes change dynamically)
+* Added API to scroll to specific px position
 * If scroll container resizes, the items will auto-refresh. Can be disabled if it causes any performance issues by setting [checkResizeInterval]="0"
 * useMarginInsteadOfTranslate flag. Defaults to false. This can affect performance (better/worse depending on your circumstances), and also creates a workaround for the transform+position:fixed browser bug.
+* Support for horizontal scrollbars
+* Support for elements with different sizes
+* Added ability to put other elements inside of scroll (Need to wrap list itself in @ContentChild('container'))
+* Added ability to use any parent with scrollbar instead of this element (@Input() parentScroll)
  
 ## Demo
 
@@ -34,9 +37,9 @@ This method is effective because the number of DOM elements are always constant 
 ## Usage
 
 ```html
-<virtual-scroll [items]="items" (vsUpdate)="viewPortItems = $event">
+<virtual-scroll #scroll [items]="items">
 
-    <my-custom-component *ngFor="let item of viewPortItems">
+    <my-custom-component *ngFor="let item of scroll.viewPortItems">
     </my-custom-component>
 
 </virtual-scroll>
@@ -45,9 +48,9 @@ This method is effective because the number of DOM elements are always constant 
 alternatively
 
 ```html
-<virtual-scroll #scroll [items]="items">
+<virtual-scroll [items]="items" (vsUpdate)="viewPortItems = $event">
 
-    <my-custom-component *ngFor="let item of scroll.viewPortItems">
+    <my-custom-component *ngFor="let item of viewPortItems">
     </my-custom-component>
 
 </virtual-scroll>
@@ -150,18 +153,20 @@ Child component is not necessary if your item is simple enough. See below.
 | scrollAnimationTime | number | The time in milliseconds for the scroll animation to run for. Default value is 750. 0 will completely disable the tween/animation. Can be injected by DI with token "virtualScroll.scrollAnimationTime".
 | parentScroll   | Element / Window | Element (or window), which will have scrollbar. This element must be one of the parents of virtual-scroll
 | compareItems   | Function | Predicate of syntax (item1:any, item2:any)=>boolean which is used when items array is modified to determine which items have been changed (determines if cached child size measurements need to be refreshed or not for enableUnequalChildrenSizes). Defaults to === comparison.
-| start (DEPRECATED) / vsStart         | Event  | This event is fired every time `start` index changes and emits `ChangeEvent` which is of format: `{ start: number, end: number }`
-| end (DEPRECATED) / vsEnd         | Event  | This event is fired every time `end` index changes and emits `ChangeEvent` which is of format: `{ start: number, end: number }`
+| start (DEPRECATED) / vsStart         | Event  | This event is fired every time `start` index changes and emits `ChangeEvent` which is of format: `{ start: number, end: number, scrollStartPosition:number, scrollEndPosition:number }`
+| end (DEPRECATED) / vsEnd         | Event  | This event is fired every time `end` index changes and emits `ChangeEvent` which is of format: `{ start: number, end: number, scrollStartPosition:number, scrollEndPosition:number }`
 | update (DEPRECATED) / vsUpdate         | Event  | This event is fired every time the `start` or `end` indexes change and emits the list of items which should be visible based on the current scroll position from `start` to `end`. The list emitted by this event must be used with `*ngFor` to render the actual list of items within `<virtual-scroll>`
-| change (DEPRECATED) / vsChange         | Event  | This event is fired every time the `start` or `end` indexes change and emits `ChangeEvent` which is of format: `{ start: number, end: number }`
-| viewPortIndices | { startIndex: number, endIndex: number } | Allows querying the visible item indexes in the viewport on demand rather than listening for events.
+| change (DEPRECATED) / vsChange         | Event  | This event is fired every time the `start` or `end` indexes or scroll position change and emits `ChangeEvent` which is of format: `{ start: number, end: number, scrollStartPosition:number, scrollEndPosition:number }`
+| viewPortIndices (DEPRECATED. use viewPortInfo instead) | { startIndex: number, endIndex: number } | Allows querying the visible item indexes in the viewport on demand rather than listening for events.
+| viewPortInfo | { startIndex:number, endIndex:number, scrollStartPosition:number, scrollEndPosition:number, maxScrollPosition:number } | Allows querying the the current viewport info on demand rather than listening for events.
 | viewPortItems | any[] | The array of items currently being rendered to the viewport.
 | refresh (DEPRECATED) | ()=>void | Function to force re-rendering of current items in viewport.
 | invalidateAllCachedMeasurements | ()=>void | Function to force re-measuring *all* cached item sizes. If enableUnequalChildrenSizes===false, only 1 item will be re-measured.
 | invalidateCachedMeasurementForItem | (item:any)=>void | Function to force re-measuring cached item size.
 | invalidateCachedMeasurementAtIndex | (index:number)=>void | Function to force re-measuring cached item size.
-| scrollInto | (item:any, alignToBeginning:boolean = true, additionalOffset:number = 0, animationMilliseconds:number = undefined, animationCompletedCallback:() => void = undefined)=>void | Scrolls to item
-| scrollToIndex | (index:number, alignToBeginning:boolean = true, additionalOffset:number = 0, animationMilliseconds:number = undefined, animationCompletedCallback:() => void = undefined)=>void | Scrolls to item at index
+| scrollInto | (item:any, alignToBeginning:boolean = true, additionalOffset:number = 0, animationMilliseconds:number = undefined, animationCompletedCallback:()=>void = undefined)=>void | Scrolls to item
+| scrollToIndex | (index:number, alignToBeginning:boolean = true, additionalOffset:number = 0, animationMilliseconds:number = undefined, animationCompletedCallback:()=>void = undefined)=>void | Scrolls to item at index
+| scrollToPosition | (scrollPosition:number, animationMilliseconds:number = undefined, animationCompletedCallback: ()=>void = undefined)=>void | Scrolls to px position
 
 Note: The Events without the "vs" prefix have been deprecated because they might conflict with native DOM events due to their "bubbling" nature. See https://github.com/angular/angular/issues/13997
 An example is if an <input> element inside <virtual-scroll> emits a "change" event which bubbles up to the (change) handler of virtual-scroll. Using the vs prefix will prevent this bubbling conflict because there are currently no official DOM events prefixed with vs.
@@ -330,7 +335,7 @@ Note: There is no support for a fixed-to-top-header.
 ## If child size changes
 virtual-scroll caches the measurements for the rendered items. If enableUnequalChildrenSizes===true then each item is measured and cached separately. Otherwise, the 1st measured item is used for all items.
 If your items can change sizes dynamically, you'll need to notify virtual-scroll to re-measure them. There are 3 methods for doing this:
-```
+```ts
 virtualScroll.invalidateAllCachedMeasurements();
 virtualScroll.invalidateCachedMeasurementForItem(item: any);
 virtualScroll.invalidateCachedMeasurementAtIndex(index: number);
@@ -433,7 +438,7 @@ sort() {
 ## Hide Scrollbar
 
 This hacky CSS allows hiding a scrollbar while still enabling scroll through mouseWheel/touch/pageUpDownKeys
-```
+```css
 	//hide vertical scrollbar
 	   margin-right: -25px;
 	   padding-right: 25px;

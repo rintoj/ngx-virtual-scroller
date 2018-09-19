@@ -61,6 +61,20 @@ var VirtualScrollComponent = (function () {
         enumerable: true,
         configurable: true
     });
+    Object.defineProperty(VirtualScrollComponent.prototype, "viewPortInfo", {
+        get: function () {
+            var pageInfo = this.previousViewPort || {};
+            return {
+                startIndex: pageInfo.startIndex || 0,
+                endIndex: pageInfo.endIndex || 0,
+                scrollStartPosition: pageInfo.scrollStartPosition || 0,
+                scrollEndPosition: pageInfo.scrollEndPosition || 0,
+                maxScrollPosition: pageInfo.maxScrollPosition || 0
+            };
+        },
+        enumerable: true,
+        configurable: true
+    });
     Object.defineProperty(VirtualScrollComponent.prototype, "enableUnequalChildrenSizes", {
         get: function () {
             return this._enableUnequalChildrenSizes;
@@ -273,38 +287,44 @@ var VirtualScrollComponent = (function () {
         this.scrollToIndex_internal(index, alignToBeginning, additionalOffset, animationMilliseconds, retryIfNeeded);
     };
     VirtualScrollComponent.prototype.scrollToIndex_internal = function (index, alignToBeginning, additionalOffset, animationMilliseconds, animationCompletedCallback) {
-        var _this = this;
         if (alignToBeginning === void 0) { alignToBeginning = true; }
         if (additionalOffset === void 0) { additionalOffset = 0; }
         if (animationMilliseconds === void 0) { animationMilliseconds = undefined; }
         if (animationCompletedCallback === void 0) { animationCompletedCallback = undefined; }
         animationMilliseconds = animationMilliseconds === undefined ? this.scrollAnimationTime : animationMilliseconds;
-        var scrollElement = this.getScrollElement();
-        var offset = this.getElementsOffset();
         var dimensions = this.calculateDimensions();
-        var scroll = this.calculatePadding(index, dimensions, false) + offset + additionalOffset;
+        var scroll = this.calculatePadding(index, dimensions) + additionalOffset;
         if (!alignToBeginning) {
             scroll -= dimensions.wrapGroupsPerPage * dimensions[this._childScrollDim];
         }
+        this.scrollToPosition(scroll, animationMilliseconds, animationCompletedCallback);
+    };
+    VirtualScrollComponent.prototype.scrollToPosition = function (scrollPosition, animationMilliseconds, animationCompletedCallback) {
+        var _this = this;
+        if (animationMilliseconds === void 0) { animationMilliseconds = undefined; }
+        if (animationCompletedCallback === void 0) { animationCompletedCallback = undefined; }
+        scrollPosition += this.getElementsOffset();
+        animationMilliseconds = animationMilliseconds === undefined ? this.scrollAnimationTime : animationMilliseconds;
+        var scrollElement = this.getScrollElement();
         var animationRequest;
         if (this.currentTween) {
             this.currentTween.stop();
             this.currentTween = undefined;
         }
         if (!animationMilliseconds) {
-            this.renderer.setProperty(scrollElement, this._scrollType, scroll);
+            this.renderer.setProperty(scrollElement, this._scrollType, scrollPosition);
             this.refresh_internal(false, animationCompletedCallback);
             return;
         }
-        var tweenConfigObj = { scroll: scrollElement[this._scrollType] };
+        var tweenConfigObj = { scrollPosition: scrollElement[this._scrollType] };
         var newTween = new tween.Tween(tweenConfigObj)
-            .to({ scroll: scroll }, animationMilliseconds)
+            .to({ scrollPosition: scrollPosition }, animationMilliseconds)
             .easing(tween.Easing.Quadratic.Out)
             .onUpdate(function (data) {
-            if (isNaN(data.scroll)) {
+            if (isNaN(data.scrollPosition)) {
                 return;
             }
-            _this.renderer.setProperty(scrollElement, _this._scrollType, data.scroll);
+            _this.renderer.setProperty(scrollElement, _this._scrollType, data.scrollPosition);
             _this.refresh_internal(false);
         })
             .onStop(function () {
@@ -316,7 +336,7 @@ var VirtualScrollComponent = (function () {
                 return;
             }
             newTween.update(time);
-            if (tweenConfigObj.scroll === scroll) {
+            if (tweenConfigObj.scrollPosition === scrollPosition) {
                 _this.refresh_internal(false, animationCompletedCallback);
                 return;
             }
@@ -403,6 +423,7 @@ var VirtualScrollComponent = (function () {
                 var endChanged = itemsArrayModified || viewport.endIndex !== _this.previousViewPort.endIndex;
                 var scrollLengthChanged = viewport.scrollLength !== _this.previousViewPort.scrollLength;
                 var paddingChanged = viewport.padding !== _this.previousViewPort.padding;
+                var scrollPositionChanged = viewport.scrollStartPosition !== _this.previousViewPort.scrollStartPosition || viewport.scrollEndPosition !== _this.previousViewPort.scrollEndPosition || viewport.maxScrollPosition !== _this.previousViewPort.maxScrollPosition;
                 _this.previousViewPort = viewport;
                 if (scrollLengthChanged) {
                     _this.renderer.setStyle(_this.invisiblePaddingElementRef.nativeElement, _this._invisiblePaddingProperty, viewport.scrollLength + "px");
@@ -416,26 +437,26 @@ var VirtualScrollComponent = (function () {
                         _this.renderer.setStyle(_this.contentElementRef.nativeElement, 'webkitTransform', _this._translateDir + "(" + viewport.padding + "px)");
                     }
                 }
-                var emitIndexChangedEvents = true; // maxReRunTimes === 1 (would need to still run if didn't update if previous iteration had updated)
-                if (startChanged || endChanged) {
+                if (startChanged || endChanged || scrollPositionChanged) {
                     _this.zone.run(function () {
                         // update the scroll list to trigger re-render of components in viewport
                         _this.viewPortItems = viewport.startIndexWithBuffer >= 0 && viewport.endIndexWithBuffer >= 0 ? _this.items.slice(viewport.startIndexWithBuffer, viewport.endIndexWithBuffer + 1) : [];
                         _this.update.emit(_this.viewPortItems);
                         _this.vsUpdate.emit(_this.viewPortItems);
-                        if (emitIndexChangedEvents) {
-                            if (startChanged) {
-                                _this.start.emit({ start: viewport.startIndex, end: viewport.endIndex });
-                                _this.vsStart.emit({ start: viewport.startIndex, end: viewport.endIndex });
-                            }
-                            if (endChanged) {
-                                _this.end.emit({ start: viewport.startIndex, end: viewport.endIndex });
-                                _this.vsEnd.emit({ start: viewport.startIndex, end: viewport.endIndex });
-                            }
-                            if (startChanged || endChanged) {
-                                _this.change.emit({ start: viewport.startIndex, end: viewport.endIndex });
-                                _this.vsChange.emit({ start: viewport.startIndex, end: viewport.endIndex });
-                            }
+                        if (startChanged) {
+                            var eventArg = { start: viewport.startIndex, end: viewport.endIndex, scrollStartPosition: viewport.scrollStartPosition, scrollEndPosition: viewport.scrollEndPosition };
+                            _this.start.emit(eventArg);
+                            _this.vsStart.emit(eventArg);
+                        }
+                        if (endChanged) {
+                            var eventArg = { start: viewport.startIndex, end: viewport.endIndex, scrollStartPosition: viewport.scrollStartPosition, scrollEndPosition: viewport.scrollEndPosition };
+                            _this.end.emit(eventArg);
+                            _this.vsEnd.emit(eventArg);
+                        }
+                        if (startChanged || endChanged) {
+                            var eventArg = { start: viewport.startIndex, end: viewport.endIndex, scrollStartPosition: viewport.scrollStartPosition, scrollEndPosition: viewport.scrollEndPosition };
+                            _this.change.emit(eventArg);
+                            _this.vsChange.emit(eventArg);
                         }
                         if (maxRunTimes > 0) {
                             _this.refresh_internal(false, refreshCompletedCallback, maxRunTimes - 1);
@@ -526,7 +547,7 @@ var VirtualScrollComponent = (function () {
         }
         return result;
     };
-    VirtualScrollComponent.prototype.getScrollPosition = function () {
+    VirtualScrollComponent.prototype.getScrollStartPosition = function () {
         var windowScrollValue = undefined;
         if (this.parentScroll instanceof Window) {
             windowScrollValue = window[this._pageOffsetType];
@@ -566,7 +587,6 @@ var VirtualScrollComponent = (function () {
     };
     VirtualScrollComponent.prototype.calculateDimensions = function () {
         var scrollElement = this.getScrollElement();
-        var itemCount = this.items.length;
         var maxCalculatedScrollBarSize = 25; // Note: Formula to auto-calculate doesn't work for ParentScroll, so we default to this if not set by consuming application
         this.calculatedScrollbarHeight = Math.max(Math.min(scrollElement.offsetHeight - scrollElement.clientHeight, maxCalculatedScrollBarSize), this.calculatedScrollbarHeight);
         this.calculatedScrollbarWidth = Math.max(Math.min(scrollElement.offsetWidth - scrollElement.clientWidth, maxCalculatedScrollBarSize), this.calculatedScrollbarWidth);
@@ -673,6 +693,7 @@ var VirtualScrollComponent = (function () {
                 }
             }
         }
+        var itemCount = this.items.length;
         var itemsPerPage = itemsPerWrapGroup * wrapGroupsPerPage;
         var pageCount_fractional = itemCount / itemsPerPage;
         var numberOfWrapGroups = Math.ceil(itemCount / itemsPerWrapGroup);
@@ -694,6 +715,8 @@ var VirtualScrollComponent = (function () {
         else {
             scrollLength = numberOfWrapGroups * defaultScrollLengthPerWrapGroup;
         }
+        var viewportLength = this.horizontal ? viewWidth : viewHeight;
+        var maxScrollPosition = Math.max(scrollLength - viewportLength, 0);
         return {
             itemCount: itemCount,
             itemsPerWrapGroup: itemsPerWrapGroup,
@@ -702,10 +725,12 @@ var VirtualScrollComponent = (function () {
             pageCount_fractional: pageCount_fractional,
             childWidth: defaultChildWidth,
             childHeight: defaultChildHeight,
-            scrollLength: scrollLength
+            scrollLength: scrollLength,
+            viewportLength: viewportLength,
+            maxScrollPosition: maxScrollPosition
         };
     };
-    VirtualScrollComponent.prototype.calculatePadding = function (arrayStartIndexWithBuffer, dimensions, allowUnequalChildrenSizes_Experimental) {
+    VirtualScrollComponent.prototype.calculatePadding = function (arrayStartIndexWithBuffer, dimensions) {
         if (dimensions.itemCount === 0) {
             return 0;
         }
@@ -772,22 +797,25 @@ var VirtualScrollComponent = (function () {
             startIndex: arrayStartIndex,
             endIndex: arrayEndIndex,
             startIndexWithBuffer: startIndexWithBuffer,
-            endIndexWithBuffer: endIndexWithBuffer
+            endIndexWithBuffer: endIndexWithBuffer,
+            scrollStartPosition: scrollPosition,
+            scrollEndPosition: scrollPosition + dimensions.viewportLength,
+            maxScrollPosition: dimensions.maxScrollPosition
         };
     };
     VirtualScrollComponent.prototype.calculateViewport = function () {
         var dimensions = this.calculateDimensions();
         var offset = this.getElementsOffset();
-        var scrollPosition = this.getScrollPosition();
-        if (scrollPosition > dimensions.scrollLength && !(this.parentScroll instanceof Window)) {
-            scrollPosition = dimensions.scrollLength;
+        var scrollStartPosition = this.getScrollStartPosition();
+        if (scrollStartPosition > dimensions.scrollLength && !(this.parentScroll instanceof Window)) {
+            scrollStartPosition = dimensions.scrollLength;
         }
         else {
-            scrollPosition -= offset;
+            scrollStartPosition -= offset;
         }
-        scrollPosition = Math.max(0, scrollPosition);
-        var pageInfo = this.calculatePageInfo(scrollPosition, dimensions);
-        var newPadding = this.calculatePadding(pageInfo.startIndexWithBuffer, dimensions, true);
+        scrollStartPosition = Math.max(0, scrollStartPosition);
+        var pageInfo = this.calculatePageInfo(scrollStartPosition, dimensions);
+        var newPadding = this.calculatePadding(pageInfo.startIndexWithBuffer, dimensions);
         var newScrollLength = dimensions.scrollLength;
         return {
             startIndex: pageInfo.startIndex,
@@ -795,7 +823,10 @@ var VirtualScrollComponent = (function () {
             startIndexWithBuffer: pageInfo.startIndexWithBuffer,
             endIndexWithBuffer: pageInfo.endIndexWithBuffer,
             padding: Math.round(newPadding),
-            scrollLength: Math.round(newScrollLength)
+            scrollLength: Math.round(newScrollLength),
+            scrollStartPosition: pageInfo.scrollStartPosition,
+            scrollEndPosition: pageInfo.scrollEndPosition,
+            maxScrollPosition: pageInfo.maxScrollPosition
         };
     };
     VirtualScrollComponent.decorators = [
