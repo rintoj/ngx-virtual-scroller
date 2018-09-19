@@ -14,6 +14,7 @@ This method is effective because the number of DOM elements are always constant 
 * OpenSource and available in GitHub
 
 ## Breaking Changes:
+* v0.4.13: resizeBypassRefreshTheshold renamed to resizeBypassRefreshThreshold (typo)
 * v0.4.12: The start and end values of the change/start/end events were including bufferAmount, which made them confusing. This has been corrected.
 	viewPortIndices.arrayStartIndex renamed to viewPortIndices.startIndex and viewPortIndices.arrayEndIndex renamed to viewPortIndices.endIndex
 * v0.4.4: The value of ChangeEvent.end wasn't intuitive. This has been corrected. Both ChangeEvent.start and ChangeEvent.end are the 0-based array indexes of the items being rendered in the viewport. (Previously Change.End was the array index + 1)

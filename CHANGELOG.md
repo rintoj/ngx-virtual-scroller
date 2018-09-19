@@ -1,3 +1,9 @@
+# v0.4.13
+
+* Support for dependency injection of some configuration properties
+* New APIs: scrollToPosition, invalidateAllCachedMeasurements, invalidateCachedMeasurementForItem, invalidateCachedMeasurementAtIndex, viewPortInfo
+* ScrollStartPosition, ScrollEndPosition, MaxScrollPosition properties added to ChangeEvent
+
 # v0.4.12
 
 * viewPortIndices.arrayStartIndex renamed to viewPortIndices.startIndex and viewPortIndices.arrayEndIndex renamed to viewPortIndices.endIndex

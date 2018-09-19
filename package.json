@@ -1,6 +1,6 @@
 {
   "name": "angular2-virtual-scroll",
-  "version": "0.4.12",
+  "version": "0.4.13",
   "description": "Angular 4+ module for virtual -infinite- list. Supports multi-column",
   "main": "dist/virtual-scroll.js",
   "types": "dist/virtual-scroll.d.ts",
@@ -25,7 +25,7 @@
     "scroll",
     "angular 2"
   ],
-  "author": "Rinto Jose",
+  "author": "Rinto Jose (rintoj), Devin Garner (speige)",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/rintoj/angular2-virtual-scroll/issues"
