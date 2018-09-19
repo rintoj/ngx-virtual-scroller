@@ -190,6 +190,50 @@ var VirtualScrollComponent = (function () {
     VirtualScrollComponent.prototype.refresh = function () {
         this.refresh_internal(true);
     };
+    VirtualScrollComponent.prototype.invalidateAllCachedMeasurements = function () {
+        if (this.enableUnequalChildrenSizes) {
+            this.wrapGroupDimensions = {
+                maxChildSizePerWrapGroup: [],
+                numberOfKnownWrapGroupChildSizes: 0,
+                sumOfKnownWrapGroupChildWidths: 0,
+                sumOfKnownWrapGroupChildHeights: 0
+            };
+        }
+        else {
+            this.minMeasuredChildWidth = undefined;
+            this.minMeasuredChildHeight = undefined;
+        }
+        this.refresh_internal(false);
+    };
+    VirtualScrollComponent.prototype.invalidateCachedMeasurementForItem = function (item) {
+        if (this.enableUnequalChildrenSizes) {
+            var index = this.items && this.items.indexOf(item);
+            if (index >= 0) {
+                this.invalidateCachedMeasurementAtIndex(index);
+            }
+        }
+        else {
+            this.minMeasuredChildWidth = undefined;
+            this.minMeasuredChildHeight = undefined;
+        }
+        this.refresh_internal(false);
+    };
+    VirtualScrollComponent.prototype.invalidateCachedMeasurementAtIndex = function (index) {
+        if (this.enableUnequalChildrenSizes) {
+            var cachedMeasurement = this.wrapGroupDimensions.maxChildSizePerWrapGroup[index];
+            if (cachedMeasurement) {
+                this.wrapGroupDimensions.maxChildSizePerWrapGroup[index] = undefined;
+                --this.wrapGroupDimensions.numberOfKnownWrapGroupChildSizes;
+                this.wrapGroupDimensions.sumOfKnownWrapGroupChildWidths -= cachedMeasurement.childWidth || 0;
+                this.wrapGroupDimensions.sumOfKnownWrapGroupChildHeights -= cachedMeasurement.childHeight || 0;
+            }
+        }
+        else {
+            this.minMeasuredChildWidth = undefined;
+            this.minMeasuredChildHeight = undefined;
+        }
+        this.refresh_internal(false);
+    };
     VirtualScrollComponent.prototype.scrollInto = function (item, alignToBeginning, additionalOffset, animationMilliseconds, animationCompletedCallback) {
         if (alignToBeginning === void 0) { alignToBeginning = true; }
         if (additionalOffset === void 0) { additionalOffset = 0; }
@@ -491,12 +535,7 @@ var VirtualScrollComponent = (function () {
     };
     VirtualScrollComponent.prototype.resetWrapGroupDimensions = function () {
         var oldWrapGroupDimensions = this.wrapGroupDimensions;
-        this.wrapGroupDimensions = {
-            maxChildSizePerWrapGroup: [],
-            numberOfKnownWrapGroupChildSizes: 0,
-            sumOfKnownWrapGroupChildWidths: 0,
-            sumOfKnownWrapGroupChildHeights: 0
-        };
+        this.invalidateAllCachedMeasurements();
         if (!this.enableUnequalChildrenSizes || !oldWrapGroupDimensions || oldWrapGroupDimensions.numberOfKnownWrapGroupChildSizes === 0) {
             return;
         }

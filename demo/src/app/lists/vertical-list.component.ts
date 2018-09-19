@@ -1,6 +1,6 @@
 import { Component, Input, OnChanges, ViewChild } from '@angular/core';
 import { VirtualScrollComponent } from 'angular2-virtual-scroll';
-import { ListItem } from './list-item.component';
+import { ListItem, ListItemComponent } from './list-item.component';
 
 @Component({
   selector: 'vertical-list',
@@ -12,6 +12,8 @@ import { ListItem } from './list-item.component';
     <button (click)="setToFullList()">Revert to 1000 Items</button>
     <button (click)="scrollTo()">Scroll to 50</button>
     <button (click)="randomHeight = !randomHeight">Toggle Random Height</button>
+    <button *ngIf="randomHeight" (click)="ListItemComponent.ResetSeed();">Re-Randomize Item Sizes</button>
+    <button *ngIf="randomHeight" (click)="virtualScroll.invalidateAllCachedMeasurements();">Invalidate cached measurements</button>
 
     <div class="status">
         Showing <span class="badge">{{indices?.start}}</span>
@@ -32,44 +34,43 @@ import { ListItem } from './list-item.component';
   `
 })
 export class VerticalListComponent implements OnChanges {
-
-  randomHeight = false;
-
   @Input()
-  items: ListItem[];
-  scrollItems: ListItem[];
-  indices: any;
-
-  filteredList: ListItem[];
+  public items: ListItem[];
 
   @ViewChild(VirtualScrollComponent)
-  private virtualScroll: VirtualScrollComponent;
+  public virtualScroll: VirtualScrollComponent;
 
-  reduceListToEmpty() {
+  public ListItemComponent = ListItemComponent;
+  public randomHeight = false;
+  public scrollItems: ListItem[];
+  public indices: any;
+  public filteredList: ListItem[];
+
+  public reduceListToEmpty() {
     this.filteredList = [];
   }
 
-  reduceList() {
+  public reduceList() {
     this.filteredList = (this.items || []).slice(0, 100);
   }
 
-  sortByName() {
+  public sortByName() {
     this.filteredList = [].concat(this.filteredList || []).sort((a, b) => -(a.name < b.name) || +(a.name !== b.name));
   }
 
-  sortByIndex() {
+  public sortByIndex() {
     this.filteredList = [].concat(this.filteredList || []).sort((a, b) => -(a.index < b.index) || +(a.index !== b.index));
   }
 
-  setToFullList() {
+  public setToFullList() {
     this.filteredList = (this.items || []).slice();
   }
 
-  scrollTo() {
+  public scrollTo() {
     this.virtualScroll.scrollToIndex(50);
   }
 
-  ngOnChanges() {
+  public ngOnChanges() {
     this.setToFullList();
   }
 

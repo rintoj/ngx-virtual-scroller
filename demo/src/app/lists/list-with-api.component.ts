@@ -1,7 +1,7 @@
 import { ChangeEvent, VirtualScrollComponent } from 'angular2-virtual-scroll';
 import { Component, ViewChild } from '@angular/core';
 import { Input } from '@angular/core';
-import { ListItem } from './list-item.component';
+import { ListItem, ListItemComponent } from './list-item.component';
 import { OnChanges } from '@angular/core';
 import { SimpleChanges } from '@angular/core';
 
@@ -11,6 +11,8 @@ import { SimpleChanges } from '@angular/core';
     <button (click)="sortByName()">Sort By Name</button>
     <button (click)="sortByIndex()">Sort By Index</button>
     <button (click)="randomHeight = !randomHeight">Toggle Random Height</button>
+    <button *ngIf="randomHeight" (click)="ListItemComponent.ResetSeed();">Re-Randomize Item Sizes</button>
+    <button *ngIf="randomHeight" (click)="virtualScroll.invalidateAllCachedMeasurements();">Invalidate cached measurements</button>
 
     <div class="status">
       Showing <span class="badge">{{indices?.start}}</span>
@@ -33,31 +35,30 @@ import { SimpleChanges } from '@angular/core';
   styleUrls: ['./list-with-api.scss']
 })
 export class ListWithApiComponent implements OnChanges {
-
-  randomHeight = false;
-
   @Input()
-  items: ListItem[];
-  scrollItems: ListItem[];
+  public items: ListItem[];
 
-  indices: ChangeEvent;
-  buffer: ListItem[] = [];
-  readonly bufferSize: number = 10;
-  timer;
-  loading: boolean;
-  
   @ViewChild(VirtualScrollComponent)
-  private virtualScroll: VirtualScrollComponent;
+  public virtualScroll: VirtualScrollComponent;
 
-  ngOnChanges(changes: SimpleChanges) {
+  public ListItemComponent = ListItemComponent;
+  public randomHeight = false;
+  public scrollItems: ListItem[];
+  public indices: ChangeEvent;
+  public buffer: ListItem[] = [];
+  public readonly bufferSize: number = 10;
+  public timer;
+  public loading: boolean;
+  
+  public ngOnChanges(changes: SimpleChanges) {
     this.reset();
   }
 
-  reset() {
+  private reset() {
     this.fetchNextChunk(0, this.bufferSize, {}).then(chunk => this.buffer = chunk);
   }
 
-  fetchMore(event: ChangeEvent) {
+  public fetchMore(event: ChangeEvent) {
     this.indices = event;
     if (event.end === this.buffer.length - 1) {
       this.loading = true;
@@ -68,7 +69,7 @@ export class ListWithApiComponent implements OnChanges {
     }
   }
 
-  fetchNextChunk(skip: number, limit: number, event?: any): Promise<ListItem[]> {
+  private fetchNextChunk(skip: number, limit: number, event?: any): Promise<ListItem[]> {
     return new Promise((resolve, reject) => {
       clearTimeout(this.timer);
       this.timer = setTimeout(() => {
@@ -80,15 +81,15 @@ export class ListWithApiComponent implements OnChanges {
     });
   }
 
-  sortByName() {
+  public sortByName() {
     this.buffer = [].concat(this.buffer || []).sort((a, b) => -(a.name < b.name) || +(a.name !== b.name));
   }
 
-  sortByIndex() {
+  public sortByIndex() {
     this.buffer = [].concat(this.buffer || []).sort((a, b) => -(a.index < b.index) || +(a.index !== b.index));
   }
 
-  scrollTo() {
+  public scrollTo() {
     this.virtualScroll.scrollToIndex(50);
   }
 }

@@ -94,9 +94,9 @@ export class AppModule { }
 **Step 3:** Wrap virtual-scroll tag around elements;
 
 ```ts
-<virtual-scroll [items]="items" (vsUpdate)="viewPortItems = $event">
+<virtual-scroll #scroll [items]="items">
 
-    <my-custom-component *ngFor="let item of viewPortItems">
+    <my-custom-component *ngFor="let item of scroll.viewPortItems">
     </my-custom-component>
 
 </virtual-scroll>
@@ -126,8 +126,8 @@ my-custom-component {
 Child component is not necessary if your item is simple enough. See below.
 
 ```html
-<virtual-scroll [items]="items" (vsUpdate)="viewPortItems = $event">
-    <div *ngFor="let item of viewPortItems">{{item?.name}}</div>
+<virtual-scroll #scroll [items]="items">
+    <div *ngFor="let item of scroll.viewPortItems">{{item?.name}}</div>
 </virtual-scroll>
 ```
 
@@ -155,6 +155,13 @@ Child component is not necessary if your item is simple enough. See below.
 | update (DEPRECATED) / vsUpdate         | Event  | This event is fired every time the `start` or `end` indexes change and emits the list of items which should be visible based on the current scroll position from `start` to `end`. The list emitted by this event must be used with `*ngFor` to render the actual list of items within `<virtual-scroll>`
 | change (DEPRECATED) / vsChange         | Event  | This event is fired every time the `start` or `end` indexes change and emits `ChangeEvent` which is of format: `{ start: number, end: number }`
 | viewPortIndices | { startIndex: number, endIndex: number } | Allows querying the visible item indexes in the viewport on demand rather than listening for events.
+| viewPortItems | any[] | The array of items currently being rendered to the viewport.
+| refresh (DEPRECATED) | ()=>void | Function to force re-rendering of current items in viewport.
+| invalidateAllCachedMeasurements | ()=>void | Function to force re-measuring *all* cached item sizes. If enableUnequalChildrenSizes===false, only 1 item will be re-measured.
+| invalidateCachedMeasurementForItem | (item:any)=>void | Function to force re-measuring cached item size.
+| invalidateCachedMeasurementAtIndex | (index:number)=>void | Function to force re-measuring cached item size.
+| scrollInto | (item:any, alignToBeginning:boolean = true, additionalOffset:number = 0, animationMilliseconds:number = undefined, animationCompletedCallback:() => void = undefined)=>void | Scrolls to item
+| scrollToIndex | (index:number, alignToBeginning:boolean = true, additionalOffset:number = 0, animationMilliseconds:number = undefined, animationCompletedCallback:() => void = undefined)=>void | Scrolls to item at index
 
 Note: The Events without the "vs" prefix have been deprecated because they might conflict with native DOM events due to their "bubbling" nature. See https://github.com/angular/angular/issues/13997
 An example is if an <input> element inside <virtual-scroll> emits a "change" event which bubbles up to the (change) handler of virtual-scroll. Using the vs prefix will prevent this bubbling conflict because there are currently no official DOM events prefixed with vs.
@@ -177,11 +184,10 @@ Here's a way to avoid it:
 If you want to nest additional elements inside virtual scroll besides the list itself (e.g. search field), you need to wrap those elements in a tag with an angular selector name of #container.
 
 ```html
-<virtual-scroll [items]="items"
-    (vsUpdate)="viewPortItems = $event">
+<virtual-scroll #scroll [items]="items">
     <input type="search">
     <div #container>
-        <my-custom-component *ngFor="let item of viewPortItems">
+        <my-custom-component *ngFor="let item of scroll.viewPortItems">
         </my-custom-component>
     </div>
 </virtual-scroll>
@@ -193,12 +199,10 @@ If you want to use the scrollbar of a parent element, set `parentScroll` to a na
 
 ```html
 <div #scrollingBlock>
-    <virtual-scroll [items]="items"
-        [parentScroll]="scrollingBlock"
-        (vsUpdate)="viewPortItems = $event">
+    <virtual-scroll #scroll [items]="items" [parentScroll]="scrollingBlock">
         <input type="search">
         <div #container>
-            <my-custom-component *ngFor="let item of viewPortItems">
+            <my-custom-component *ngFor="let item of scroll.viewPortItems">
             </my-custom-component>
         </div>
     </virtual-scroll>
@@ -209,12 +213,10 @@ If the parentScroll is a custom angular component (instead of a native HTML elem
 
 ```html
 <custom-angular-component #scrollingBlock>
-    <virtual-scroll [items]="items"
-        [parentScroll]="scrollingBlock.nativeElement"
-        (vsUpdate)="viewPortItems = $event">
+    <virtual-scroll #scroll [items]="items" [parentScroll]="scrollingBlock.nativeElement">
         <input type="search">
         <div #container>
-            <my-custom-component *ngFor="let item of viewPortItems">
+            <my-custom-component *ngFor="let item of scroll.viewPortItems">
             </my-custom-component>
         </div>
     </virtual-scroll>
@@ -228,10 +230,7 @@ Note: The parent element should have a width and height defined.
 If you want to use the window's scrollbar, set `parentScroll`.
 
 ```html
-<virtual-scroll
-    #scroll
-    [items]="items"
-    [parentScroll]="scroll.window">
+<virtual-scroll #scroll [items]="items" [parentScroll]="scroll.window">
     <input type="search">
     <div #container>
         <my-custom-component *ngFor="let item of scroll.viewPortItems">
@@ -247,24 +246,9 @@ Items must have fixed height and width for this module to work perfectly. If not
 (DEPRECATED): If enableUnequalChildrenSizes isn't working, you can set inputs `childWidth` and `childHeight` to their smallest possible values. You can also modify `bufferAmount` which causes extra items to be rendered on the edges of the scrolling area.
 
 ```html
-<virtual-scroll [items]="items"
-    [enableUnequalChildrenSizes]="true"
-    (vsUpdate)="viewPortItems = $event">
+<virtual-scroll #scroll [items]="items" [enableUnequalChildrenSizes]="true">
 
-    <my-custom-component *ngFor="let item of viewPortItems">
-    </my-custom-component>
-
-</virtual-scroll>
-```
-
-or
-
-```html
-<virtual-scroll [items]="items"
-    [enableUnequalChildrenSizes]="true"
-    (vsUpdate)="viewPortItems = $event">
-
-    <my-custom-component *ngFor="let item of viewPortItems">
+    <my-custom-component *ngFor="let item of scroll.viewPortItems">
     </my-custom-component>
 
 </virtual-scroll>
@@ -341,6 +325,15 @@ Note: There is no support for a fixed-to-top-header.
 		</tbody>
 	</table>
 </virtual-scroll>
+```
+
+## If child size changes
+virtual-scroll caches the measurements for the rendered items. If enableUnequalChildrenSizes===true then each item is measured and cached separately. Otherwise, the 1st measured item is used for all items.
+If your items can change sizes dynamically, you'll need to notify virtual-scroll to re-measure them. There are 3 methods for doing this:
+```
+virtualScroll.invalidateAllCachedMeasurements();
+virtualScroll.invalidateCachedMeasurementForItem(item: any);
+virtualScroll.invalidateCachedMeasurementAtIndex(index: number);
 ```
 
 ## If container size changes

@@ -297,24 +297,24 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
 	public vsEnd: EventEmitter<ChangeEvent> = new EventEmitter<ChangeEvent>();
 
 	@ViewChild('content', { read: ElementRef })
-	public contentElementRef: ElementRef;
+	protected contentElementRef: ElementRef;
 
 	@ViewChild('invisiblePadding', { read: ElementRef })
-	public invisiblePaddingElementRef: ElementRef;
+	protected invisiblePaddingElementRef: ElementRef;
 
 	@ContentChild('container', { read: ElementRef })
-	public containerElementRef: ElementRef;
+	protected containerElementRef: ElementRef;
 
-	public ngOnInit() {
+	public ngOnInit(): void {
 		this.addScrollEventHandlers();
 	}
 
-	public ngOnDestroy() {
+	public ngOnDestroy(): void {
 		this.removeScrollEventHandlers();
 		this.revertParentOverscroll();
 	}
 
-	public ngOnChanges(changes: any) {
+	public ngOnChanges(changes: any): void {
 		let indexLengthChanged = this.cachedItemsLength !== this.items.length;
 		this.cachedItemsLength = this.items.length;
 
@@ -322,18 +322,65 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
 		this.refresh_internal(indexLengthChanged || firstRun);
 	}
 
-	public ngDoCheck() {
+	public ngDoCheck(): void {
 		if (this.cachedItemsLength !== this.items.length) {
 			this.cachedItemsLength = this.items.length;
 			this.refresh_internal(true);
 		}
 	}
 
-	public refresh() {
+	public refresh(): void {
 		this.refresh_internal(true);
 	}
 
-	public scrollInto(item: any, alignToBeginning: boolean = true, additionalOffset: number = 0, animationMilliseconds: number = undefined, animationCompletedCallback: () => void = undefined) {
+	public invalidateAllCachedMeasurements(): void {
+		if (this.enableUnequalChildrenSizes) {
+			this.wrapGroupDimensions = {
+				maxChildSizePerWrapGroup: [],
+				numberOfKnownWrapGroupChildSizes: 0,
+				sumOfKnownWrapGroupChildWidths: 0,
+				sumOfKnownWrapGroupChildHeights: 0
+			};
+		} else {
+			this.minMeasuredChildWidth = undefined;
+			this.minMeasuredChildHeight = undefined;
+		}
+
+		this.refresh_internal(false);
+	}
+
+	public invalidateCachedMeasurementForItem(item: any): void {
+		if (this.enableUnequalChildrenSizes) {
+			let index = this.items && this.items.indexOf(item);
+			if (index >= 0) {
+				this.invalidateCachedMeasurementAtIndex(index);
+			}
+		} else {
+			this.minMeasuredChildWidth = undefined;
+			this.minMeasuredChildHeight = undefined;
+		}
+
+		this.refresh_internal(false);
+	}
+
+	public invalidateCachedMeasurementAtIndex(index: number): void {
+		if (this.enableUnequalChildrenSizes) {
+			let cachedMeasurement = this.wrapGroupDimensions.maxChildSizePerWrapGroup[index];
+			if (cachedMeasurement) {
+				this.wrapGroupDimensions.maxChildSizePerWrapGroup[index] = undefined;
+				--this.wrapGroupDimensions.numberOfKnownWrapGroupChildSizes;
+				this.wrapGroupDimensions.sumOfKnownWrapGroupChildWidths -= cachedMeasurement.childWidth || 0;
+				this.wrapGroupDimensions.sumOfKnownWrapGroupChildHeights -= cachedMeasurement.childHeight || 0;
+			}
+		} else {
+			this.minMeasuredChildWidth = undefined;
+			this.minMeasuredChildHeight = undefined;
+		}
+
+		this.refresh_internal(false);
+	}
+
+	public scrollInto(item: any, alignToBeginning: boolean = true, additionalOffset: number = 0, animationMilliseconds: number = undefined, animationCompletedCallback: () => void = undefined) : void {
 		let index: number = this.items.indexOf(item);
 		if (index === -1) {
 			return;
@@ -342,7 +389,7 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
 		this.scrollToIndex(index, alignToBeginning, additionalOffset, animationMilliseconds, animationCompletedCallback);
 	}
 
-	public scrollToIndex(index: number, alignToBeginning: boolean = true, additionalOffset: number = 0, animationMilliseconds: number = undefined, animationCompletedCallback: () => void = undefined) {
+	public scrollToIndex(index: number, alignToBeginning: boolean = true, additionalOffset: number = 0, animationMilliseconds: number = undefined, animationCompletedCallback: () => void = undefined): void {
 		let maxRetries: number = 5;
 
 		let retryIfNeeded = () => {
@@ -369,7 +416,7 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
 		this.scrollToIndex_internal(index, alignToBeginning, additionalOffset, animationMilliseconds, retryIfNeeded);
 	}
 
-	protected scrollToIndex_internal(index: number, alignToBeginning: boolean = true, additionalOffset: number = 0, animationMilliseconds: number = undefined, animationCompletedCallback: () => void = undefined) {
+	protected scrollToIndex_internal(index: number, alignToBeginning: boolean = true, additionalOffset: number = 0, animationMilliseconds: number = undefined, animationCompletedCallback: () => void = undefined): void {
 		animationMilliseconds = animationMilliseconds === undefined ? this.scrollAnimationTime : animationMilliseconds;
 
 		let scrollElement = this.getScrollElement();
@@ -547,7 +594,7 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
 	protected disposeScrollHandler: () => void | undefined;
 	protected disposeResizeHandler: () => void | undefined;
 
-	protected refresh_internal(itemsArrayModified: boolean, refreshCompletedCallback: () => void = undefined, maxRunTimes: number = 2) {
+	protected refresh_internal(itemsArrayModified: boolean, refreshCompletedCallback: () => void = undefined, maxRunTimes: number = 2): void {
 		//note: maxRunTimes is to force it to keep recalculating if the previous iteration caused a re-render (different sliced items in viewport or scrollPosition changed).
 		//The default of 2x max will probably be accurate enough without causing too large a performance bottleneck
 		//The code would typically quit out on the 2nd iteration anyways. The main time it'd think more than 2 runs would be necessary would be for vastly different sized child items or if this is the 1st time the items array was initialized.
@@ -636,7 +683,7 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
 		return this.parentScroll instanceof Window ? document.scrollingElement || document.documentElement || document.body : this.parentScroll || this.element.nativeElement;
 	}
 
-	protected addScrollEventHandlers() {
+	protected addScrollEventHandlers(): void {
 		let scrollElement = this.getScrollElement();
 
 		this.removeScrollEventHandlers();
@@ -655,7 +702,7 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
 		});
 	}
 
-	protected removeScrollEventHandlers() {
+	protected removeScrollEventHandlers(): void {
 		if (this.checkScrollElementResizedTimer) {
 			clearInterval(this.checkScrollElementResizedTimer);
 		}
@@ -697,7 +744,7 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
 		return offset;
 	}
 
-	protected countItemsPerWrapGroup() {
+	protected countItemsPerWrapGroup(): number {
 		let propertyName = this.horizontal ? 'offsetLeft' : 'offsetTop';
 		let children = ((this.containerElementRef && this.containerElementRef.nativeElement) || this.contentElementRef.nativeElement).children;
 
@@ -731,12 +778,7 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
 
 	protected resetWrapGroupDimensions(): void {
 		const oldWrapGroupDimensions = this.wrapGroupDimensions;
-		this.wrapGroupDimensions = {
-			maxChildSizePerWrapGroup: [],
-			numberOfKnownWrapGroupChildSizes: 0,
-			sumOfKnownWrapGroupChildWidths: 0,
-			sumOfKnownWrapGroupChildHeights: 0
-		};
+		this.invalidateAllCachedMeasurements();
 
 		if (!this.enableUnequalChildrenSizes || !oldWrapGroupDimensions || oldWrapGroupDimensions.numberOfKnownWrapGroupChildSizes === 0) {
 			return;

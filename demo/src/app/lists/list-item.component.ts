@@ -27,13 +27,13 @@ export interface ListItem {
 })
 export class ListItemComponent {
     @Input()
-    item: ListItem;
+    public item: ListItem;
 
     @Input()
-    randomWidth: boolean = false;
+    public randomWidth: boolean = false;
 
     @Input()
-    randomHeight: boolean = false;
+    public randomHeight: boolean = false;
 
   @HostBinding('style.width')
   public get styleWidth(): string {
@@ -45,6 +45,11 @@ export class ListItemComponent {
     return (100 + this.stringToHash(this.item.name) % 900).toString() + 'px';
   }
 
+  private static Seed: number;
+  public static ResetSeed(): void {
+	ListItemComponent.Seed = Math.floor(Math.random() * Number.MAX_SAFE_INTEGER);
+  }  
+  
   @HostBinding('style.height')
   public get styleHeight(): string {
     if (!this.randomHeight) {
@@ -64,6 +69,7 @@ export class ListItemComponent {
   }
 
   private stringToHash(text: string): number {
-    return [].reduce.call(text, (accumulator, character) => (accumulator << 5) - accumulator + character.charCodeAt(0), 0);
+    return [].reduce.call(text, (accumulator, character) => (accumulator << 5) - accumulator + character.charCodeAt(0), 0) ^ ListItemComponent.Seed;
   }
 }
+ListItemComponent.ResetSeed();
