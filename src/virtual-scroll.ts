@@ -355,17 +355,15 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
 	}
 
 	public invalidateAllCachedMeasurements(): void {
-		if (this.enableUnequalChildrenSizes) {
-			this.wrapGroupDimensions = {
-				maxChildSizePerWrapGroup: [],
-				numberOfKnownWrapGroupChildSizes: 0,
-				sumOfKnownWrapGroupChildWidths: 0,
-				sumOfKnownWrapGroupChildHeights: 0
-			};
-		} else {
-			this.minMeasuredChildWidth = undefined;
-			this.minMeasuredChildHeight = undefined;
-		}
+		this.wrapGroupDimensions = {
+			maxChildSizePerWrapGroup: [],
+			numberOfKnownWrapGroupChildSizes: 0,
+			sumOfKnownWrapGroupChildWidths: 0,
+			sumOfKnownWrapGroupChildHeights: 0
+		};
+
+		this.minMeasuredChildWidth = undefined;
+		this.minMeasuredChildHeight = undefined;
 
 		this.refresh_internal(false);
 	}

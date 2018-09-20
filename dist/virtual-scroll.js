@@ -205,18 +205,14 @@ var VirtualScrollComponent = (function () {
         this.refresh_internal(true);
     };
     VirtualScrollComponent.prototype.invalidateAllCachedMeasurements = function () {
-        if (this.enableUnequalChildrenSizes) {
-            this.wrapGroupDimensions = {
-                maxChildSizePerWrapGroup: [],
-                numberOfKnownWrapGroupChildSizes: 0,
-                sumOfKnownWrapGroupChildWidths: 0,
-                sumOfKnownWrapGroupChildHeights: 0
-            };
-        }
-        else {
-            this.minMeasuredChildWidth = undefined;
-            this.minMeasuredChildHeight = undefined;
-        }
+        this.wrapGroupDimensions = {
+            maxChildSizePerWrapGroup: [],
+            numberOfKnownWrapGroupChildSizes: 0,
+            sumOfKnownWrapGroupChildWidths: 0,
+            sumOfKnownWrapGroupChildHeights: 0
+        };
+        this.minMeasuredChildWidth = undefined;
+        this.minMeasuredChildHeight = undefined;
         this.refresh_internal(false);
     };
     VirtualScrollComponent.prototype.invalidateCachedMeasurementForItem = function (item) {

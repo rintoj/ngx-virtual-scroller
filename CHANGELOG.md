@@ -1,3 +1,7 @@
+# v0.4.14
+
+* Fix regression 'TypeError: Cannot read property 'sumOfKnownWrapGroupChildWidths' of undefined'
+
 # v0.4.13
 
 * Support for dependency injection of some configuration properties
