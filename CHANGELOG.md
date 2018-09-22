@@ -1,3 +1,7 @@
+# v0.4.15
+
+* New properties to support AngularUniversal/ServerSideRendering (SSR)
+
 # v0.4.14
 
 * Fix regression 'TypeError: Cannot read property 'sumOfKnownWrapGroupChildWidths' of undefined'

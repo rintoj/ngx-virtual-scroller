@@ -1,6 +1,6 @@
 {
   "name": "angular2-virtual-scroll",
-  "version": "0.4.14",
+  "version": "0.4.15",
   "description": "Angular 4+ module for virtual -infinite- list. Supports multi-column",
   "main": "dist/virtual-scroll.js",
   "types": "dist/virtual-scroll.d.ts",

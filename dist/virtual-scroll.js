@@ -1,16 +1,21 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 var core_1 = require("@angular/core");
+var core_2 = require("@angular/core");
 var common_1 = require("@angular/common");
+var common_2 = require("@angular/common");
 var tween = require("@tweenjs/tween.js");
 var VirtualScrollComponent = (function () {
-    function VirtualScrollComponent(element, renderer, zone, scrollThrottlingTime, scrollAnimationTime, scrollbarWidth, scrollbarHeight, checkResizeInterval, resizeBypassRefreshThreshold) {
+    function VirtualScrollComponent(element, renderer, zone, platformId, scrollThrottlingTime, scrollAnimationTime, scrollbarWidth, scrollbarHeight, checkResizeInterval, resizeBypassRefreshThreshold) {
         this.element = element;
         this.renderer = renderer;
         this.zone = zone;
+        this.platformId = platformId;
         this.window = window;
         this._enableUnequalChildrenSizes = false;
         this.useMarginInsteadOfTranslate = false;
+        this.ssrViewportWidth = 1920;
+        this.ssrViewportHeight = 1080;
         this._bufferAmount = 0;
         this.scrollAnimationTime = 750;
         this.resizeBypassRefreshThreshold = 5;
@@ -586,8 +591,14 @@ var VirtualScrollComponent = (function () {
         var maxCalculatedScrollBarSize = 25; // Note: Formula to auto-calculate doesn't work for ParentScroll, so we default to this if not set by consuming application
         this.calculatedScrollbarHeight = Math.max(Math.min(scrollElement.offsetHeight - scrollElement.clientHeight, maxCalculatedScrollBarSize), this.calculatedScrollbarHeight);
         this.calculatedScrollbarWidth = Math.max(Math.min(scrollElement.offsetWidth - scrollElement.clientWidth, maxCalculatedScrollBarSize), this.calculatedScrollbarWidth);
-        var viewWidth = scrollElement.offsetWidth - (this.scrollbarWidth || this.calculatedScrollbarWidth || (this.horizontal ? 0 : maxCalculatedScrollBarSize));
-        var viewHeight = scrollElement.offsetHeight - (this.scrollbarHeight || this.calculatedScrollbarHeight || (this.horizontal ? maxCalculatedScrollBarSize : 0));
+        var viewportWidth = scrollElement.offsetWidth - (this.scrollbarWidth || this.calculatedScrollbarWidth || (this.horizontal ? 0 : maxCalculatedScrollBarSize));
+        var viewportHeight = scrollElement.offsetHeight - (this.scrollbarHeight || this.calculatedScrollbarHeight || (this.horizontal ? maxCalculatedScrollBarSize : 0));
+        if (common_1.isPlatformServer(this.platformId)) {
+            viewportWidth = this.ssrViewportWidth;
+            viewportHeight = this.ssrViewportHeight;
+            this.childWidth = this.ssrChildWidth;
+            this.childHeight = this.ssrChildHeight;
+        }
         var content = (this.containerElementRef && this.containerElementRef.nativeElement) || this.contentElementRef.nativeElement;
         var itemsPerWrapGroup = this.countItemsPerWrapGroup();
         var wrapGroupsPerPage;
@@ -596,11 +607,11 @@ var VirtualScrollComponent = (function () {
         if (!this.enableUnequalChildrenSizes) {
             if (content.children.length > 0) {
                 if (!this.childWidth || !this.childHeight) {
-                    if (!this.minMeasuredChildWidth && viewWidth > 0) {
-                        this.minMeasuredChildWidth = viewWidth;
+                    if (!this.minMeasuredChildWidth && viewportWidth > 0) {
+                        this.minMeasuredChildWidth = viewportWidth;
                     }
-                    if (!this.minMeasuredChildHeight && viewHeight > 0) {
-                        this.minMeasuredChildHeight = viewHeight;
+                    if (!this.minMeasuredChildHeight && viewportHeight > 0) {
+                        this.minMeasuredChildHeight = viewportHeight;
                     }
                 }
                 var child = content.children[0];
@@ -608,10 +619,10 @@ var VirtualScrollComponent = (function () {
                 this.minMeasuredChildWidth = Math.min(this.minMeasuredChildWidth, clientRect.width);
                 this.minMeasuredChildHeight = Math.min(this.minMeasuredChildHeight, clientRect.height);
             }
-            defaultChildWidth = this.childWidth || this.minMeasuredChildWidth || viewWidth;
-            defaultChildHeight = this.childHeight || this.minMeasuredChildHeight || viewHeight;
-            var itemsPerRow = Math.max(Math.ceil(viewWidth / defaultChildWidth), 1);
-            var itemsPerCol = Math.max(Math.ceil(viewHeight / defaultChildHeight), 1);
+            defaultChildWidth = this.childWidth || this.minMeasuredChildWidth || viewportWidth;
+            defaultChildHeight = this.childHeight || this.minMeasuredChildHeight || viewportHeight;
+            var itemsPerRow = Math.max(Math.ceil(viewportWidth / defaultChildWidth), 1);
+            var itemsPerCol = Math.max(Math.ceil(viewportHeight / defaultChildHeight), 1);
             wrapGroupsPerPage = this.horizontal ? itemsPerRow : itemsPerCol;
         }
         else {
@@ -646,26 +657,26 @@ var VirtualScrollComponent = (function () {
                     this.wrapGroupDimensions.sumOfKnownWrapGroupChildWidths += maxWidthForWrapGroup;
                     this.wrapGroupDimensions.sumOfKnownWrapGroupChildHeights += maxHeightForWrapGroup;
                     if (this.horizontal) {
-                        var maxVisibleWidthForWrapGroup = Math.min(maxWidthForWrapGroup, Math.max(viewWidth - sumOfVisibleMaxWidths, 0));
+                        var maxVisibleWidthForWrapGroup = Math.min(maxWidthForWrapGroup, Math.max(viewportWidth - sumOfVisibleMaxWidths, 0));
                         if (scrollOffset > 0) {
                             var scrollOffsetToRemove = Math.min(scrollOffset, maxVisibleWidthForWrapGroup);
                             maxVisibleWidthForWrapGroup -= scrollOffsetToRemove;
                             scrollOffset -= scrollOffsetToRemove;
                         }
                         sumOfVisibleMaxWidths += maxVisibleWidthForWrapGroup;
-                        if (maxVisibleWidthForWrapGroup > 0 && viewWidth >= sumOfVisibleMaxWidths) {
+                        if (maxVisibleWidthForWrapGroup > 0 && viewportWidth >= sumOfVisibleMaxWidths) {
                             ++wrapGroupsPerPage;
                         }
                     }
                     else {
-                        var maxVisibleHeightForWrapGroup = Math.min(maxHeightForWrapGroup, Math.max(viewHeight - sumOfVisibleMaxHeights, 0));
+                        var maxVisibleHeightForWrapGroup = Math.min(maxHeightForWrapGroup, Math.max(viewportHeight - sumOfVisibleMaxHeights, 0));
                         if (scrollOffset > 0) {
                             var scrollOffsetToRemove = Math.min(scrollOffset, maxVisibleHeightForWrapGroup);
                             maxVisibleHeightForWrapGroup -= scrollOffsetToRemove;
                             scrollOffset -= scrollOffsetToRemove;
                         }
                         sumOfVisibleMaxHeights += maxVisibleHeightForWrapGroup;
-                        if (maxVisibleHeightForWrapGroup > 0 && viewHeight >= sumOfVisibleMaxHeights) {
+                        if (maxVisibleHeightForWrapGroup > 0 && viewportHeight >= sumOfVisibleMaxHeights) {
                             ++wrapGroupsPerPage;
                         }
                     }
@@ -676,16 +687,16 @@ var VirtualScrollComponent = (function () {
             }
             var averageChildWidth = this.wrapGroupDimensions.sumOfKnownWrapGroupChildWidths / this.wrapGroupDimensions.numberOfKnownWrapGroupChildSizes;
             var averageChildHeight = this.wrapGroupDimensions.sumOfKnownWrapGroupChildHeights / this.wrapGroupDimensions.numberOfKnownWrapGroupChildSizes;
-            defaultChildWidth = this.childWidth || averageChildWidth || viewWidth;
-            defaultChildHeight = this.childHeight || averageChildHeight || viewHeight;
+            defaultChildWidth = this.childWidth || averageChildWidth || viewportWidth;
+            defaultChildHeight = this.childHeight || averageChildHeight || viewportHeight;
             if (this.horizontal) {
-                if (viewWidth > sumOfVisibleMaxWidths) {
-                    wrapGroupsPerPage += Math.ceil((viewWidth - sumOfVisibleMaxWidths) / defaultChildWidth);
+                if (viewportWidth > sumOfVisibleMaxWidths) {
+                    wrapGroupsPerPage += Math.ceil((viewportWidth - sumOfVisibleMaxWidths) / defaultChildWidth);
                 }
             }
             else {
-                if (viewHeight > sumOfVisibleMaxHeights) {
-                    wrapGroupsPerPage += Math.ceil((viewHeight - sumOfVisibleMaxHeights) / defaultChildHeight);
+                if (viewportHeight > sumOfVisibleMaxHeights) {
+                    wrapGroupsPerPage += Math.ceil((viewportHeight - sumOfVisibleMaxHeights) / defaultChildHeight);
                 }
             }
         }
@@ -711,7 +722,7 @@ var VirtualScrollComponent = (function () {
         else {
             scrollLength = numberOfWrapGroups * defaultScrollLengthPerWrapGroup;
         }
-        var viewportLength = this.horizontal ? viewWidth : viewHeight;
+        var viewportLength = this.horizontal ? viewportWidth : viewportHeight;
         var maxScrollPosition = Math.max(scrollLength - viewportLength, 0);
         return {
             itemCount: itemCount,
@@ -843,6 +854,7 @@ var VirtualScrollComponent = (function () {
         { type: core_1.ElementRef, },
         { type: core_1.Renderer2, },
         { type: core_1.NgZone, },
+        { type: Object, decorators: [{ type: core_1.Inject, args: [core_2.PLATFORM_ID,] },] },
         { type: undefined, decorators: [{ type: core_1.Optional }, { type: core_1.Inject, args: ['virtualScroll.scrollThrottlingTime',] },] },
         { type: undefined, decorators: [{ type: core_1.Optional }, { type: core_1.Inject, args: ['virtualScroll.scrollAnimationTime',] },] },
         { type: undefined, decorators: [{ type: core_1.Optional }, { type: core_1.Inject, args: ['virtualScroll.scrollbarWidth',] },] },
@@ -857,6 +869,10 @@ var VirtualScrollComponent = (function () {
         'scrollbarHeight': [{ type: core_1.Input },],
         'childWidth': [{ type: core_1.Input },],
         'childHeight': [{ type: core_1.Input },],
+        'ssrChildWidth': [{ type: core_1.Input },],
+        'ssrChildHeight': [{ type: core_1.Input },],
+        'ssrViewportWidth': [{ type: core_1.Input },],
+        'ssrViewportHeight': [{ type: core_1.Input },],
         'bufferAmount': [{ type: core_1.Input },],
         'scrollAnimationTime': [{ type: core_1.Input },],
         'resizeBypassRefreshThreshold': [{ type: core_1.Input },],
@@ -888,7 +904,7 @@ var VirtualScrollModule = (function () {
         { type: core_1.NgModule, args: [{
                     exports: [VirtualScrollComponent],
                     declarations: [VirtualScrollComponent],
-                    imports: [common_1.CommonModule]
+                    imports: [common_2.CommonModule]
                 },] },
     ];
     /** @nocollapse */
