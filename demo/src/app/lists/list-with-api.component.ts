@@ -17,7 +17,7 @@ import { SimpleChanges } from '@angular/core';
     <div class="status">
         Showing <span>{{scroll.viewPortInfo.startIndex}}</span>
         - <span>{{scroll.viewPortInfo.endIndex}}</span>
-        of <span>{{filteredList?.length}}</span>
+        of <span>{{items?.length}}</span>
       <span>({{scroll.viewPortItems?.length}} nodes)</span>
       <span>[scrollStartPosition: {{scroll.viewPortInfo.scrollStartPosition}}px, scrollEndPosition: {{scroll.viewPortInfo.scrollEndPosition}}px, maxScrollPosition: {{scroll.viewPortInfo.maxScrollPosition}}px ]</span>
     </div>
@@ -44,7 +44,7 @@ export class ListWithApiComponent implements OnChanges {
   public readonly bufferSize: number = 10;
   public timer;
   public loading: boolean;
-  
+
   public ngOnChanges(changes: SimpleChanges) {
     this.reset();
   }

@@ -12,7 +12,7 @@ import { SamplesComponent } from './routes/samples.component';
 
 import { ListItemComponent } from './lists/list-item.component';
 
-import { HorizontalListComponent } from "./lists/horizontal-list.component";
+import { HorizontalListComponent } from './lists/horizontal-list.component';
 import { ListWithApiComponent } from './lists/list-with-api.component';
 import { MultiColListComponent } from './lists/multi-col-list.component';
 import { TableListComponent } from './lists/table-list.component';
@@ -49,12 +49,12 @@ import { VirtualScrollModule } from 'angular2-virtual-scroll';
     VirtualScrollModule
   ],
   providers: [
-    {  provide: 'virtualScroll.scrollThrottlingTime', useValue: 0  },
-    {  provide: 'virtualScroll.scrollAnimationTime', useValue: 750  },
-	{  provide: 'virtualScroll.scrollbarWidth', useValue: undefined  },
-	{  provide: 'virtualScroll.scrollbarHeight', useValue: undefined  },
-	{  provide: 'virtualScroll.checkResizeInterval', useValue: 1000  },
-	{  provide: 'virtualScroll.resizeBypassRefreshThreshold', useValue: 5  }
+    { provide: 'virtualScroll.scrollThrottlingTime', useValue: 0 },
+    { provide: 'virtualScroll.scrollAnimationTime', useValue: 750 },
+    { provide: 'virtualScroll.scrollbarWidth', useValue: undefined },
+    { provide: 'virtualScroll.scrollbarHeight', useValue: undefined },
+    { provide: 'virtualScroll.checkResizeInterval', useValue: 1000 },
+    { provide: 'virtualScroll.resizeBypassRefreshThreshold', useValue: 5 }
   ],
   bootstrap: [AppComponent]
 })

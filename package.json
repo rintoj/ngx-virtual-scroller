@@ -7,6 +7,7 @@
   "scripts": {
     "cleanup": "rimraf dist",
     "build": "npm run cleanup && npm run ngc",
+    "build:docs": "cd demo && npm run build && mv dist ../docs",
     "lint": "tslint src/**/*.ts",
     "prepublish": "npm run build",
     "start": "npm run watch",
@@ -23,20 +24,20 @@
   "keywords": [
     "virtual scroll",
     "scroll",
-	"ngx",
-	"angular",
+    "ngx",
+    "angular",
     "angular 2"
   ],
   "contributors": [
-	{
-		"name": "Rinto Jose"
-	},
-	{
-		"name": "Devin Garner"
-	},
-	{
-		"name": "Pavel Kukushkin"
-	}
+    {
+      "name": "Rinto Jose"
+    },
+    {
+      "name": "Devin Garner"
+    },
+    {
+      "name": "Pavel Kukushkin"
+    }
   ],
   "license": "MIT",
   "bugs": {
