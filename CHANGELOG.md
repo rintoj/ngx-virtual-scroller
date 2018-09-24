@@ -1,3 +1,7 @@
+# v1.0.1
+
+* Renamed from angular2-virtual-scroll to ngx-virtual-scroller
+
 # v0.4.15
 
 * New properties to support AngularUniversal/ServerSideRendering (SSR)
@@ -69,11 +73,11 @@ Breaking Change: The value of ChangeEvent.end wasn't intuitive. This has been co
 
 # v0.3.2
 
-* Merge PR [!159](https://github.com/rintoj/angular2-virtual-scroll/pull/159), [!165](https://github.com/rintoj/angular2-virtual-scroll/pull/165), [!167](https://github.com/rintoj/angular2-virtual-scroll/pull/167), [!168](https://github.com/rintoj/angular2-virtual-scroll/pull/168)
+* Merge PR [!159](https://github.com/rintoj/ngx-virtual-scroller/pull/159), [!165](https://github.com/rintoj/ngx-virtual-scroller/pull/165), [!167](https://github.com/rintoj/ngx-virtual-scroller/pull/167), [!168](https://github.com/rintoj/ngx-virtual-scroller/pull/168)
 
 # v0.3.1
 
-* Merge PR [!117](https://github.com/rintoj/angular2-virtual-scroll/pull/117) - Run scroll and frame handlers outside of angular zone for performance
+* Merge PR [!117](https://github.com/rintoj/ngx-virtual-scroller/pull/117) - Run scroll and frame handlers outside of angular zone for performance
 
 # v0.3.0
 
@@ -95,8 +99,8 @@ Breaking Change: The value of ChangeEvent.end wasn't intuitive. This has been co
 
 # v0.1.8
 
-* fixes [#74](https://github.com/rintoj/angular2-virtual-scroll/issues/74)
-* fix buffer for scroll to top amount [#71](https://github.com/rintoj/angular2-virtual-scroll/issues/71)
+* fixes [#74](https://github.com/rintoj/ngx-virtual-scroller/issues/74)
+* fix buffer for scroll to top amount [#71](https://github.com/rintoj/ngx-virtual-scroller/issues/71)
 
 # v0.1.7
 
@@ -110,41 +114,41 @@ Breaking Change: The value of ChangeEvent.end wasn't intuitive. This has been co
 
 # v0.1.5
 
-* Bug fix: the data to "jump" once scrolled to the bottom, because maxStart is assumed to be evenly divisible by the number of items in each row. [#32](https://github.com/rintoj/angular2-virtual-scroll/issues/32)
+* Bug fix: the data to "jump" once scrolled to the bottom, because maxStart is assumed to be evenly divisible by the number of items in each row. [#32](https://github.com/rintoj/ngx-virtual-scroller/issues/32)
 
 # v0.1.4
 
-* Bug fix: ensure that onScrollListener is actually defined before removing [#25](https://github.com/rintoj/angular2-virtual-scroll/issues/25)
+* Bug fix: ensure that onScrollListener is actually defined before removing [#25](https://github.com/rintoj/ngx-virtual-scroller/issues/25)
 
 # v0.1.3
 
 * Feature: Add event "start", to be fired when at the beginning of the list
 * Feature: Add event "end", to be fired when at the end of the list
-* Bug Fix: BUG infinite request on (change) - use "end" instead of "change" [#20](https://github.com/rintoj/angular2-virtual-scroll/issues/20)
+* Bug Fix: BUG infinite request on (change) - use "end" instead of "change" [#20](https://github.com/rintoj/ngx-virtual-scroller/issues/20)
 
 # v0.1.2
 
-* Feature: Fire change event after startup [#21](https://github.com/rintoj/angular2-virtual-scroll/issues/21)
+* Feature: Fire change event after startup [#21](https://github.com/rintoj/ngx-virtual-scroller/issues/21)
 
 # v0.1.1
 
-* Bug Fix: Update to lower amount of Elements, scroll issue, empty space on bottom [#22](https://github.com/rintoj/angular2-virtual-scroll/issues/22)
+* Bug Fix: Update to lower amount of Elements, scroll issue, empty space on bottom [#22](https://github.com/rintoj/ngx-virtual-scroller/issues/22)
 
 # v0.1.0
 
-* Feature: [enable AoT #16](https://github.com/rintoj/angular2-virtual-scroll/issues/16)
+* Feature: [enable AoT #16](https://github.com/rintoj/ngx-virtual-scroller/issues/16)
 
 # v0.0.9
 
-* Feature: [Smooth scroll on webkit (mobile) #13](https://github.com/rintoj/angular2-virtual-scroll/issues/4) & [data from server #7](https://github.com/rintoj/angular2-virtual-scroll/issues/13)
+* Feature: [Smooth scroll on webkit (mobile) #13](https://github.com/rintoj/ngx-virtual-scroller/issues/4) & [data from server #7](https://github.com/rintoj/ngx-virtual-scroller/issues/13)
 
 # v0.0.8
 
-* Feature: [Using virtual scroll with api #4](https://github.com/rintoj/angular2-virtual-scroll/issues/4) & [data from server #7](https://github.com/rintoj/angular2-virtual-scroll/issues/7)
+* Feature: [Using virtual scroll with api #4](https://github.com/rintoj/ngx-virtual-scroller/issues/4) & [data from server #7](https://github.com/rintoj/ngx-virtual-scroller/issues/7)
 
 # v0.0.7
 
-* Bug fix: [Multi-column scroll is broken in the demo #6](https://github.com/rintoj/angular2-virtual-scroll/issues/6)
+* Bug fix: [Multi-column scroll is broken in the demo #6](https://github.com/rintoj/ngx-virtual-scroller/issues/6)
 
 # v0.0.6
 
@@ -152,7 +156,7 @@ Breaking Change: The value of ChangeEvent.end wasn't intuitive. This has been co
 
 # v0.0.5
 
-* Merging pull request: [Completely define ngOnChanges function signature #2](https://github.com/rintoj/angular2-virtual-scroll/pull/2)
+* Merging pull request: [Completely define ngOnChanges function signature #2](https://github.com/rintoj/ngx-virtual-scroller/pull/2)
 
 # v0.0.4
 

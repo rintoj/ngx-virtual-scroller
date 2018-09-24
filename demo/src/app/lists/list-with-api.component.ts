@@ -1,4 +1,4 @@
-import { ChangeEvent, VirtualScrollComponent } from 'angular2-virtual-scroll';
+import { ChangeEvent, VirtualScrollComponent } from 'ngx-virtual-scroller';
 import { Component, ViewChild } from '@angular/core';
 import { Input } from '@angular/core';
 import { ListItem, ListItemComponent } from './list-item.component';

@@ -4,4 +4,4 @@ node_modules/
 *.map.js
 *.js
 /src/**/*.js
-angular2-virtual-scroll-*.tgz
+ngx-virtual-scroller-*.tgz
