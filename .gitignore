@@ -5,4 +5,4 @@ node_modules/
 *.js
 /src/**/*.js
 ngx-virtual-scroller-*.tgz
-!docs/*
+!docs/**/*
