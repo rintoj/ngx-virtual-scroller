@@ -17,7 +17,7 @@ import { ListWithApiComponent } from './lists/list-with-api.component';
 import { MultiColListComponent } from './lists/multi-col-list.component';
 import { TableListComponent } from './lists/table-list.component';
 import { VerticalListComponent } from './lists/vertical-list.component';
-import { VirtualScrollModule } from 'angular2-virtual-scroll';
+import { VirtualScrollModule } from 'ngx-virtual-scroller';
 
 @NgModule({
   declarations: [

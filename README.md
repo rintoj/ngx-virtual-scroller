@@ -1,7 +1,9 @@
 
-# angular2-virtual-scroll
+# ngx-virtual-scroller
 
-Virtual Scroll displays a virtual, "infinite" list. Supports multi-column.
+Virtual Scroll displays a virtual, "infinite" list. Supports horizontal/vertical, variable heights, & multi-column.
+
+## Renamed from angular2-virtual-scroll to ngx-virtual-scroller
 
 ## About
 
@@ -33,7 +35,7 @@ This method is effective because the number of DOM elements are always constant 
  
 ## Demo
 
-[See Demo Here](http://rintoj.github.io/angular2-virtual-scroll)
+[See Demo Here](http://rintoj.github.io/ngx-virtual-scroller)
 
 ## Usage
 
@@ -70,17 +72,17 @@ alternatively
 
 ## Get Started
 
-**Step 1:** Install angular2-virtual-scroll
+**Step 1:** Install ngx-virtual-scroller
 
 ```sh
-npm install angular2-virtual-scroll --save
+npm install ngx-virtual-scroller --save
 ```
 
 **Step 2:** Import virtual scroll module into your app module
 
 ```ts
 ....
-import { VirtualScrollModule } from 'angular2-virtual-scroll';
+import { VirtualScrollModule } from 'ngx-virtual-scroller';
 
 ....
 
@@ -270,7 +272,7 @@ The event `end` is fired every time the scrollbar reaches the end of the list. Y
 
 ```ts
 
-import { ChangeEvent } from 'angular2-virtual-scroll';
+import { ChangeEvent } from 'ngx-virtual-scroller';
 ...
 
 @Component({
@@ -357,7 +359,7 @@ If virtual scroll is used within a dropdown or collapsible menu, virtual scroll 
 
 ```ts
 import { Component, ViewChild } from '@angular/core';
-import { VirtualScrollComponent } from 'angular2-virtual-scroll';
+import { VirtualScrollComponent } from 'ngx-virtual-scroller';
 
 @Component({
     selector: 'rj-list',
@@ -389,7 +391,7 @@ See below:
 
 ```ts
 import { Component, ViewChild } from '@angular/core';
-import { VirtualScrollComponent } from 'angular2-virtual-scroll';
+import { VirtualScrollComponent } from 'ngx-virtual-scroller';
 
 @Component({
     selector: 'rj-list',
@@ -499,7 +501,7 @@ Follow me:
 | [Youtube](https://youtube.com/+RintoJoseMankudy)
 
 ## Versions
-[Check CHANGELOG](https://github.com/rintoj/angular2-virtual-scroll/blob/master/CHANGELOG.md)
+[Check CHANGELOG](https://github.com/rintoj/ngx-virtual-scroller/blob/master/CHANGELOG.md)
 
 ## License
 ```

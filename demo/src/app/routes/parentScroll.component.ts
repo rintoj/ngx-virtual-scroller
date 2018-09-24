@@ -1,5 +1,5 @@
 import { Component, ViewChild } from '@angular/core';
-import { VirtualScrollComponent } from 'angular2-virtual-scroll';
+import { VirtualScrollComponent } from 'ngx-virtual-scroller';
 import { Http } from '@angular/http';
 import { ListItem, ListItemComponent } from '../lists/list-item.component';
 import { OnInit } from '@angular/core';
