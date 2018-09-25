@@ -1,3 +1,7 @@
+# v1.0.2
+
+* Improve AngularUniversal/SSR support
+
 # v1.0.1
 
 * Renamed from angular2-virtual-scroll to ngx-virtual-scroller
