@@ -50,7 +50,6 @@ export declare class VirtualScrollComponent implements OnInit, OnChanges, OnDest
     protected readonly element: ElementRef;
     protected readonly renderer: Renderer2;
     protected readonly zone: NgZone;
-    protected platformId: Object;
     viewPortItems: any[];
     window: Window;
     readonly viewPortIndices: IViewportIndices;
@@ -110,6 +109,7 @@ export declare class VirtualScrollComponent implements OnInit, OnChanges, OnDest
     scrollToIndex(index: number, alignToBeginning?: boolean, additionalOffset?: number, animationMilliseconds?: number, animationCompletedCallback?: () => void): void;
     protected scrollToIndex_internal(index: number, alignToBeginning?: boolean, additionalOffset?: number, animationMilliseconds?: number, animationCompletedCallback?: () => void): void;
     scrollToPosition(scrollPosition: number, animationMilliseconds?: number, animationCompletedCallback?: () => void): void;
+    protected isAngularUniversalSSR: boolean;
     constructor(element: ElementRef, renderer: Renderer2, zone: NgZone, platformId: Object, scrollThrottlingTime: any, scrollAnimationTime: any, scrollbarWidth: any, scrollbarHeight: any, checkResizeInterval: any, resizeBypassRefreshThreshold: any);
     protected previousScrollBoundingRect: ClientRect;
     protected checkScrollElementResized(): void;
