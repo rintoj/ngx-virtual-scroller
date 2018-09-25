@@ -1,6 +1,6 @@
 import { Component, Input, OnChanges, ViewChild } from '@angular/core';
 import { ListItem, ListItemComponent } from './list-item.component';
-import { VirtualScrollComponent } from 'ngx-virtual-scroller';
+import { VirtualScrollerComponent } from 'ngx-virtual-scroller';
 
 @Component({
   selector: 'multi-col-list',
@@ -25,12 +25,12 @@ import { VirtualScrollComponent } from 'ngx-virtual-scroller';
       <span>[scrollStartPosition: {{scroll.viewPortInfo.scrollStartPosition}}px, scrollEndPosition: {{scroll.viewPortInfo.scrollEndPosition}}px, maxScrollPosition: {{scroll.viewPortInfo.maxScrollPosition}}px ]</span>
     </div>
 
-    <virtual-scroll #scroll
+    <virtual-scroller #scroll
       [enableUnequalChildrenSizes]="randomHeight"
       [items]="filteredList">
       
       <list-item [randomHeight]="randomHeight" *ngFor="let item of scroll.viewPortItems" class="inline" [item]="item"> </list-item>
-    </virtual-scroll>
+    </virtual-scroller>
   `,
   styleUrls: ['./multi-col-list.scss']
 })

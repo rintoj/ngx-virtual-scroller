@@ -1,5 +1,5 @@
 import { Component, ViewChild } from '@angular/core';
-import { VirtualScrollComponent } from 'ngx-virtual-scroller';
+import { VirtualScrollerComponent } from 'ngx-virtual-scroller';
 import { Http } from '@angular/http';
 import { ListItem, ListItemComponent } from '../lists/list-item.component';
 import { OnInit } from '@angular/core';
@@ -28,13 +28,13 @@ import { OnInit } from '@angular/core';
       <span>[scrollStartPosition: {{scroll.viewPortInfo.scrollStartPosition}}px, scrollEndPosition: {{scroll.viewPortInfo.scrollEndPosition}}px, maxScrollPosition: {{scroll.viewPortInfo.maxScrollPosition}}px ]</span>
     </div>
 
-<virtual-scroll #scroll [parentScroll]="scroll.window"
+<virtual-scroller #scroll [parentScroll]="scroll.window"
                 [enableUnequalChildrenSizes]="randomHeight"
                 [items]="filteredList">
 
   <list-item [randomHeight]="randomHeight" *ngFor="let item of scroll.viewPortItems" [item]="item"> </list-item>
 
-</virtual-scroll>
+</virtual-scroller>
         
     `
 })

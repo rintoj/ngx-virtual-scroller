@@ -1,5 +1,5 @@
 import { Component, Input, OnChanges, ViewChild } from '@angular/core';
-import { VirtualScrollComponent } from 'ngx-virtual-scroller';
+import { VirtualScrollerComponent } from 'ngx-virtual-scroller';
 import { ListItem } from './list-item.component';
 
 @Component({
@@ -21,7 +21,7 @@ import { ListItem } from './list-item.component';
       <span>[scrollStartPosition: {{scroll.viewPortInfo.scrollStartPosition}}px, scrollEndPosition: {{scroll.viewPortInfo.scrollEndPosition}}px, maxScrollPosition: {{scroll.viewPortInfo.maxScrollPosition}}px ]</span>
     </div>
 
-    <virtual-scroll #scroll
+    <virtual-scroller #scroll
       [items]="filteredList">
       <table>
 		<thead>
@@ -41,7 +41,7 @@ import { ListItem } from './list-item.component';
 			</tr>
 		  </tbody>
       </table>
-    </virtual-scroll>
+    </virtual-scroller>
   `,
 
   styleUrls: ['./table-list.scss']

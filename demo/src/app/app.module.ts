@@ -17,7 +17,7 @@ import { ListWithApiComponent } from './lists/list-with-api.component';
 import { MultiColListComponent } from './lists/multi-col-list.component';
 import { TableListComponent } from './lists/table-list.component';
 import { VerticalListComponent } from './lists/vertical-list.component';
-import { VirtualScrollModule } from 'ngx-virtual-scroller';
+import { VirtualScrollerModule } from 'ngx-virtual-scroller';
 
 @NgModule({
   declarations: [
@@ -46,15 +46,15 @@ import { VirtualScrollModule } from 'ngx-virtual-scroller';
     BrowserModule,
     FormsModule,
     HttpModule,
-    VirtualScrollModule
+    VirtualScrollerModule
   ],
   providers: [
-    { provide: 'virtualScroll.scrollThrottlingTime', useValue: 0 },
-    { provide: 'virtualScroll.scrollAnimationTime', useValue: 750 },
-    { provide: 'virtualScroll.scrollbarWidth', useValue: undefined },
-    { provide: 'virtualScroll.scrollbarHeight', useValue: undefined },
-    { provide: 'virtualScroll.checkResizeInterval', useValue: 1000 },
-    { provide: 'virtualScroll.resizeBypassRefreshThreshold', useValue: 5 }
+    { provide: 'virtualScroller.scrollThrottlingTime', useValue: 0 },
+    { provide: 'virtualScroller.scrollAnimationTime', useValue: 750 },
+    { provide: 'virtualScroller.scrollbarWidth', useValue: undefined },
+    { provide: 'virtualScroller.scrollbarHeight', useValue: undefined },
+    { provide: 'virtualScroller.checkResizeInterval', useValue: 1000 },
+    { provide: 'virtualScroller.resizeBypassRefreshThreshold', useValue: 5 }
   ],
   bootstrap: [AppComponent]
 })

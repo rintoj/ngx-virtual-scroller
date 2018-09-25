@@ -1,4 +1,4 @@
-import { ChangeEvent, VirtualScrollComponent } from 'ngx-virtual-scroller';
+import { ChangeEvent, VirtualScrollerComponent } from 'ngx-virtual-scroller';
 import { Component, ViewChild } from '@angular/core';
 import { Input } from '@angular/core';
 import { ListItem, ListItemComponent } from './list-item.component';
@@ -22,7 +22,7 @@ import { SimpleChanges } from '@angular/core';
       <span>[scrollStartPosition: {{scroll.viewPortInfo.scrollStartPosition}}px, scrollEndPosition: {{scroll.viewPortInfo.scrollEndPosition}}px, maxScrollPosition: {{scroll.viewPortInfo.maxScrollPosition}}px ]</span>
     </div>
 
-    <virtual-scroll #scroll
+    <virtual-scroller #scroll
       [enableUnequalChildrenSizes]="randomHeight"
       [items]="buffer"
       (end)="fetchMore($event)">
@@ -30,7 +30,7 @@ import { SimpleChanges } from '@angular/core';
       <list-item [randomHeight]="randomHeight" *ngFor="let item of scroll.viewPortItems" [item]="item"> </list-item>
       <div *ngIf="loading" class="loader">Loading...</div>
 
-    </virtual-scroll>
+    </virtual-scroller>
   `,
   styleUrls: ['./list-with-api.scss']
 })

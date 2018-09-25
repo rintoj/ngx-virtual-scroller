@@ -78,8 +78,8 @@ export interface IViewport extends IPageInfoWithBuffer {
 }
 
 @Component({
-	selector: 'virtual-scroll,[virtualScroll]',
-	exportAs: 'virtualScroll',
+	selector: 'virtual-scroller,[virtualScroller]',
+	exportAs: 'virtualScroller',
 	template: `
     <div class="total-padding" #invisiblePadding></div>
     <div class="scrollable-content" #content>
@@ -145,7 +145,7 @@ export interface IViewport extends IPageInfoWithBuffer {
     }
   `]
 })
-export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
+export class VirtualScrollerComponent implements OnInit, OnChanges, OnDestroy {
 	public viewPortItems: any[];
 	public window = window;
 
@@ -525,12 +525,12 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
 		protected readonly renderer: Renderer2,
 		protected readonly zone: NgZone,
 		@Inject(PLATFORM_ID) platformId: Object,
-		@Optional() @Inject('virtualScroll.scrollThrottlingTime') scrollThrottlingTime,
-		@Optional() @Inject('virtualScroll.scrollAnimationTime') scrollAnimationTime,
-		@Optional() @Inject('virtualScroll.scrollbarWidth') scrollbarWidth,
-		@Optional() @Inject('virtualScroll.scrollbarHeight') scrollbarHeight,
-		@Optional() @Inject('virtualScroll.checkResizeInterval') checkResizeInterval,
-		@Optional() @Inject('virtualScroll.resizeBypassRefreshThreshold') resizeBypassRefreshThreshold) {
+		@Optional() @Inject('virtualScroller.scrollThrottlingTime') scrollThrottlingTime,
+		@Optional() @Inject('virtualScroller.scrollAnimationTime') scrollAnimationTime,
+		@Optional() @Inject('virtualScroller.scrollbarWidth') scrollbarWidth,
+		@Optional() @Inject('virtualScroller.scrollbarHeight') scrollbarHeight,
+		@Optional() @Inject('virtualScroller.checkResizeInterval') checkResizeInterval,
+		@Optional() @Inject('virtualScroller.resizeBypassRefreshThreshold') resizeBypassRefreshThreshold) {
 		this.isAngularUniversalSSR = isPlatformServer(platformId);
 
 		this.scrollThrottlingTime = typeof (scrollThrottlingTime) === 'number' ? scrollThrottlingTime : 0;
@@ -1166,9 +1166,9 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
 }
 
 @NgModule({
-	exports: [VirtualScrollComponent],
-	declarations: [VirtualScrollComponent],
+	exports: [VirtualScrollerComponent],
+	declarations: [VirtualScrollerComponent],
 	imports: [CommonModule]
 
 })
-export class VirtualScrollModule { }
+export class VirtualScrollerModule { }

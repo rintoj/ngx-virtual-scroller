@@ -46,7 +46,7 @@ export interface IViewport extends IPageInfoWithBuffer {
     padding: number;
     scrollLength: number;
 }
-export declare class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
+export declare class VirtualScrollerComponent implements OnInit, OnChanges, OnDestroy {
     protected readonly element: ElementRef;
     protected readonly renderer: Renderer2;
     protected readonly zone: NgZone;
@@ -149,5 +149,5 @@ export declare class VirtualScrollComponent implements OnInit, OnChanges, OnDest
     protected calculatePageInfo(scrollPosition: number, dimensions: IDimensions): IPageInfoWithBuffer;
     protected calculateViewport(): IViewport;
 }
-export declare class VirtualScrollModule {
+export declare class VirtualScrollerModule {
 }

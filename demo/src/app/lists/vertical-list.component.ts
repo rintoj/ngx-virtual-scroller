@@ -1,5 +1,5 @@
 import { Component, Input, OnChanges, ViewChild } from '@angular/core';
-import { VirtualScrollComponent } from 'ngx-virtual-scroller';
+import { VirtualScrollerComponent } from 'ngx-virtual-scroller';
 import { ListItem, ListItemComponent } from './list-item.component';
 
 @Component({
@@ -24,13 +24,13 @@ import { ListItem, ListItemComponent } from './list-item.component';
       <span>[scrollStartPosition: {{scroll.viewPortInfo.scrollStartPosition}}px, scrollEndPosition: {{scroll.viewPortInfo.scrollEndPosition}}px, maxScrollPosition: {{scroll.viewPortInfo.maxScrollPosition}}px ]</span>
     </div>
 
-    <virtual-scroll #scroll
+    <virtual-scroller #scroll
       [enableUnequalChildrenSizes]="randomHeight"
       [items]="filteredList">
 
       <list-item [randomHeight]="randomHeight" *ngFor="let item of scroll.viewPortItems" [item]="item"> </list-item>
 
-    </virtual-scroll>
+    </virtual-scroller>
   `
 })
 export class VerticalListComponent implements OnChanges {

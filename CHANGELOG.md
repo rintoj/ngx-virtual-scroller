@@ -1,3 +1,7 @@
+# v1.0.3
+
+* Rename everything from virtual-scroll to virtual-scroller and from virtualScroll to virtualScroller
+
 # v1.0.2
 
 * Improve AngularUniversal/SSR support
@@ -37,7 +41,7 @@
 * Minor bug fixes.
 * Prevent delay if scrollThrottlingTime is set to 0.
 * Fix bug where children would not be re-measured if their original measurement was 0 (due to elements still initializing)
-* Add vs* prefix to event names to prevent conflicts with native DOM events, example: <virtual-scroll (vsChange)=""><input (change)="" /></virtual-scroll>
+* Add vs* prefix to event names to prevent conflicts with native DOM events, example: <virtual-scroller (vsChange)=""><input (change)="" /></virtual-scroller>
 
 # v0.4.9
 
@@ -170,7 +174,7 @@ Breaking Change: The value of ChangeEvent.end wasn't intuitive. This has been co
 
 # v0.0.3
 
-* Bug fix: virtual-scroll.js:73 Uncaught ReferenceError: __decorate is not defined #1
+* Bug fix: virtual-scroller.js:73 Uncaught ReferenceError: __decorate is not defined #1
 
 # v0.0.2
 

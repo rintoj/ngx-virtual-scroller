@@ -1,12 +1,12 @@
 <style>
-  ::ng-deep virtual-scroll.selfScroll {
+  ::ng-deep virtual-scroller.selfScroll {
     border: 1px solid rgb(209, 218, 223);
   }
-  ::ng-deep virtual-scroll.selfScroll.vertical {
+  ::ng-deep virtual-scroller.selfScroll.vertical {
     height: 75vh;
   }
 
-  ::ng-deep virtual-scroll.selfScroll.horizontal {
+  ::ng-deep virtual-scroller.selfScroll.horizontal {
     width: 60vw;
     height: 120px;
   }
@@ -44,10 +44,10 @@
 		      @Component({{'{'}}
 			      selector: 'list-with-api',
 			      template: `
-&lt;virtual-scroll [items]="buffer" (update)="scrollItems = $event" (change)="onListChange($event)"&gt;
+&lt;virtual-scroller [items]="buffer" (update)="scrollItems = $event" (change)="onListChange($event)"&gt;
   &lt;my-custom-component *ngFor="let item of scrollItems" [item]="item"&gt; &lt;/my-custom-component&gt;
   &lt;div *ngIf="loading" class="loader"&gt;Loading...&lt;/div&gt;
-&lt;/virtual-scroll&gt;
+&lt;/virtual-scroller&gt;
 			      `
 		      {{'}'}})
 		      export class ListWithApiComponent implements OnChanges {{'{'}}

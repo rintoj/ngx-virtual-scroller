@@ -16,6 +16,7 @@ This method is effective because the number of DOM elements are always constant 
 * OpenSource and available in GitHub
 
 ## Breaking Changes:
+* v1.0.3: Renamed everything from virtual-scroll to virtual-scroller and from virtualScroll to virtualScroller
 * v0.4.13: resizeBypassRefreshTheshold renamed to resizeBypassRefreshThreshold (typo)
 * v0.4.12: The start and end values of the change/start/end events were including bufferAmount, which made them confusing. This has been corrected.
 	viewPortIndices.arrayStartIndex renamed to viewPortIndices.startIndex and viewPortIndices.arrayEndIndex renamed to viewPortIndices.endIndex
@@ -40,29 +41,29 @@ This method is effective because the number of DOM elements are always constant 
 ## Usage
 
 ```html
-<virtual-scroll #scroll [items]="items">
+<virtual-scroller #scroll [items]="items">
 
     <my-custom-component *ngFor="let item of scroll.viewPortItems">
     </my-custom-component>
 
-</virtual-scroll>
+</virtual-scroller>
 ```
 
 alternatively
 
 ```html
-<virtual-scroll [items]="items" (vsUpdate)="viewPortItems = $event">
+<virtual-scroller [items]="items" (vsUpdate)="viewPortItems = $event">
 
     <my-custom-component *ngFor="let item of viewPortItems">
     </my-custom-component>
 
-</virtual-scroll>
+</virtual-scroller>
 ```
 
 alternatively
 
 ```html
-<div virtualScroll [items]="items" (vsUpdate)="viewPortItems = $event">
+<div virtualScroller [items]="items" (vsUpdate)="viewPortItems = $event">
 
     <my-custom-component *ngFor="let item of viewPortItems">
     </my-custom-component>
@@ -82,7 +83,7 @@ npm install ngx-virtual-scroller --save
 
 ```ts
 ....
-import { VirtualScrollModule } from 'ngx-virtual-scroller';
+import { VirtualScrollerModule } from 'ngx-virtual-scroller';
 
 ....
 
@@ -90,28 +91,28 @@ import { VirtualScrollModule } from 'ngx-virtual-scroller';
     ...
     imports: [
         ....
-        VirtualScrollModule
+        VirtualScrollerModule
     ],
     ....
 })
 export class AppModule { }
 ```
 
-**Step 3:** Wrap virtual-scroll tag around elements;
+**Step 3:** Wrap virtual-scroller tag around elements;
 
 ```ts
-<virtual-scroll #scroll [items]="items">
+<virtual-scroller #scroll [items]="items">
 
     <my-custom-component *ngFor="let item of scroll.viewPortItems">
     </my-custom-component>
 
-</virtual-scroll>
+</virtual-scroller>
 ```
 
 You must also define width and height for the container and for its children.
 
 ```css
-virtual-scroll {
+virtual-scroller {
   display: block;
   width: 350px;
   height: 200px;
@@ -132,33 +133,33 @@ my-custom-component {
 Child component is not necessary if your item is simple enough. See below.
 
 ```html
-<virtual-scroll #scroll [items]="items">
+<virtual-scroller #scroll [items]="items">
     <div *ngFor="let item of scroll.viewPortItems">{{item?.name}}</div>
-</virtual-scroll>
+</virtual-scroller>
 ```
 
 ## API
 
 | Attribute      | Type   | Description
 |----------------|--------|------------
-| checkResizeInterval | number | How often in milliseconds to check if virtual-scroll (or parentScroll) has been resized. If resized, it'll call Refresh() method. Defaults to 1000. Can be injected by DI with token "virtualScroll.checkResizeInterval".
-| resizeBypassRefreshThreshold | number | How many pixels to ignore during resize check if virtual-scroll (or parentScroll) are only resized by a very small amount. Defaults to 5. Can be injected by DI with token "virtualScroll.resizeBypassRefreshThreshold".
+| checkResizeInterval | number | How often in milliseconds to check if virtual-scroller (or parentScroll) has been resized. If resized, it'll call Refresh() method. Defaults to 1000. Can be injected by DI with token "virtualScroller.checkResizeInterval".
+| resizeBypassRefreshThreshold | number | How many pixels to ignore during resize check if virtual-scroller (or parentScroll) are only resized by a very small amount. Defaults to 5. Can be injected by DI with token "virtualScroller.resizeBypassRefreshThreshold".
 | enableUnequalChildrenSizes | boolean | If you want to use the "unequal size" children feature. This is not perfect, but hopefully "close-enough" for most situations. Defaults to false.
-| scrollThrottlingTime | number | Milliseconds to delay refreshing viewport if user is scrolling quickly (for performance reasons). Default is 0. Can be injected by DI with token "virtualScroll.scrollThrottlingTime".
+| scrollThrottlingTime | number | Milliseconds to delay refreshing viewport if user is scrolling quickly (for performance reasons). Default is 0. Can be injected by DI with token "virtualScroller.scrollThrottlingTime".
 | useMarginInsteadOfTranslate | boolean | Defaults to false. Translate is faster in many scenarios because it can use GPU acceleration, but it can be slower if your scroll container or child elements don't use any transitions or opacity. More importantly, translate creates a new "containing block" which breaks position:fixed because it'll be relative to the transform rather than the window. If you're experiencing issues with position:fixed on your child elements, turn this flag on.
-| scrollbarWidth | number | If you want to override the auto-calculated scrollbar width. This is used to determine the dimensions of the viewable area when calculating the number of items to render. Can be injected by DI with token "virtualScroll.scrollbarWidth".
-| scrollbarHeight | number | If you want to override the auto-calculated scrollbar height. This is used to determine the dimensions of the viewable area when calculating the number of items to render. Can be injected by DI with token "virtualScroll.scrollbarHeight".
+| scrollbarWidth | number | If you want to override the auto-calculated scrollbar width. This is used to determine the dimensions of the viewable area when calculating the number of items to render. Can be injected by DI with token "virtualScroller.scrollbarWidth".
+| scrollbarHeight | number | If you want to override the auto-calculated scrollbar height. This is used to determine the dimensions of the viewable area when calculating the number of items to render. Can be injected by DI with token "virtualScroller.scrollbarHeight".
 | horizontal | boolean | Whether the scrollbars should be vertical or horizontal. Defaults to false.
 | items          | any[]  | The data that builds the templates within the virtual scroll. This is the same data that you'd pass to ngFor. It's important to note that when this data has changed, then the entire virtual scroll is refreshed.
 | childWidth (DEPRECATED)     | number | The minimum width of the item template's cell. Use this if enableUnequalChildrenSizes isn't working well enough. (The actual rendered size of the first cell is used by default if not specified.)
 | childHeight (DEPRECATED)    | number | The minimum height of the item template's cell. Use this if enableUnequalChildrenSizes isn't working well enough. (The actual rendered size of the first cell is used by default if not specified.)
 | bufferAmount (DEPRECATED)  | number | The number of elements to be rendered above & below the current container's viewport. Increase this if enableUnequalChildrenSizes isn't working well enough. (defaults to enableUnequalChildrenSizes ? 5 : 0)
-| scrollAnimationTime | number | The time in milliseconds for the scroll animation to run for. Default value is 750. 0 will completely disable the tween/animation. Can be injected by DI with token "virtualScroll.scrollAnimationTime".
-| parentScroll   | Element / Window | Element (or window), which will have scrollbar. This element must be one of the parents of virtual-scroll
+| scrollAnimationTime | number | The time in milliseconds for the scroll animation to run for. Default value is 750. 0 will completely disable the tween/animation. Can be injected by DI with token "virtualScroller.scrollAnimationTime".
+| parentScroll   | Element / Window | Element (or window), which will have scrollbar. This element must be one of the parents of virtual-scroller
 | compareItems   | Function | Predicate of syntax (item1:any, item2:any)=>boolean which is used when items array is modified to determine which items have been changed (determines if cached child size measurements need to be refreshed or not for enableUnequalChildrenSizes). Defaults to === comparison.
 | start (DEPRECATED) / vsStart         | Event  | This event is fired every time `start` index changes and emits `ChangeEvent` which is of format: `{ start: number, end: number, scrollStartPosition:number, scrollEndPosition:number }`
 | end (DEPRECATED) / vsEnd         | Event  | This event is fired every time `end` index changes and emits `ChangeEvent` which is of format: `{ start: number, end: number, scrollStartPosition:number, scrollEndPosition:number }`
-| update (DEPRECATED) / vsUpdate         | Event  | This event is fired every time the `start` or `end` indexes change and emits the list of items which should be visible based on the current scroll position from `start` to `end`. The list emitted by this event must be used with `*ngFor` to render the actual list of items within `<virtual-scroll>`
+| update (DEPRECATED) / vsUpdate         | Event  | This event is fired every time the `start` or `end` indexes change and emits the list of items which should be visible based on the current scroll position from `start` to `end`. The list emitted by this event must be used with `*ngFor` to render the actual list of items within `<virtual-scroller>`
 | change (DEPRECATED) / vsChange         | Event  | This event is fired every time the `start` or `end` indexes or scroll position change and emits `ChangeEvent` which is of format: `{ start: number, end: number, scrollStartPosition:number, scrollEndPosition:number }`
 | viewPortIndices (DEPRECATED. use viewPortInfo instead) | { startIndex: number, endIndex: number } | Allows querying the visible item indexes in the viewport on demand rather than listening for events.
 | viewPortInfo | { startIndex:number, endIndex:number, scrollStartPosition:number, scrollEndPosition:number, maxScrollPosition:number } | Allows querying the the current viewport info on demand rather than listening for events.
@@ -172,23 +173,23 @@ Child component is not necessary if your item is simple enough. See below.
 | scrollToPosition | (scrollPosition:number, animationMilliseconds:number = undefined, animationCompletedCallback: ()=>void = undefined)=>void | Scrolls to px position
 | ssrChildWidth | number | The hard-coded width of the item template's cell to use if rendering via Angular Universal/Server-Side-Rendering
 | ssrChildHeight | number | The hard-coded height of the item template's cell to use if rendering via Angular Universal/Server-Side-Rendering
-| ssrViewportWidth | number | The hard-coded visible width of the virtual-scroll (or [parentScroll]) to use if rendering via Angular Universal/Server-Side-Rendering. Defaults to 1920.
-| ssrViewportHeight | number | The hard-coded visible height of the virtual-scroll (or [parentScroll]) to use if rendering via Angular Universal/Server-Side-Rendering. Defaults to 1080.
+| ssrViewportWidth | number | The hard-coded visible width of the virtual-scroller (or [parentScroll]) to use if rendering via Angular Universal/Server-Side-Rendering. Defaults to 1920.
+| ssrViewportHeight | number | The hard-coded visible height of the virtual-scroller (or [parentScroll]) to use if rendering via Angular Universal/Server-Side-Rendering. Defaults to 1080.
 
 Note: The Events without the "vs" prefix have been deprecated because they might conflict with native DOM events due to their "bubbling" nature. See https://github.com/angular/angular/issues/13997
-An example is if an <input> element inside <virtual-scroll> emits a "change" event which bubbles up to the (change) handler of virtual-scroll. Using the vs prefix will prevent this bubbling conflict because there are currently no official DOM events prefixed with vs.
+An example is if an <input> element inside <virtual-scroller> emits a "change" event which bubbles up to the (change) handler of virtual-scroller. Using the vs prefix will prevent this bubbling conflict because there are currently no official DOM events prefixed with vs.
 
 ## Getting view port items without events
 
 If you are using AOT compilation (I hope you are) then with classic usage (listening to `update` event) you are required to create a public field `viewPortItems` in your component.
 Here's a way to avoid it:
 ```html
-<virtual-scroll #scroll [items]="items">
+<virtual-scroller #scroll [items]="items">
 
     <my-custom-component *ngFor="let item of scroll.viewPortItems">
     </my-custom-component>
 
-</virtual-scroll>
+</virtual-scroller>
 ```
 
 ## Additional elements in scroll
@@ -196,13 +197,13 @@ Here's a way to avoid it:
 If you want to nest additional elements inside virtual scroll besides the list itself (e.g. search field), you need to wrap those elements in a tag with an angular selector name of #container.
 
 ```html
-<virtual-scroll #scroll [items]="items">
+<virtual-scroller #scroll [items]="items">
     <input type="search">
     <div #container>
         <my-custom-component *ngFor="let item of scroll.viewPortItems">
         </my-custom-component>
     </div>
-</virtual-scroll>
+</virtual-scroller>
 ```
 
 ## Use parent scrollbar
@@ -211,13 +212,13 @@ If you want to use the scrollbar of a parent element, set `parentScroll` to a na
 
 ```html
 <div #scrollingBlock>
-    <virtual-scroll #scroll [items]="items" [parentScroll]="scrollingBlock">
+    <virtual-scroller #scroll [items]="items" [parentScroll]="scrollingBlock">
         <input type="search">
         <div #container>
             <my-custom-component *ngFor="let item of scroll.viewPortItems">
             </my-custom-component>
         </div>
-    </virtual-scroll>
+    </virtual-scroller>
 </div>
 ```
 
@@ -225,13 +226,13 @@ If the parentScroll is a custom angular component (instead of a native HTML elem
 
 ```html
 <custom-angular-component #scrollingBlock>
-    <virtual-scroll #scroll [items]="items" [parentScroll]="scrollingBlock.nativeElement">
+    <virtual-scroller #scroll [items]="items" [parentScroll]="scrollingBlock.nativeElement">
         <input type="search">
         <div #container>
             <my-custom-component *ngFor="let item of scroll.viewPortItems">
             </my-custom-component>
         </div>
-    </virtual-scroll>
+    </virtual-scroller>
 </custom-angular-component>
 ```
 
@@ -242,13 +243,13 @@ Note: The parent element should have a width and height defined.
 If you want to use the window's scrollbar, set `parentScroll`.
 
 ```html
-<virtual-scroll #scroll [items]="items" [parentScroll]="scroll.window">
+<virtual-scroller #scroll [items]="items" [parentScroll]="scroll.window">
     <input type="search">
     <div #container>
         <my-custom-component *ngFor="let item of scroll.viewPortItems">
         </my-custom-component>
     </div>
-</virtual-scroll>
+</virtual-scroller>
 ```
 
 ## Items with variable size
@@ -258,12 +259,12 @@ Items must have fixed height and width for this module to work perfectly. If not
 (DEPRECATED): If enableUnequalChildrenSizes isn't working, you can set inputs `childWidth` and `childHeight` to their smallest possible values. You can also modify `bufferAmount` which causes extra items to be rendered on the edges of the scrolling area.
 
 ```html
-<virtual-scroll #scroll [items]="items" [enableUnequalChildrenSizes]="true">
+<virtual-scroller #scroll [items]="items" [enableUnequalChildrenSizes]="true">
 
     <my-custom-component *ngFor="let item of scroll.viewPortItems">
     </my-custom-component>
 
-</virtual-scroll>
+</virtual-scroller>
 ```
 
 ## Loading in chunks
@@ -278,13 +279,13 @@ import { ChangeEvent } from 'ngx-virtual-scroller';
 @Component({
     selector: 'list-with-api',
     template: `
-        <virtual-scroll [items]="buffer" (vsUpdate)="scrollItems = $event"
+        <virtual-scroller [items]="buffer" (vsUpdate)="scrollItems = $event"
             (vsEnd)="fetchMore($event)">
 
             <my-custom-component *ngFor="let item of scrollItems"> </my-custom-component>
             <div *ngIf="loading" class="loader">Loading...</div>
 
-        </virtual-scroll>
+        </virtual-scroller>
     `
 })
 export class ListWithApiComponent implements OnChanges {
@@ -317,7 +318,7 @@ export class ListWithApiComponent implements OnChanges {
 Note: There is no support for a fixed-to-top-header.
 
 ```html
-<virtual-scroll #scroll [items]="myItems">
+<virtual-scroller #scroll [items]="myItems">
 	<table>
 		<thead>
 			<th>Index</th>
@@ -336,16 +337,16 @@ Note: There is no support for a fixed-to-top-header.
 			</tr>
 		</tbody>
 	</table>
-</virtual-scroll>
+</virtual-scroller>
 ```
 
 ## If child size changes
-virtual-scroll caches the measurements for the rendered items. If enableUnequalChildrenSizes===true then each item is measured and cached separately. Otherwise, the 1st measured item is used for all items.
-If your items can change sizes dynamically, you'll need to notify virtual-scroll to re-measure them. There are 3 methods for doing this:
+virtual-scroller caches the measurements for the rendered items. If enableUnequalChildrenSizes===true then each item is measured and cached separately. Otherwise, the 1st measured item is used for all items.
+If your items can change sizes dynamically, you'll need to notify virtual-scroller to re-measure them. There are 3 methods for doing this:
 ```ts
-virtualScroll.invalidateAllCachedMeasurements();
-virtualScroll.invalidateCachedMeasurementForItem(item: any);
-virtualScroll.invalidateCachedMeasurementAtIndex(index: number);
+virtualScroller.invalidateAllCachedMeasurements();
+virtualScroller.invalidateCachedMeasurementForItem(item: any);
+virtualScroller.invalidateCachedMeasurementAtIndex(index: number);
 ```
 
 ## If container size changes
@@ -359,26 +360,26 @@ If virtual scroll is used within a dropdown or collapsible menu, virtual scroll 
 
 ```ts
 import { Component, ViewChild } from '@angular/core';
-import { VirtualScrollComponent } from 'ngx-virtual-scroller';
+import { VirtualScrollerComponent } from 'ngx-virtual-scroller';
 
 @Component({
     selector: 'rj-list',
     template: `
-        <virtual-scroll [items]="items" (vsUpdate)="scrollList = $event">
+        <virtual-scroller [items]="items" (vsUpdate)="scrollList = $event">
             <div *ngFor="let item of scrollList; let i = index"> {{i}}: {{item}} </div>
-        </virtual-scroll>
+        </virtual-scroller>
     `
 })
 export class ListComponent {
 
     protected items = ['Item1', 'Item2', 'Item3'];
 
-    @ViewChild(VirtualScrollComponent)
-    private virtualScroll: VirtualScrollComponent;
+    @ViewChild(VirtualScrollerComponent)
+    private virtualScroller: VirtualScrollerComponent;
 
     // call this function after resize + animation end
     afterResize() {
-        this.virtualScroll.refresh();
+        this.virtualScroller.refresh();
     }
 }
 ```
@@ -391,43 +392,43 @@ See below:
 
 ```ts
 import { Component, ViewChild } from '@angular/core';
-import { VirtualScrollComponent } from 'ngx-virtual-scroller';
+import { VirtualScrollerComponent } from 'ngx-virtual-scroller';
 
 @Component({
     selector: 'rj-list',
     template: `
-        <virtual-scroll [items]="items" (vsUpdate)="scrollList = $event">
+        <virtual-scroller [items]="items" (vsUpdate)="scrollList = $event">
             <div *ngFor="let item of scrollList; let i = index"> {{i}}: {{item}} </div>
-        </virtual-scroll>
+        </virtual-scroller>
     `
 })
 export class ListComponent {
 
     protected items = ['Item1', 'Item2', 'Item3'];
 
-    @ViewChild(VirtualScrollComponent)
-    private virtualScroll: VirtualScrollComponent;
+    @ViewChild(VirtualScrollerComponent)
+    private virtualScroller: VirtualScrollerComponent;
 
     // call this function whenever you have to focus on second item
     focusOnAnItem() {
-        this.virtualScroll.items = this.items;
-        this.virtualScroll.scrollInto(items[1]);
+        this.virtualScroller.items = this.items;
+        this.virtualScroller.scrollInto(items[1]);
     }
 }
 ```
 
 ## Dependency Injection of configuration settings
 
-Some config settings can be set via DI, so you can set them globally instead of on each instance of virtual-scroll.
+Some config settings can be set via DI, so you can set them globally instead of on each instance of virtual-scroller.
 
 ```ts
  providers: [
-    {  provide: 'virtualScroll.scrollThrottlingTime', useValue: 0  },
-    {  provide: 'virtualScroll.scrollAnimationTime', useValue: 750  },
-	{  provide: 'virtualScroll.scrollbarWidth', useValue: undefined  },
-	{  provide: 'virtualScroll.scrollbarHeight', useValue: undefined  },
-	{  provide: 'virtualScroll.checkResizeInterval', useValue: 1000  },
-	{  provide: 'virtualScroll.resizeBypassRefreshThreshold', useValue: 5  }
+    {  provide: 'virtualScroller.scrollThrottlingTime', useValue: 0  },
+    {  provide: 'virtualScroller.scrollAnimationTime', useValue: 750  },
+	{  provide: 'virtualScroller.scrollbarWidth', useValue: undefined  },
+	{  provide: 'virtualScroller.scrollbarHeight', useValue: undefined  },
+	{  provide: 'virtualScroller.checkResizeInterval', useValue: 1000  },
+	{  provide: 'virtualScroller.resizeBypassRefreshThreshold', useValue: 5  }
   ],
 ```
 
@@ -458,7 +459,7 @@ This hacky CSS allows hiding a scrollbar while still enabling scroll through mou
 ## Angular Universal / Server-Side Rendering
 
 The initial SSR render isn't a fully functioning site, it's essentially an HTML "screenshot" (HTML/CSS, but no JS). However, it immediately swaps out your "screenshot" with the real site as soon as the full app has downloaded in the background. The intent of SSR is to give a correct visual very quickly, because a full angular app could take a long time to download. This makes the user *think* your site is fast, because hopefully they won't click on anything that requires JS before the fully-functioning site has finished loading in the background. Also, it allows screen scrapers without javascript to work correctly (example: Facebook posts/etc).
-virtual-scroll relies on javascript APIs to measure the size of child elements and the scrollable area of their parent. These APIs do not work in SSR because the HTML/CSS "screenshot" is generated on the server via Node, it doesn't execute/render the site as a browser would. This means virtual-scroll will see all measurements as undefined and the "screenshot" will not be generated correctly. Most likely, only 1 child element will appear in your virtual-scroll. This "screenshot" can be fixed with polyfills. However, when the browser renders the "screenshot", the scrolling behaviour still won't work until the full app has loaded.
+virtual-scroller relies on javascript APIs to measure the size of child elements and the scrollable area of their parent. These APIs do not work in SSR because the HTML/CSS "screenshot" is generated on the server via Node, it doesn't execute/render the site as a browser would. This means virtual-scroller will see all measurements as undefined and the "screenshot" will not be generated correctly. Most likely, only 1 child element will appear in your virtual-scroller. This "screenshot" can be fixed with polyfills. However, when the browser renders the "screenshot", the scrolling behaviour still won't work until the full app has loaded.
 
 SSR is an advanced (and complex) topic that can't be fully addressed here. Please research this on your own. However, here are some suggestions:
 1) Use https://www.npmjs.com/package/domino and https://www.npmjs.com/package/raf polyfills in your main.server.ts file
@@ -472,14 +473,14 @@ global['document'] = win.document;
 Object.defineProperty(win.document.body.style, 'transform', { value: () => { return { enumerable: true, configurable: true }; } });
 ```
 2) Determine a default screen size you want to use for the SSR "screenshot" calculations (suggestion: 1920x1080). This won't be accurate for all users, but will hopefully be close enough. Once the full Angular app loads in the background, their real device screensize will take over.
-3) Run your app in a real browser without SSR and determine the average width/height of the child elements inside virtual-scroll as well as the width/height of the virtual-scroll (or [parentScroll] element). Use these values to set the [ssrChildWidth]/[ssrChildHeight]/[ssrViewportWidth]/[ssrViewportHeight] properties.
+3) Run your app in a real browser without SSR and determine the average width/height of the child elements inside virtual-scroller as well as the width/height of the virtual-scroller (or [parentScroll] element). Use these values to set the [ssrChildWidth]/[ssrChildHeight]/[ssrViewportWidth]/[ssrViewportHeight] properties.
 ```
-<virtual-scroll #scroll [items]="items">
+<virtual-scroller #scroll [items]="items">
 
     <my-custom-component *ngFor="let item of scroll.viewPortItems" [ssrChildWidth]="138" [ssrChildHeight]="175" [ssrViewportWidth]="1500" [ssrViewportHeight]="800">
     </my-custom-component>
 
-</virtual-scroll>
+</virtual-scroller>
 ```
 
 ## Contributing
