@@ -519,16 +519,20 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
 		this.currentTween = newTween;
 	}
 
+	protected isAngularUniversalSSR: boolean;
+
 	constructor(protected readonly element: ElementRef,
 		protected readonly renderer: Renderer2,
 		protected readonly zone: NgZone,
-		@Inject(PLATFORM_ID) protected platformId: Object,
+		@Inject(PLATFORM_ID) platformId: Object,
 		@Optional() @Inject('virtualScroll.scrollThrottlingTime') scrollThrottlingTime,
 		@Optional() @Inject('virtualScroll.scrollAnimationTime') scrollAnimationTime,
 		@Optional() @Inject('virtualScroll.scrollbarWidth') scrollbarWidth,
 		@Optional() @Inject('virtualScroll.scrollbarHeight') scrollbarHeight,
 		@Optional() @Inject('virtualScroll.checkResizeInterval') checkResizeInterval,
 		@Optional() @Inject('virtualScroll.resizeBypassRefreshThreshold') resizeBypassRefreshThreshold) {
+		this.isAngularUniversalSSR = isPlatformServer(platformId);
+
 		this.scrollThrottlingTime = typeof (scrollThrottlingTime) === 'number' ? scrollThrottlingTime : 0;
 
 		if (typeof (scrollAnimationTime) === 'number') {
@@ -726,6 +730,10 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
 	}
 
 	protected addScrollEventHandlers(): void {
+		if (this.isAngularUniversalSSR) {
+			return;
+		}
+
 		let scrollElement = this.getScrollElement();
 
 		this.removeScrollEventHandlers();
@@ -761,6 +769,10 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
 	}
 
 	protected getElementsOffset(): number {
+		if (this.isAngularUniversalSSR) {
+			return 0;
+		}
+
 		let offset = 0;
 
 		if (this.containerElementRef && this.containerElementRef.nativeElement) {
@@ -787,6 +799,10 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
 	}
 
 	protected countItemsPerWrapGroup(): number {
+		if (this.isAngularUniversalSSR) {
+			return Math.round(this.horizontal ? this.ssrViewportHeight / this.ssrChildHeight : this.ssrViewportWidth / this.ssrChildWidth);
+		}
+
 		let propertyName = this.horizontal ? 'offsetLeft' : 'offsetTop';
 		let children = ((this.containerElementRef && this.containerElementRef.nativeElement) || this.contentElementRef.nativeElement).children;
 
@@ -865,13 +881,6 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
 		let viewportWidth = scrollElement.offsetWidth - (this.scrollbarWidth || this.calculatedScrollbarWidth || (this.horizontal ? 0 : maxCalculatedScrollBarSize));
 		let viewportHeight = scrollElement.offsetHeight - (this.scrollbarHeight || this.calculatedScrollbarHeight || (this.horizontal ? maxCalculatedScrollBarSize : 0));
 
-		if (isPlatformServer(this.platformId)) {
-			viewportWidth = this.ssrViewportWidth;
-			viewportHeight = this.ssrViewportHeight;
-			this.childWidth = this.ssrChildWidth;
-			this.childHeight = this.ssrChildHeight;
-		}
-
 		let content = (this.containerElementRef && this.containerElementRef.nativeElement) || this.contentElementRef.nativeElement;
 
 		let itemsPerWrapGroup = this.countItemsPerWrapGroup();
@@ -880,7 +889,16 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
 		let defaultChildWidth;
 		let defaultChildHeight;
 
-		if (!this.enableUnequalChildrenSizes) {
+		if (this.isAngularUniversalSSR) {
+			viewportWidth = this.ssrViewportWidth;
+			viewportHeight = this.ssrViewportHeight;
+			defaultChildWidth = this.ssrChildWidth;
+			defaultChildHeight = this.ssrChildHeight;
+			let itemsPerRow = Math.max(Math.ceil(viewportWidth / defaultChildWidth), 1);
+			let itemsPerCol = Math.max(Math.ceil(viewportHeight / defaultChildHeight), 1);
+			wrapGroupsPerPage = this.horizontal ? itemsPerRow : itemsPerCol;
+		}
+		else if (!this.enableUnequalChildrenSizes) {
 			if (content.children.length > 0) {
 				if (!this.childWidth || !this.childHeight) {
 					if (!this.minMeasuredChildWidth && viewportWidth > 0) {

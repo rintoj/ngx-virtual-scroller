@@ -10,7 +10,6 @@ var VirtualScrollComponent = (function () {
         this.element = element;
         this.renderer = renderer;
         this.zone = zone;
-        this.platformId = platformId;
         this.window = window;
         this._enableUnequalChildrenSizes = false;
         this.useMarginInsteadOfTranslate = false;
@@ -36,6 +35,7 @@ var VirtualScrollComponent = (function () {
         this.previousViewPort = {};
         this.cachedPageSize = 0;
         this.previousScrollNumberElements = 0;
+        this.isAngularUniversalSSR = common_1.isPlatformServer(platformId);
         this.scrollThrottlingTime = typeof (scrollThrottlingTime) === 'number' ? scrollThrottlingTime : 0;
         if (typeof (scrollAnimationTime) === 'number') {
             this.scrollAnimationTime = scrollAnimationTime;
@@ -485,6 +485,9 @@ var VirtualScrollComponent = (function () {
     };
     VirtualScrollComponent.prototype.addScrollEventHandlers = function () {
         var _this = this;
+        if (this.isAngularUniversalSSR) {
+            return;
+        }
         var scrollElement = this.getScrollElement();
         this.removeScrollEventHandlers();
         this.zone.runOutsideAngular(function () {
@@ -514,6 +517,9 @@ var VirtualScrollComponent = (function () {
         }
     };
     VirtualScrollComponent.prototype.getElementsOffset = function () {
+        if (this.isAngularUniversalSSR) {
+            return 0;
+        }
         var offset = 0;
         if (this.containerElementRef && this.containerElementRef.nativeElement) {
             offset += this.containerElementRef.nativeElement[this._offsetType];
@@ -535,6 +541,9 @@ var VirtualScrollComponent = (function () {
         return offset;
     };
     VirtualScrollComponent.prototype.countItemsPerWrapGroup = function () {
+        if (this.isAngularUniversalSSR) {
+            return Math.round(this.horizontal ? this.ssrViewportHeight / this.ssrChildHeight : this.ssrViewportWidth / this.ssrChildWidth);
+        }
         var propertyName = this.horizontal ? 'offsetLeft' : 'offsetTop';
         var children = ((this.containerElementRef && this.containerElementRef.nativeElement) || this.contentElementRef.nativeElement).children;
         var childrenLength = children ? children.length : 0;
@@ -593,18 +602,21 @@ var VirtualScrollComponent = (function () {
         this.calculatedScrollbarWidth = Math.max(Math.min(scrollElement.offsetWidth - scrollElement.clientWidth, maxCalculatedScrollBarSize), this.calculatedScrollbarWidth);
         var viewportWidth = scrollElement.offsetWidth - (this.scrollbarWidth || this.calculatedScrollbarWidth || (this.horizontal ? 0 : maxCalculatedScrollBarSize));
         var viewportHeight = scrollElement.offsetHeight - (this.scrollbarHeight || this.calculatedScrollbarHeight || (this.horizontal ? maxCalculatedScrollBarSize : 0));
-        if (common_1.isPlatformServer(this.platformId)) {
-            viewportWidth = this.ssrViewportWidth;
-            viewportHeight = this.ssrViewportHeight;
-            this.childWidth = this.ssrChildWidth;
-            this.childHeight = this.ssrChildHeight;
-        }
         var content = (this.containerElementRef && this.containerElementRef.nativeElement) || this.contentElementRef.nativeElement;
         var itemsPerWrapGroup = this.countItemsPerWrapGroup();
         var wrapGroupsPerPage;
         var defaultChildWidth;
         var defaultChildHeight;
-        if (!this.enableUnequalChildrenSizes) {
+        if (this.isAngularUniversalSSR) {
+            viewportWidth = this.ssrViewportWidth;
+            viewportHeight = this.ssrViewportHeight;
+            defaultChildWidth = this.ssrChildWidth;
+            defaultChildHeight = this.ssrChildHeight;
+            var itemsPerRow = Math.max(Math.ceil(viewportWidth / defaultChildWidth), 1);
+            var itemsPerCol = Math.max(Math.ceil(viewportHeight / defaultChildHeight), 1);
+            wrapGroupsPerPage = this.horizontal ? itemsPerRow : itemsPerCol;
+        }
+        else if (!this.enableUnequalChildrenSizes) {
             if (content.children.length > 0) {
                 if (!this.childWidth || !this.childHeight) {
                     if (!this.minMeasuredChildWidth && viewportWidth > 0) {
