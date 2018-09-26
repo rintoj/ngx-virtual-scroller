@@ -1,3 +1,7 @@
+# v1.0.4
+
+* Add ScrollDebounceTime
+
 # v1.0.3
 
 * Rename everything from virtual-scroll to virtual-scroller and from virtualScroll to virtualScroller

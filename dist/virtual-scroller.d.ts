@@ -71,6 +71,10 @@ export declare class VirtualScrollerComponent implements OnInit, OnChanges, OnDe
     resizeBypassRefreshThreshold: number;
     protected _scrollThrottlingTime: number;
     scrollThrottlingTime: number;
+    protected _scrollDebounceTime: number;
+    scrollDebounceTime: number;
+    protected onScroll: () => void;
+    protected updateOnScrollFunction(): void;
     protected checkScrollElementResizedTimer: number;
     protected _checkResizeInterval: number;
     checkResizeInterval: number;
@@ -110,7 +114,7 @@ export declare class VirtualScrollerComponent implements OnInit, OnChanges, OnDe
     protected scrollToIndex_internal(index: number, alignToBeginning?: boolean, additionalOffset?: number, animationMilliseconds?: number, animationCompletedCallback?: () => void): void;
     scrollToPosition(scrollPosition: number, animationMilliseconds?: number, animationCompletedCallback?: () => void): void;
     protected isAngularUniversalSSR: boolean;
-    constructor(element: ElementRef, renderer: Renderer2, zone: NgZone, platformId: Object, scrollThrottlingTime: any, scrollAnimationTime: any, scrollbarWidth: any, scrollbarHeight: any, checkResizeInterval: any, resizeBypassRefreshThreshold: any);
+    constructor(element: ElementRef, renderer: Renderer2, zone: NgZone, platformId: Object, scrollThrottlingTime: any, scrollDebounceTime: any, scrollAnimationTime: any, scrollbarWidth: any, scrollbarHeight: any, checkResizeInterval: any, resizeBypassRefreshThreshold: any);
     protected previousScrollBoundingRect: ClientRect;
     protected checkScrollElementResized(): void;
     protected _invisiblePaddingProperty: any;
@@ -121,7 +125,7 @@ export declare class VirtualScrollerComponent implements OnInit, OnChanges, OnDe
     protected _translateDir: any;
     protected _marginDir: any;
     protected updateDirection(): void;
-    protected refresh_throttled: () => void;
+    protected debounce(func: Function, wait: number): Function;
     protected throttleTrailing(func: Function, wait: number): Function;
     protected calculatedScrollbarWidth: number;
     protected calculatedScrollbarHeight: number;

@@ -50,6 +50,7 @@ import { VirtualScrollerModule } from 'ngx-virtual-scroller';
   ],
   providers: [
     { provide: 'virtualScroller.scrollThrottlingTime', useValue: 0 },
+    { provide: 'virtualScroller.scrollDebounceTime', useValue: 0 },
     { provide: 'virtualScroller.scrollAnimationTime', useValue: 750 },
     { provide: 'virtualScroller.scrollbarWidth', useValue: undefined },
     { provide: 'virtualScroller.scrollbarHeight', useValue: undefined },

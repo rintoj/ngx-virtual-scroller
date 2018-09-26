@@ -232,9 +232,36 @@ export class VirtualScrollerComponent implements OnInit, OnChanges, OnDestroy {
 	}
 	public set scrollThrottlingTime(value: number) {
 		this._scrollThrottlingTime = value;
-		this.refresh_throttled = <any>this.throttleTrailing(() => {
-			this.refresh_internal(false);
-		}, this._scrollThrottlingTime);
+		this.updateOnScrollFunction();
+	}
+
+	protected _scrollDebounceTime: number;
+	@Input()
+	public get scrollDebounceTime(): number {
+		return this._scrollDebounceTime;
+	}
+	public set scrollDebounceTime(value: number) {
+		this._scrollDebounceTime = value;
+		this.updateOnScrollFunction();
+	}
+
+	protected onScroll: () => void;
+	protected updateOnScrollFunction(): void {
+		if (this.scrollDebounceTime) {
+			this.onScroll = <any>this.debounce(() => {
+				this.refresh_internal(false);
+			}, this.scrollDebounceTime);
+		}
+		else if (this.scrollThrottlingTime) {
+			this.onScroll = <any>this.throttleTrailing(() => {
+				this.refresh_internal(false);
+			}, this.scrollThrottlingTime);
+		}
+		else {
+			this.onScroll = () => {
+				this.refresh_internal(false);
+			};
+		}
 	}
 
 	protected checkScrollElementResizedTimer: number;
@@ -526,6 +553,7 @@ export class VirtualScrollerComponent implements OnInit, OnChanges, OnDestroy {
 		protected readonly zone: NgZone,
 		@Inject(PLATFORM_ID) platformId: Object,
 		@Optional() @Inject('virtualScroller.scrollThrottlingTime') scrollThrottlingTime,
+		@Optional() @Inject('virtualScroller.scrollDebounceTime') scrollDebounceTime,
 		@Optional() @Inject('virtualScroller.scrollAnimationTime') scrollAnimationTime,
 		@Optional() @Inject('virtualScroller.scrollbarWidth') scrollbarWidth,
 		@Optional() @Inject('virtualScroller.scrollbarHeight') scrollbarHeight,
@@ -534,6 +562,7 @@ export class VirtualScrollerComponent implements OnInit, OnChanges, OnDestroy {
 		this.isAngularUniversalSSR = isPlatformServer(platformId);
 
 		this.scrollThrottlingTime = typeof (scrollThrottlingTime) === 'number' ? scrollThrottlingTime : 0;
+		this.scrollDebounceTime = typeof (scrollDebounceTime) === 'number' ? scrollDebounceTime : 0;
 
 		if (typeof (scrollAnimationTime) === 'number') {
 			this.scrollAnimationTime = scrollAnimationTime;
@@ -604,7 +633,18 @@ export class VirtualScrollerComponent implements OnInit, OnChanges, OnDestroy {
 		}
 	}
 
-	protected refresh_throttled: () => void;
+	protected debounce(func: Function, wait: number): Function {
+		const throttled = this.throttleTrailing(func, wait);
+		const result = function () {
+			throttled['cancel']();
+			throttled.apply(this, arguments);
+		};
+		result['cancel'] = function () {
+			throttled['cancel']();
+		};
+
+		return result;
+	}
 
 	protected throttleTrailing(func: Function, wait: number): Function {
 		let timeout = undefined;
@@ -623,6 +663,12 @@ export class VirtualScrollerComponent implements OnInit, OnChanges, OnDestroy {
 					timeout = undefined;
 					func.apply(_this, _arguments);
 				}, wait);
+			}
+		};
+		result['cancel'] = function () {
+			if (timeout) {
+				clearTimeout(timeout);
+				timeout = undefined;
 			}
 		};
 
@@ -740,11 +786,11 @@ export class VirtualScrollerComponent implements OnInit, OnChanges, OnDestroy {
 
 		this.zone.runOutsideAngular(() => {
 			if (this.parentScroll instanceof Window) {
-				this.disposeScrollHandler = this.renderer.listen('window', 'scroll', this.refresh_throttled);
-				this.disposeResizeHandler = this.renderer.listen('window', 'resize', this.refresh_throttled);
+				this.disposeScrollHandler = this.renderer.listen('window', 'scroll', this.onScroll);
+				this.disposeResizeHandler = this.renderer.listen('window', 'resize', this.onScroll);
 			}
 			else {
-				this.disposeScrollHandler = this.renderer.listen(scrollElement, 'scroll', this.refresh_throttled);
+				this.disposeScrollHandler = this.renderer.listen(scrollElement, 'scroll', this.onScroll);
 				if (this._checkResizeInterval > 0) {
 					this.checkScrollElementResizedTimer = <any>setInterval(() => { this.checkScrollElementResized(); }, this._checkResizeInterval);
 				}

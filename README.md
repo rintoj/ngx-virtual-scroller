@@ -145,7 +145,8 @@ Child component is not necessary if your item is simple enough. See below.
 | checkResizeInterval | number | How often in milliseconds to check if virtual-scroller (or parentScroll) has been resized. If resized, it'll call Refresh() method. Defaults to 1000. Can be injected by DI with token "virtualScroller.checkResizeInterval".
 | resizeBypassRefreshThreshold | number | How many pixels to ignore during resize check if virtual-scroller (or parentScroll) are only resized by a very small amount. Defaults to 5. Can be injected by DI with token "virtualScroller.resizeBypassRefreshThreshold".
 | enableUnequalChildrenSizes | boolean | If you want to use the "unequal size" children feature. This is not perfect, but hopefully "close-enough" for most situations. Defaults to false.
-| scrollThrottlingTime | number | Milliseconds to delay refreshing viewport if user is scrolling quickly (for performance reasons). Default is 0. Can be injected by DI with token "virtualScroller.scrollThrottlingTime".
+| scrollThrottlingTime | number | Milliseconds to delay refreshing viewport if user is scrolling quickly (for performance reasons). Default is 0. Can be injected by DI with token "virtualScroller.scrollThrottlingTime". Throttle will force refresh after scrolling for # milliseconds, even if user is still scrolling. If both Debounce & Throttling are set, debounce takes precendence.
+| scrollDebounceTime | number | Milliseconds to delay refreshing viewport if user is scrolling quickly (for performance reasons). Default is 0. Can be injected by DI with token "virtualScroller.scrollDebounceTime". Debounce won't refresh after # milliseconds unless user has stopped scrolling. If both Debounce & Throttling are set, debounce takes precendence.
 | useMarginInsteadOfTranslate | boolean | Defaults to false. Translate is faster in many scenarios because it can use GPU acceleration, but it can be slower if your scroll container or child elements don't use any transitions or opacity. More importantly, translate creates a new "containing block" which breaks position:fixed because it'll be relative to the transform rather than the window. If you're experiencing issues with position:fixed on your child elements, turn this flag on.
 | scrollbarWidth | number | If you want to override the auto-calculated scrollbar width. This is used to determine the dimensions of the viewable area when calculating the number of items to render. Can be injected by DI with token "virtualScroller.scrollbarWidth".
 | scrollbarHeight | number | If you want to override the auto-calculated scrollbar height. This is used to determine the dimensions of the viewable area when calculating the number of items to render. Can be injected by DI with token "virtualScroller.scrollbarHeight".
@@ -424,6 +425,7 @@ Some config settings can be set via DI, so you can set them globally instead of 
 ```ts
  providers: [
     {  provide: 'virtualScroller.scrollThrottlingTime', useValue: 0  },
+    {  provide: 'virtualScroller.scrollDebounceTime', useValue: 0  },
     {  provide: 'virtualScroller.scrollAnimationTime', useValue: 750  },
 	{  provide: 'virtualScroller.scrollbarWidth', useValue: undefined  },
 	{  provide: 'virtualScroller.scrollbarHeight', useValue: undefined  },
