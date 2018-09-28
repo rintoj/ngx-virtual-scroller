@@ -3,7 +3,7 @@
 
 Virtual Scroll displays a virtual, "infinite" list. Supports horizontal/vertical, variable heights, & multi-column.
 
-## Renamed from angular2-virtual-scroll to ngx-virtual-scroller
+## Renamed from angular2-virtual-scroll to ngx-virtual-scroller. Please update your package.json
 
 ## About
 
@@ -21,6 +21,8 @@ This method is effective because the number of DOM elements are always constant 
 * v0.4.12: The start and end values of the change/start/end events were including bufferAmount, which made them confusing. This has been corrected.
 	viewPortIndices.arrayStartIndex renamed to viewPortIndices.startIndex and viewPortIndices.arrayEndIndex renamed to viewPortIndices.endIndex
 * v0.4.4: The value of ChangeEvent.end wasn't intuitive. This has been corrected. Both ChangeEvent.start and ChangeEvent.end are the 0-based array indexes of the items being rendered in the viewport. (Previously Change.End was the array index + 1)
+
+NOTE: API methods marked (DEPRECATED) will be removed in the next major version. Please attempt to stop using them in your code & create an issue if you believe they're still necessary.
 
 ## New features:
 
@@ -154,7 +156,7 @@ Child component is not necessary if your item is simple enough. See below.
 | items          | any[]  | The data that builds the templates within the virtual scroll. This is the same data that you'd pass to ngFor. It's important to note that when this data has changed, then the entire virtual scroll is refreshed.
 | childWidth (DEPRECATED)     | number | The minimum width of the item template's cell. Use this if enableUnequalChildrenSizes isn't working well enough. (The actual rendered size of the first cell is used by default if not specified.)
 | childHeight (DEPRECATED)    | number | The minimum height of the item template's cell. Use this if enableUnequalChildrenSizes isn't working well enough. (The actual rendered size of the first cell is used by default if not specified.)
-| bufferAmount (DEPRECATED)  | number | The number of elements to be rendered above & below the current container's viewport. Increase this if enableUnequalChildrenSizes isn't working well enough. (defaults to enableUnequalChildrenSizes ? 5 : 0)
+| bufferAmount | number | The number of elements to be rendered above & below the current container's viewport. Increase this if enableUnequalChildrenSizes isn't working well enough. (defaults to enableUnequalChildrenSizes ? 5 : 0)
 | scrollAnimationTime | number | The time in milliseconds for the scroll animation to run for. Default value is 750. 0 will completely disable the tween/animation. Can be injected by DI with token "virtualScroller.scrollAnimationTime".
 | parentScroll   | Element / Window | Element (or window), which will have scrollbar. This element must be one of the parents of virtual-scroller
 | compareItems   | Function | Predicate of syntax (item1:any, item2:any)=>boolean which is used when items array is modified to determine which items have been changed (determines if cached child size measurements need to be refreshed or not for enableUnequalChildrenSizes). Defaults to === comparison.
