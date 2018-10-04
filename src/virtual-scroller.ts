@@ -365,6 +365,9 @@ export class VirtualScrollerComponent implements OnInit, OnChanges, OnDestroy {
 	@ViewChild('invisiblePadding', { read: ElementRef })
 	protected invisiblePaddingElementRef: ElementRef;
 
+	@ContentChild('header', { read: ElementRef })
+	protected headerElementRef: ElementRef;
+
 	@ContentChild('container', { read: ElementRef })
 	protected containerElementRef: ElementRef;
 
@@ -720,6 +723,12 @@ export class VirtualScrollerComponent implements OnInit, OnChanges, OnDestroy {
 						this.renderer.setStyle(this.contentElementRef.nativeElement, 'transform', `${this._translateDir}(${viewport.padding}px)`);
 						this.renderer.setStyle(this.contentElementRef.nativeElement, 'webkitTransform', `${this._translateDir}(${viewport.padding}px)`);
 					}
+				}
+
+				if (this.headerElementRef) {
+					let offset = this.element.nativeElement[this._scrollType] - viewport.padding;
+					this.renderer.setStyle(this.headerElementRef.nativeElement, 'transform', `${this._translateDir}(${offset}px)`);
+					this.renderer.setStyle(this.headerElementRef.nativeElement, 'webkitTransform', `${this._translateDir}(${offset}px)`);
 				}
 
 				if (startChanged || endChanged || scrollPositionChanged) {
