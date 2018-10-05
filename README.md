@@ -26,6 +26,7 @@ NOTE: API methods marked (DEPRECATED) will be removed in the next major version.
 
 ## New features:
 
+* Support for fixed <thead> on <table> elements.
 * Added API to query for current scroll px position (also passed as argument to ChangeEvent listeners)
 * Added API to invalidate cached child item measurements (if your child item sizes change dynamically)
 * Added API to scroll to specific px position
@@ -318,12 +319,12 @@ export class ListWithApiComponent implements OnChanges {
 
 ## With HTML Table
 
-Note: There is no support for a fixed-to-top-header.
+Note: The #header angular selector will make the <thead> element fixed to top. If you want the header to scroll out of view don't add the #header angular element ref.
 
 ```html
 <virtual-scroller #scroll [items]="myItems">
 	<table>
-		<thead>
+		<thead #header>
 			<th>Index</th>
 			<th>Name</th>
 			<th>Gender</th>

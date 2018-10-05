@@ -100,6 +100,7 @@ export declare class VirtualScrollerComponent implements OnInit, OnChanges, OnDe
     vsEnd: EventEmitter<ChangeEvent>;
     protected contentElementRef: ElementRef;
     protected invisiblePaddingElementRef: ElementRef;
+    protected headerElementRef: ElementRef;
     protected containerElementRef: ElementRef;
     ngOnInit(): void;
     ngOnDestroy(): void;

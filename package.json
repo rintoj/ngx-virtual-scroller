@@ -9,7 +9,7 @@
     "build": "npm run cleanup && npm run ngc",
     "build:docs": "cd demo && npm run build && copyfiles dist/* ../docs -f && cd .. && replace \"<base href=\\\"/\\\">\" \"<base href=\\\"/ngx-virtual-scroller/\\\">\" docs/index.html",
     "lint": "tslint src/**/*.ts",
-    "prepublish": "npm run build",
+    "prepublish": "npm run build:docs && npm run build",
     "start": "npm run watch",
     "test": "npm test",
     "ngc": "ngc",
