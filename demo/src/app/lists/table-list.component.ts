@@ -24,7 +24,7 @@ import { ListItem } from './list-item.component';
     <virtual-scroller #scroll
       [items]="filteredList">
       <table>
-		<thead>
+		<thead #header>
 			<th>Index</th>
 			<th>Name</th>
 			<th>Gender</th>
