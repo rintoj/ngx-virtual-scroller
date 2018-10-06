@@ -1,3 +1,7 @@
+# v1.0.5
+
+* Support for fixed <thead> on <table> tags.
+
 # v1.0.4
 
 * Add ScrollDebounceTime
