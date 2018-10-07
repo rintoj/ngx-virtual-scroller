@@ -43,36 +43,34 @@ export class ListWithApiComponent implements OnChanges {
   public buffer: ListItem[] = [];
   public readonly bufferSize: number = 10;
   public timer;
-  public loading: boolean;
+  public loading: boolean = false;
 
   public ngOnChanges(changes: SimpleChanges) {
     this.reset();
   }
 
   private reset() {
-    this.fetchNextChunk(0, this.bufferSize, {}).then(chunk => this.buffer = chunk);
+    this.fetchNextChunk(0, this.bufferSize);
   }
 
   public fetchMore(event: ChangeEvent) {
     if (event.end === this.buffer.length - 1) {
-      this.loading = true;
-      this.fetchNextChunk(this.buffer.length, this.bufferSize, event).then(chunk => {
-        this.buffer = this.buffer.concat(chunk);
-        this.loading = false;
-      }, () => this.loading = false);
+      this.fetchNextChunk(this.buffer.length, this.bufferSize);
     }
   }
 
-  private fetchNextChunk(skip: number, limit: number, event?: any): Promise<ListItem[]> {
-    return new Promise((resolve, reject) => {
-      clearTimeout(this.timer);
-      this.timer = setTimeout(() => {
-        if (skip < this.items.length) {
-          return resolve(this.items.slice(skip, skip + limit));
-        }
-        reject();
-      }, 1000 + Math.random() * 1000);
-    });
+  private fetchNextChunk(skip: number, limit: number): void {
+    this.loading = true;
+    clearTimeout(this.timer);
+    this.timer = setTimeout(() => {
+      this.loading = false;
+
+	  if (skip >= this.items.length) {
+	    return;
+	  }
+	
+      this.buffer = (this.buffer || []).concat(this.items.slice(skip, skip + limit));
+    }, 1000 + Math.random() * 1000);
   }
 
   public sortByName() {

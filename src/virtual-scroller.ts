@@ -23,15 +23,6 @@ import { CommonModule } from '@angular/common';
 
 import * as tween from '@tweenjs/tween.js'
 
-export interface ChangeEvent {
-	start: number;
-	end: number;
-	scrollStartPosition: number;
-	scrollEndPosition: number;
-	startIndexWithBuffer: number;
-	endIndexWithBuffer: number;
-}
-
 export interface WrapGroupDimensions {
 	numberOfKnownWrapGroupChildSizes: number;
 	sumOfKnownWrapGroupChildWidths: number;
@@ -58,19 +49,19 @@ export interface IDimensions {
 	maxScrollPosition: number;
 }
 
-export interface IViewportIndices {
+export interface IPageInfo {
 	startIndex: number;
 	endIndex: number;
-	startIndexWithBuffer: number;
-	endIndexWithBuffer: number;
-}
-
-export interface IPageInfo extends IViewportIndices {
 	scrollStartPosition: number;
 	scrollEndPosition: number;
-	maxScrollPosition: number;
 	startIndexWithBuffer: number;
 	endIndexWithBuffer: number;
+	maxScrollPosition: number;
+}
+
+export interface ChangeEvent extends IPageInfo {
+	start: number;
+	end: number;
 }
 
 export interface IViewport extends IPageInfo {
@@ -149,16 +140,6 @@ export interface IViewport extends IPageInfo {
 export class VirtualScrollerComponent implements OnInit, OnChanges, OnDestroy {
 	public viewPortItems: any[];
 	public window = window;
-
-	public get viewPortIndices(): IViewportIndices {
-		let pageInfo: IViewport = this.previousViewPort || <any>{};
-		return {
-			startIndex: pageInfo.startIndex || 0,
-			endIndex: pageInfo.endIndex || 0,
-			startIndexWithBuffer: pageInfo.startIndexWithBuffer || 0,
-			endIndexWithBuffer: pageInfo.endIndexWithBuffer || 0
-		};
-	}
 
 	public get viewPortInfo(): IPageInfo {
 		let pageInfo: IViewport = this.previousViewPort || <any>{};
@@ -736,6 +717,19 @@ export class VirtualScrollerComponent implements OnInit, OnChanges, OnDestroy {
 					this.renderer.setStyle(this.headerElementRef.nativeElement, 'webkitTransform', `${this._translateDir}(${offset}px)`);
 				}
 
+				const changeEventArg: ChangeEvent = (startChanged || endChanged) ? {
+					start: viewport.startIndex,
+					end: viewport.endIndex,
+					startIndex: viewport.startIndex,
+					endIndex: viewport.endIndex,
+					scrollStartPosition: viewport.scrollStartPosition,
+					scrollEndPosition: viewport.scrollEndPosition,
+					startIndexWithBuffer: viewport.startIndexWithBuffer,
+					endIndexWithBuffer: viewport.endIndexWithBuffer,
+					maxScrollPosition: viewport.maxScrollPosition
+				} : undefined;
+
+
 				if (startChanged || endChanged || scrollPositionChanged) {
 					this.zone.run(() => {
 
@@ -745,45 +739,18 @@ export class VirtualScrollerComponent implements OnInit, OnChanges, OnDestroy {
 						this.vsUpdate.emit(this.viewPortItems);
 
 						if (startChanged) {
-							const eventArg: ChangeEvent = {
-								start: viewport.startIndex,
-								end: viewport.endIndex,
-								scrollStartPosition: viewport.scrollStartPosition,
-								scrollEndPosition: viewport.scrollEndPosition,
-								startIndexWithBuffer: viewport.startIndexWithBuffer,
-								endIndexWithBuffer: viewport.endIndexWithBuffer
-							};
-
-							this.start.emit(eventArg);
-							this.vsStart.emit(eventArg);
+							this.start.emit(changeEventArg);
+							this.vsStart.emit(changeEventArg);
 						}
 
 						if (endChanged) {
-							const eventArg: ChangeEvent = {
-								start: viewport.startIndex,
-								end: viewport.endIndex,
-								scrollStartPosition: viewport.scrollStartPosition,
-								scrollEndPosition: viewport.scrollEndPosition,
-								startIndexWithBuffer: viewport.startIndexWithBuffer,
-								endIndexWithBuffer: viewport.endIndexWithBuffer
-							};
-
-							this.end.emit(eventArg);
-							this.vsEnd.emit(eventArg);
+							this.end.emit(changeEventArg);
+							this.vsEnd.emit(changeEventArg);
 						}
 
 						if (startChanged || endChanged) {
-							const eventArg = {
-								start: viewport.startIndex,
-								end: viewport.endIndex,
-								scrollStartPosition: viewport.scrollStartPosition,
-								scrollEndPosition: viewport.scrollEndPosition,
-								startIndexWithBuffer: viewport.startIndexWithBuffer,
-								endIndexWithBuffer: viewport.endIndexWithBuffer
-							};
-
-							this.change.emit(eventArg);
-							this.vsChange.emit(eventArg);
+							this.change.emit(changeEventArg);
+							this.vsChange.emit(changeEventArg);
 						}
 
 						if (maxRunTimes > 0) {

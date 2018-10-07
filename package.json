@@ -56,7 +56,6 @@
     "@angular/platform-browser-dynamic": "^4.3.0",
     "@angular/router": "^4.3.0",
     "@types/node": "^8.0.14",
-    "@types/tween.js": "^16.6.1",
     "codelyzer": "^2.0.0",
     "core-js": "^2.4.1",
     "replace-x": "^1.5.0",
@@ -69,6 +68,7 @@
     "zone.js": "^0.8.13"
   },
   "dependencies": {
+    "@types/tween.js": "^16.6.1",
     "@tweenjs/tween.js": "^17.1.0"
   }
 }

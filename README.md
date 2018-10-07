@@ -16,6 +16,7 @@ This method is effective because the number of DOM elements are always constant 
 * OpenSource and available in GitHub
 
 ## Breaking Changes:
+* v1.0.6: viewPortIndices API property removed. (use viewPortInfo instead)
 * v1.0.3: Renamed everything from virtual-scroll to virtual-scroller and from virtualScroll to virtualScroller
 * v0.4.13: resizeBypassRefreshTheshold renamed to resizeBypassRefreshThreshold (typo)
 * v0.4.12: The start and end values of the change/start/end events were including bufferAmount, which made them confusing. This has been corrected.
@@ -141,6 +142,24 @@ Child component is not necessary if your item is simple enough. See below.
 </virtual-scroller>
 ```
 
+## Interfaces
+```
+interface IPageInfo {
+	startIndex: number;
+	endIndex: number;
+	scrollStartPosition: number;
+	scrollEndPosition: number;
+	startIndexWithBuffer: number;
+	endIndexWithBuffer: number;
+	maxScrollPosition: number;
+}
+
+interface ChangeEvent extends IPageInfo {
+	start: number; (DEPRECATED)
+	end: number; (DEPRECATED)
+}
+```
+
 ## API
 
 | Attribute      | Type   | Description
@@ -161,12 +180,11 @@ Child component is not necessary if your item is simple enough. See below.
 | scrollAnimationTime | number | The time in milliseconds for the scroll animation to run for. Default value is 750. 0 will completely disable the tween/animation. Can be injected by DI with token "virtualScroller.scrollAnimationTime".
 | parentScroll   | Element / Window | Element (or window), which will have scrollbar. This element must be one of the parents of virtual-scroller
 | compareItems   | Function | Predicate of syntax (item1:any, item2:any)=>boolean which is used when items array is modified to determine which items have been changed (determines if cached child size measurements need to be refreshed or not for enableUnequalChildrenSizes). Defaults to === comparison.
-| start (DEPRECATED) / vsStart         | Event  | This event is fired every time `start` index changes and emits `ChangeEvent` which is of format: `{ start: number, end: number, scrollStartPosition:number, scrollEndPosition:number }`
-| end (DEPRECATED) / vsEnd         | Event  | This event is fired every time `end` index changes and emits `ChangeEvent` which is of format: `{ start: number, end: number, scrollStartPosition:number, scrollEndPosition:number }`
-| update (DEPRECATED) / vsUpdate         | Event  | This event is fired every time the `start` or `end` indexes change and emits the list of items which should be visible based on the current scroll position from `start` to `end`. The list emitted by this event must be used with `*ngFor` to render the actual list of items within `<virtual-scroller>`
-| change (DEPRECATED) / vsChange         | Event  | This event is fired every time the `start` or `end` indexes or scroll position change and emits `ChangeEvent` which is of format: `{ start: number, end: number, scrollStartPosition:number, scrollEndPosition:number }`
-| viewPortIndices (DEPRECATED. use viewPortInfo instead) | { startIndex: number, endIndex: number } | Allows querying the visible item indexes in the viewport on demand rather than listening for events.
-| viewPortInfo | { startIndex:number, endIndex:number, scrollStartPosition:number, scrollEndPosition:number, maxScrollPosition:number } | Allows querying the the current viewport info on demand rather than listening for events.
+| start (DEPRECATED) / vsStart         | Event<ChangeEvent>  | This event is fired every time `start` index changes and emits `ChangeEvent`.
+| end (DEPRECATED) / vsEnd         | Event<ChangeEvent>  | This event is fired every time `end` index changes and emits `ChangeEvent`.
+| change (DEPRECATED) / vsChange         | Event<ChangeEvent>  | This event is fired every time the `start` or `end` indexes or scroll position change and emits `ChangeEvent`.
+| update (DEPRECATED) / vsUpdate         | Event<any[]>  | This event is fired every time the `start` or `end` indexes change and emits the list of items which should be visible based on the current scroll position from `start` to `end`. The list emitted by this event must be used with `*ngFor` to render the actual list of items within `<virtual-scroller>`
+| viewPortInfo | IPageInfo | Allows querying the the current viewport info on demand rather than listening for events.
 | viewPortItems | any[] | The array of items currently being rendered to the viewport.
 | refresh (DEPRECATED) | ()=>void | Function to force re-rendering of current items in viewport.
 | invalidateAllCachedMeasurements | ()=>void | Function to force re-measuring *all* cached item sizes. If enableUnequalChildrenSizes===false, only 1 item will be re-measured.
