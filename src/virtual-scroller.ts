@@ -28,6 +28,8 @@ export interface ChangeEvent {
 	end: number;
 	scrollStartPosition: number;
 	scrollEndPosition: number;
+	startIndexWithBuffer: number;
+	endIndexWithBuffer: number;
 }
 
 export interface WrapGroupDimensions {
@@ -59,20 +61,19 @@ export interface IDimensions {
 export interface IViewportIndices {
 	startIndex: number;
 	endIndex: number;
+	startIndexWithBuffer: number;
+	endIndexWithBuffer: number;
 }
 
 export interface IPageInfo extends IViewportIndices {
 	scrollStartPosition: number;
 	scrollEndPosition: number;
 	maxScrollPosition: number;
-}
-
-export interface IPageInfoWithBuffer extends IPageInfo {
 	startIndexWithBuffer: number;
 	endIndexWithBuffer: number;
 }
 
-export interface IViewport extends IPageInfoWithBuffer {
+export interface IViewport extends IPageInfo {
 	padding: number;
 	scrollLength: number;
 }
@@ -153,7 +154,9 @@ export class VirtualScrollerComponent implements OnInit, OnChanges, OnDestroy {
 		let pageInfo: IViewport = this.previousViewPort || <any>{};
 		return {
 			startIndex: pageInfo.startIndex || 0,
-			endIndex: pageInfo.endIndex || 0
+			endIndex: pageInfo.endIndex || 0,
+			startIndexWithBuffer: pageInfo.startIndexWithBuffer || 0,
+			endIndexWithBuffer: pageInfo.endIndexWithBuffer || 0
 		};
 	}
 
@@ -164,7 +167,9 @@ export class VirtualScrollerComponent implements OnInit, OnChanges, OnDestroy {
 			endIndex: pageInfo.endIndex || 0,
 			scrollStartPosition: pageInfo.scrollStartPosition || 0,
 			scrollEndPosition: pageInfo.scrollEndPosition || 0,
-			maxScrollPosition: pageInfo.maxScrollPosition || 0
+			maxScrollPosition: pageInfo.maxScrollPosition || 0,
+			startIndexWithBuffer: pageInfo.startIndexWithBuffer || 0,
+			endIndexWithBuffer: pageInfo.endIndexWithBuffer || 0
 		};
 	}
 
@@ -740,19 +745,43 @@ export class VirtualScrollerComponent implements OnInit, OnChanges, OnDestroy {
 						this.vsUpdate.emit(this.viewPortItems);
 
 						if (startChanged) {
-							let eventArg = { start: viewport.startIndex, end: viewport.endIndex, scrollStartPosition: viewport.scrollStartPosition, scrollEndPosition: viewport.scrollEndPosition };
+							const eventArg: ChangeEvent = {
+								start: viewport.startIndex,
+								end: viewport.endIndex,
+								scrollStartPosition: viewport.scrollStartPosition,
+								scrollEndPosition: viewport.scrollEndPosition,
+								startIndexWithBuffer: viewport.startIndexWithBuffer,
+								endIndexWithBuffer: viewport.endIndexWithBuffer
+							};
+
 							this.start.emit(eventArg);
 							this.vsStart.emit(eventArg);
 						}
 
 						if (endChanged) {
-							let eventArg = { start: viewport.startIndex, end: viewport.endIndex, scrollStartPosition: viewport.scrollStartPosition, scrollEndPosition: viewport.scrollEndPosition };
+							const eventArg: ChangeEvent = {
+								start: viewport.startIndex,
+								end: viewport.endIndex,
+								scrollStartPosition: viewport.scrollStartPosition,
+								scrollEndPosition: viewport.scrollEndPosition,
+								startIndexWithBuffer: viewport.startIndexWithBuffer,
+								endIndexWithBuffer: viewport.endIndexWithBuffer
+							};
+
 							this.end.emit(eventArg);
 							this.vsEnd.emit(eventArg);
 						}
 
 						if (startChanged || endChanged) {
-							let eventArg = { start: viewport.startIndex, end: viewport.endIndex, scrollStartPosition: viewport.scrollStartPosition, scrollEndPosition: viewport.scrollEndPosition };
+							const eventArg = {
+								start: viewport.startIndex,
+								end: viewport.endIndex,
+								scrollStartPosition: viewport.scrollStartPosition,
+								scrollEndPosition: viewport.scrollEndPosition,
+								startIndexWithBuffer: viewport.startIndexWithBuffer,
+								endIndexWithBuffer: viewport.endIndexWithBuffer
+							};
+
 							this.change.emit(eventArg);
 							this.vsChange.emit(eventArg);
 						}
@@ -1133,7 +1162,7 @@ export class VirtualScrollerComponent implements OnInit, OnChanges, OnDestroy {
 		return result;
 	}
 
-	protected calculatePageInfo(scrollPosition: number, dimensions: IDimensions): IPageInfoWithBuffer {
+	protected calculatePageInfo(scrollPosition: number, dimensions: IDimensions): IPageInfo {
 		let scrollPercentage = 0;
 		if (this.enableUnequalChildrenSizes) {
 			const numberOfWrapGroups = Math.ceil(dimensions.itemCount / dimensions.itemsPerWrapGroup);
