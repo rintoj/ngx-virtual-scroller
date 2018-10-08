@@ -1,3 +1,7 @@
+# v1.0.6
+
+* Add new properties to vsStart/vsEnd/vsChange events. Remove viewPortIndices property, because it's been replaced by viewPortInfo.
+
 # v1.0.5
 
 * Support for fixed <thead> on <table> tags.
