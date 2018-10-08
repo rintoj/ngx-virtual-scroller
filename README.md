@@ -155,8 +155,8 @@ interface IPageInfo {
 }
 
 interface ChangeEvent extends IPageInfo {
-	start: number; (DEPRECATED)
-	end: number; (DEPRECATED)
+	start: number; (DEPRECATED. use startIndex instead)
+	end: number; (DEPRECATED. use endIndex instead)
 }
 ```
 
