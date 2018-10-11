@@ -14,6 +14,8 @@ import {
 	Output,
 	Renderer2,
 	ViewChild,
+	ChangeDetectorRef,
+	SkipSelf
 } from '@angular/core';
 
 import { PLATFORM_ID } from '@angular/core';
@@ -171,9 +173,6 @@ export class VirtualScrollerComponent implements OnInit, OnChanges, OnDestroy {
 
 	@Input()
 	public useMarginInsteadOfTranslate: boolean = false;
-
-	@Input()
-	public shouldUpdateRunInZone: boolean = true;
 
 	@Input()
 	public scrollbarWidth: number;
@@ -543,6 +542,7 @@ export class VirtualScrollerComponent implements OnInit, OnChanges, OnDestroy {
 	constructor(protected readonly element: ElementRef,
 		protected readonly renderer: Renderer2,
 		protected readonly zone: NgZone,
+		@SkipSelf() protected readonly parentChangeDetectorRef: ChangeDetectorRef,
 		@Inject(PLATFORM_ID) platformId: Object,
 		@Optional() @Inject('virtualScroller.scrollThrottlingTime') scrollThrottlingTime,
 		@Optional() @Inject('virtualScroller.scrollDebounceTime') scrollDebounceTime,
@@ -734,41 +734,35 @@ export class VirtualScrollerComponent implements OnInit, OnChanges, OnDestroy {
 
 
 				if (startChanged || endChanged || scrollPositionChanged) {
-					const handleChanged = () => {
-						// update the scroll list to trigger re-render of components in viewport
-						this.viewPortItems = viewport.startIndexWithBuffer >= 0 && viewport.endIndexWithBuffer >= 0 ? this.items.slice(viewport.startIndexWithBuffer, viewport.endIndexWithBuffer + 1) : [];
-						this.update.emit(this.viewPortItems);
-						this.vsUpdate.emit(this.viewPortItems);
+					// update the scroll list to trigger re-render of components in viewport
+					this.viewPortItems = viewport.startIndexWithBuffer >= 0 && viewport.endIndexWithBuffer >= 0 ? this.items.slice(viewport.startIndexWithBuffer, viewport.endIndexWithBuffer + 1) : [];
+					this.update.emit(this.viewPortItems);
+					this.vsUpdate.emit(this.viewPortItems);
 
-						if (startChanged) {
-							this.start.emit(changeEventArg);
-							this.vsStart.emit(changeEventArg);
-						}
+					if (startChanged) {
+						this.start.emit(changeEventArg);
+						this.vsStart.emit(changeEventArg);
+					}
 
-						if (endChanged) {
-							this.end.emit(changeEventArg);
-							this.vsEnd.emit(changeEventArg);
-						}
+					if (endChanged) {
+						this.end.emit(changeEventArg);
+						this.vsEnd.emit(changeEventArg);
+					}
 
-						if (startChanged || endChanged) {
-							this.change.emit(changeEventArg);
-							this.vsChange.emit(changeEventArg);
-						}
+					if (startChanged || endChanged) {
+						this.change.emit(changeEventArg);
+						this.vsChange.emit(changeEventArg);
+					}
 
-						if (maxRunTimes > 0) {
-							this.refresh_internal(false, refreshCompletedCallback, maxRunTimes - 1);
-							return;
-						}
+					this.parentChangeDetectorRef.detectChanges();
+					
+					if (maxRunTimes > 0) {
+						this.refresh_internal(false, refreshCompletedCallback, maxRunTimes - 1);
+						return;
+					}
 
-						if (refreshCompletedCallback) {
-							refreshCompletedCallback();
-						}
-					};
-
-					if (this.shouldUpdateRunInZone) {
-						this.zone.run(handleChanged);
-					} else {
-						handleChanged();
+					if (refreshCompletedCallback) {
+						refreshCompletedCallback();
 					}
 				} else {
 					if (maxRunTimes > 0 && (scrollLengthChanged || paddingChanged)) {

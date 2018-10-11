@@ -1,3 +1,7 @@
+# v1.0.8
+
+* Speed improvement. Thanks to sharikovvladislav & nickbullock !
+
 # v1.0.7
 
 * Fix bug where viewportItems had an extra row of invisible items outside viewport (also affected vsStart/vsEnd/vsChange.endIndex)
