@@ -197,6 +197,7 @@ interface ChangeEvent extends IPageInfo {
 | ssrChildHeight | number | The hard-coded height of the item template's cell to use if rendering via Angular Universal/Server-Side-Rendering
 | ssrViewportWidth | number | The hard-coded visible width of the virtual-scroller (or [parentScroll]) to use if rendering via Angular Universal/Server-Side-Rendering. Defaults to 1920.
 | ssrViewportHeight | number | The hard-coded visible height of the virtual-scroller (or [parentScroll]) to use if rendering via Angular Universal/Server-Side-Rendering. Defaults to 1080.
+| shouldUpdateRunInZone | boolean | Flag to run update calculations with zone.run(). Defaults to true. If you want to increase performance turn it off and use ChangeDetectorRef in parent component like this: `<virtual-scroll [shouldUpdateRunInZone]="false" (vsUpdate)="onUpdate($event)"><item *ngForOf="let item of items"></item></virtual-scroll> ` where onUpdate is `onUpdate(newItems){ this.items = newItems; this.changeDetectorRef.detectChanges() }`
 
 Note: The Events without the "vs" prefix have been deprecated because they might conflict with native DOM events due to their "bubbling" nature. See https://github.com/angular/angular/issues/13997
 An example is if an <input> element inside <virtual-scroller> emits a "change" event which bubbles up to the (change) handler of virtual-scroller. Using the vs prefix will prevent this bubbling conflict because there are currently no official DOM events prefixed with vs.
