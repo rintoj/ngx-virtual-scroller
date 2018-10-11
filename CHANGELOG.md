@@ -1,3 +1,15 @@
+# v1.0.7
+
+* Fix bug where viewportItems had an extra row of invisible items outside viewport (also affected vsStart/vsEnd/vsChange.endIndex)
+
+# v1.0.6
+
+* Add new properties to vsStart/vsEnd/vsChange events. Remove viewPortIndices property, because it's been replaced by viewPortInfo.
+
+# v1.0.5
+
+* Support for fixed <thead> on <table> tags.
+
 # v1.0.4
 
 * Add ScrollDebounceTime
