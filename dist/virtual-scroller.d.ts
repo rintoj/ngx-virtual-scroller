@@ -57,6 +57,7 @@ export declare class VirtualScrollerComponent implements OnInit, OnChanges, OnDe
     protected _enableUnequalChildrenSizes: boolean;
     enableUnequalChildrenSizes: boolean;
     useMarginInsteadOfTranslate: boolean;
+    shouldUpdateRunInZone: boolean;
     scrollbarWidth: number;
     scrollbarHeight: number;
     childWidth: number;

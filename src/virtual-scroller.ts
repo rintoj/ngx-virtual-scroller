@@ -187,6 +187,9 @@ export class VirtualScrollerComponent implements OnInit, OnChanges, OnDestroy {
 	public useMarginInsteadOfTranslate: boolean = false;
 
 	@Input()
+	public shouldUpdateRunInZone: boolean = true;
+
+	@Input()
 	public scrollbarWidth: number;
 
 	@Input()
@@ -723,8 +726,7 @@ export class VirtualScrollerComponent implements OnInit, OnChanges, OnDestroy {
 				}
 
 				if (startChanged || endChanged || scrollPositionChanged) {
-					this.zone.run(() => {
-
+					const handleChanged = () => {
 						// update the scroll list to trigger re-render of components in viewport
 						this.viewPortItems = viewport.startIndexWithBuffer >= 0 && viewport.endIndexWithBuffer >= 0 ? this.items.slice(viewport.startIndexWithBuffer, viewport.endIndexWithBuffer + 1) : [];
 						this.update.emit(this.viewPortItems);
@@ -756,7 +758,13 @@ export class VirtualScrollerComponent implements OnInit, OnChanges, OnDestroy {
 						if (refreshCompletedCallback) {
 							refreshCompletedCallback();
 						}
-					});
+					};
+
+					if (this.shouldUpdateRunInZone) {
+						this.zone.run(handleChanged);
+					} else {
+						handleChanged();
+					}
 				} else {
 					if (maxRunTimes > 0 && (scrollLengthChanged || paddingChanged)) {
 						this.refresh_internal(false, refreshCompletedCallback, maxRunTimes - 1);
