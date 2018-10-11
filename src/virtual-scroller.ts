@@ -1159,7 +1159,10 @@ export class VirtualScrollerComponent implements OnInit, OnChanges, OnDestroy {
 		arrayStartIndex -= arrayStartIndex % dimensions.itemsPerWrapGroup; // round down to start of wrapGroup
 
 		let arrayEndIndex = Math.ceil(startingArrayIndex_fractional) + dimensions.itemsPerPage - 1;
-		arrayEndIndex += (dimensions.itemsPerWrapGroup - ((arrayEndIndex + 1) % dimensions.itemsPerWrapGroup)); // round up to end of wrapGroup
+		let endIndexWithinWrapGroup = (arrayEndIndex + 1) % dimensions.itemsPerWrapGroup;
+		if (endIndexWithinWrapGroup > 0) {
+			arrayEndIndex += dimensions.itemsPerWrapGroup - endIndexWithinWrapGroup; // round up to end of wrapGroup
+		}
 
 		if (isNaN(arrayStartIndex)) {
 			arrayStartIndex = 0;
