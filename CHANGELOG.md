@@ -1,3 +1,7 @@
+# v1.0.10
+
+* Refactor of speed improvement flag (renamed to executeRefreshOutsideAngularZone). With instructions & warning.
+
 # v1.0.9
 
 * Add flag to enable speed improvement from v1.0.8 (because it causes issues with `changeDetection: ChangeDetectionStrategy.OnPush`.

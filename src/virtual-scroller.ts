@@ -13,9 +13,7 @@ import {
 	OnInit,
 	Output,
 	Renderer2,
-	ViewChild,
-	ChangeDetectorRef,
-	SkipSelf
+	ViewChild
 } from '@angular/core';
 
 import { PLATFORM_ID } from '@angular/core';
@@ -157,7 +155,7 @@ export class VirtualScrollerComponent implements OnInit, OnChanges, OnDestroy {
 	}
 
 	@Input()
-	public experimentalPerformanceBoost: boolean = false;
+	public executeRefreshOutsideAngularZone: boolean = false;
 	
 	protected _enableUnequalChildrenSizes: boolean = false;
 	@Input()
@@ -545,7 +543,6 @@ export class VirtualScrollerComponent implements OnInit, OnChanges, OnDestroy {
 	constructor(protected readonly element: ElementRef,
 		protected readonly renderer: Renderer2,
 		protected readonly zone: NgZone,
-		@SkipSelf() protected readonly parentChangeDetectorRef: ChangeDetectorRef,
 		@Inject(PLATFORM_ID) platformId: Object,
 		@Optional() @Inject('virtualScroller.scrollThrottlingTime') scrollThrottlingTime,
 		@Optional() @Inject('virtualScroller.scrollDebounceTime') scrollDebounceTime,
@@ -737,7 +734,7 @@ export class VirtualScrollerComponent implements OnInit, OnChanges, OnDestroy {
 
 
 				if (startChanged || endChanged || scrollPositionChanged) {
-					let handleChanged = () => {
+					const handleChanged = () => {
 						// update the scroll list to trigger re-render of components in viewport
 						this.viewPortItems = viewport.startIndexWithBuffer >= 0 && viewport.endIndexWithBuffer >= 0 ? this.items.slice(viewport.startIndexWithBuffer, viewport.endIndexWithBuffer + 1) : [];
 						this.update.emit(this.viewPortItems);
@@ -769,9 +766,8 @@ export class VirtualScrollerComponent implements OnInit, OnChanges, OnDestroy {
 					};
 					
 					
-					if (this.experimentalPerformanceBoost) {
+					if (this.executeRefreshOutsideAngularZone) {
 						handleChanged();
-						this.parentChangeDetectorRef.detectChanges();
 					}
 					else {
 						this.zone.run(handleChanged);
