@@ -197,46 +197,6 @@ interface ChangeEvent extends IPageInfo {
 Note: The Events without the "vs" prefix have been deprecated because they might conflict with native DOM events due to their "bubbling" nature. See https://github.com/angular/angular/issues/13997
 An example is if an <input> element inside <virtual-scroller> emits a "change" event which bubbles up to the (change) handler of virtual-scroller. Using the vs prefix will prevent this bubbling conflict because there are currently no official DOM events prefixed with vs.
 
-## Performance (and the executeRefreshOutsideAngularZone flag)
-
-Each component in Angular by default uses the ChangeDetectionStrategy.Default "CheckAlways" strategy. This means that Change Detection cycles will run frequently and will check *EVERY* data-binding expression on *EVERY* component to see if anything has changed. This makes it easier for programmers to code apps, but also makes apps slow. For simple apps it may not be noticed, but as apps become more complex it quickly becomes apparent. The correct way to fix this is to make cycles as fast as possible and to avoid unnecessary ChangeDetection cycles. Cycles will be faster if you avoid complex business logic in data-bindings. You can avoid unnecessary Cycles by converting your components to use ChangeDetectionStrategy.OnPush. When doing this, you have to explicitly tell Angular when you're modifying the value of a data-binding expression, because it will not be checked automatically. This topic can be researched online, there are a lot of detailed articles about it.
-
-virtual-scroller causes a full ChangeDetection cycle to run during every refresh (scrolling/etc). This is standard practice for all Angular components/libraries. If you have an app that is usually fast, but becomes slow while scrolling virtual-scroller, the correct solution is to convert all of your components to use ChangeDetectionStrategy.OnPush. However, this may not be easy. If you want a quick solution that masks the real problem, you can use the scrollThrottlingTime, scrollDebounceTime, or executeRefreshOutsideAngularZone APIs.
-
-The executeRefreshOutsideAngularZone is strongly discouraged because it disables Angular's automatic Change Detection from any code paths started by virtual-scroller. This essentially randomly converts some of your app's components to use ChangeDetectionStrategy.OnPush without you explicitly choosing to do so. Because this wasn't an intentional choice, you won't have code to tell Angular when those components need to re-bind their UI, which will cause the DOM to not update when it should. These UI bugs won't be consistent, because it'll depend on which code path caused your data-binding model to change. The list of potential code paths in virtual-scroller is too long to make an exhaustive list & which of your components are affected is completely dependent on what business logic you execute in response to those virtual-scroller code paths. If you choose to use this flag, it's your responsibility to do extensive testing in your app and to thoroughly read and understand the virtual-scroller source code. You probably should not make this choice unless you have a strong understanding of Angular's ChangeDetection internals.
-
-Although executeRefreshOutsideAngularZone is strongly discouraged, it is up to the consuming app's programmer to determine if it's the right decision for their application.
-
-If you're lucky, you can implement this flag as follows and get a free speed boost while scrolling:
-```ts
-//parent.component.ts
-constructor (public changeDetectorRef: ChangeDetectorRef) { }
-```
-
-```html
-<!-- parent.component.html -->
-<virtual-scroller #scroll [items]="items" [executeRefreshOutsideAngularZone]="true" (vsUpdate)="changeDetectorRef.detectChanges();">
-    <my-custom-component *ngFor="let item of scroll.viewPortItems">
-    </my-custom-component>
-</virtual-scroller>
-```
-
-If you're unlucky, this will cause a bunch of UI bugs because you've disabled Angular's change detection for any code path started by virtual-scroller. In these cases, you'll have to track down & fix each bug separately (usually by adding `changeDetectorRef.detectChanges()`). These bugs might continue to crop up in the future as you make minor code changes. In the end, you might decide to stop using the buggy flag & instead do the correct fix which is to switch all your components to using ChangeDetectionStrategy.OnPush.
-
-## Additional elements in scroll
-
-If you want to nest additional elements inside virtual scroll besides the list itself (e.g. search field), you need to wrap those elements in a tag with an angular selector name of #container.
-
-```html
-<virtual-scroller #scroll [items]="items">
-    <input type="search">
-    <div #container>
-        <my-custom-component *ngFor="let item of scroll.viewPortItems">
-        </my-custom-component>
-    </div>
-</virtual-scroller>
-```
-
 ## Use parent scrollbar
 
 If you want to use the scrollbar of a parent element, set `parentScroll` to a native DOM element.
@@ -486,6 +446,46 @@ This hacky CSS allows hiding a scrollbar while still enabling scroll through mou
 	//hide horizontal scrollbar
 	   margin-bottom: -25px;
 	   padding-bottom: 25px;
+```
+
+## Performance (and the executeRefreshOutsideAngularZone flag)
+
+Each component in Angular by default uses the ChangeDetectionStrategy.Default "CheckAlways" strategy. This means that Change Detection cycles will run frequently and will check *EVERY* data-binding expression on *EVERY* component to see if anything has changed. This makes it easier for programmers to code apps, but also makes apps slow. For simple apps it may not be noticed, but as apps become more complex it quickly becomes apparent. The correct way to fix this is to make cycles as fast as possible and to avoid unnecessary ChangeDetection cycles. Cycles will be faster if you avoid complex business logic in data-bindings. You can avoid unnecessary Cycles by converting your components to use ChangeDetectionStrategy.OnPush. When doing this, you have to explicitly tell Angular when you're modifying the value of a data-binding expression, because it will not be checked automatically. This topic can be researched online, there are a lot of detailed articles about it.
+
+virtual-scroller causes a full ChangeDetection cycle to run during every refresh (scrolling/etc). This is standard practice for all Angular components/libraries. If you have an app that is usually fast, but becomes slow while scrolling virtual-scroller, the correct solution is to convert all of your components to use ChangeDetectionStrategy.OnPush. However, this may not be easy. If you want a quick solution that masks the real problem, you can use the scrollThrottlingTime, scrollDebounceTime, or executeRefreshOutsideAngularZone APIs.
+
+The executeRefreshOutsideAngularZone is strongly discouraged because it disables Angular's automatic Change Detection from any code paths started by virtual-scroller. This essentially randomly converts some of your app's components to use ChangeDetectionStrategy.OnPush without you explicitly choosing to do so. Because this wasn't an intentional choice, you won't have code to tell Angular when those components need to re-bind their UI, which will cause the DOM to not update when it should. These UI bugs won't be consistent, because it'll depend on which code path caused your data-binding model to change. The list of potential code paths in virtual-scroller is too long to make an exhaustive list & which of your components are affected is completely dependent on what business logic you execute in response to those virtual-scroller code paths. If you choose to use this flag, it's your responsibility to do extensive testing in your app and to thoroughly read and understand the virtual-scroller source code. You probably should not make this choice unless you have a strong understanding of Angular's ChangeDetection internals.
+
+Although executeRefreshOutsideAngularZone is strongly discouraged, it is up to the consuming app's programmer to determine if it's the right decision for their application.
+
+If you're lucky, you can implement this flag as follows and get a free speed boost while scrolling:
+```ts
+//parent.component.ts
+constructor (public changeDetectorRef: ChangeDetectorRef) { }
+```
+
+```html
+<!-- parent.component.html -->
+<virtual-scroller #scroll [items]="items" [executeRefreshOutsideAngularZone]="true" (vsUpdate)="changeDetectorRef.detectChanges();">
+    <my-custom-component *ngFor="let item of scroll.viewPortItems">
+    </my-custom-component>
+</virtual-scroller>
+```
+
+If you're unlucky, this will cause a bunch of UI bugs because you've disabled Angular's change detection for any code path started by virtual-scroller. In these cases, you'll have to track down & fix each bug separately (usually by adding `changeDetectorRef.detectChanges()`). These bugs might continue to crop up in the future as you make minor code changes. In the end, you might decide to stop using the buggy flag & instead do the correct fix which is to switch all your components to using ChangeDetectionStrategy.OnPush.
+
+## Additional elements in scroll
+
+If you want to nest additional elements inside virtual scroll besides the list itself (e.g. search field), you need to wrap those elements in a tag with an angular selector name of #container.
+
+```html
+<virtual-scroller #scroll [items]="items">
+    <input type="search">
+    <div #container>
+        <my-custom-component *ngFor="let item of scroll.viewPortItems">
+        </my-custom-component>
+    </div>
+</virtual-scroller>
 ```
 
 ## scrollDebounceTime / scrollThrottlingTime (for performance reasons)
