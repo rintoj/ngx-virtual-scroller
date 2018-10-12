@@ -448,6 +448,20 @@ This hacky CSS allows hiding a scrollbar while still enabling scroll through mou
 	   padding-bottom: 25px;
 ```
 
+## Additional elements in scroll
+
+If you want to nest additional elements inside virtual scroll besides the list itself (e.g. search field), you need to wrap those elements in a tag with an angular selector name of #container.
+
+```html
+<virtual-scroller #scroll [items]="items">
+    <input type="search">
+    <div #container>
+        <my-custom-component *ngFor="let item of scroll.viewPortItems">
+        </my-custom-component>
+    </div>
+</virtual-scroller>
+```
+
 ## Performance (and the executeRefreshOutsideAngularZone flag)
 
 Each component in Angular by default uses the ChangeDetectionStrategy.Default "CheckAlways" strategy. This means that Change Detection cycles will run frequently and will check *EVERY* data-binding expression on *EVERY* component to see if anything has changed. This makes it easier for programmers to code apps, but also makes apps slow. For simple apps it may not be noticed, but as apps become more complex it quickly becomes apparent. The correct way to fix this is to make cycles as fast as possible and to avoid unnecessary ChangeDetection cycles. Cycles will be faster if you avoid complex business logic in data-bindings. You can avoid unnecessary Cycles by converting your components to use ChangeDetectionStrategy.OnPush. When doing this, you have to explicitly tell Angular when you're modifying the value of a data-binding expression, because it will not be checked automatically. This topic can be researched online, there are a lot of detailed articles about it.
@@ -473,20 +487,6 @@ constructor (public changeDetectorRef: ChangeDetectorRef) { }
 ```
 
 If you're unlucky, this will cause a bunch of UI bugs because you've disabled Angular's change detection for any code path started by virtual-scroller. In these cases, you'll have to track down & fix each bug separately (usually by adding `changeDetectorRef.detectChanges()`). These bugs might continue to crop up in the future as you make minor code changes. In the end, you might decide to stop using the buggy flag & instead do the correct fix which is to switch all your components to using ChangeDetectionStrategy.OnPush.
-
-## Additional elements in scroll
-
-If you want to nest additional elements inside virtual scroll besides the list itself (e.g. search field), you need to wrap those elements in a tag with an angular selector name of #container.
-
-```html
-<virtual-scroller #scroll [items]="items">
-    <input type="search">
-    <div #container>
-        <my-custom-component *ngFor="let item of scroll.viewPortItems">
-        </my-custom-component>
-    </div>
-</virtual-scroller>
-```
 
 ## scrollDebounceTime / scrollThrottlingTime (for performance reasons)
 
