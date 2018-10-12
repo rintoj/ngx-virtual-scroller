@@ -1,3 +1,7 @@
+# v1.0.9
+
+* Add flag to enable speed improvement from v1.0.8 (because it causes issues with `changeDetection: ChangeDetectionStrategy.OnPush`.
+
 # v1.0.8
 
 * Speed improvement. Thanks to sharikovvladislav & nickbullock !

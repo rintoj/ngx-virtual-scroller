@@ -156,6 +156,9 @@ export class VirtualScrollerComponent implements OnInit, OnChanges, OnDestroy {
 		};
 	}
 
+	@Input()
+	public experimentalPerformanceBoost: boolean = false;
+	
 	protected _enableUnequalChildrenSizes: boolean = false;
 	@Input()
 	public get enableUnequalChildrenSizes(): boolean {
@@ -734,35 +737,44 @@ export class VirtualScrollerComponent implements OnInit, OnChanges, OnDestroy {
 
 
 				if (startChanged || endChanged || scrollPositionChanged) {
-					// update the scroll list to trigger re-render of components in viewport
-					this.viewPortItems = viewport.startIndexWithBuffer >= 0 && viewport.endIndexWithBuffer >= 0 ? this.items.slice(viewport.startIndexWithBuffer, viewport.endIndexWithBuffer + 1) : [];
-					this.update.emit(this.viewPortItems);
-					this.vsUpdate.emit(this.viewPortItems);
+					let handleChanged = () => {
+						// update the scroll list to trigger re-render of components in viewport
+						this.viewPortItems = viewport.startIndexWithBuffer >= 0 && viewport.endIndexWithBuffer >= 0 ? this.items.slice(viewport.startIndexWithBuffer, viewport.endIndexWithBuffer + 1) : [];
+						this.update.emit(this.viewPortItems);
+						this.vsUpdate.emit(this.viewPortItems);
 
-					if (startChanged) {
-						this.start.emit(changeEventArg);
-						this.vsStart.emit(changeEventArg);
-					}
+						if (startChanged) {
+							this.start.emit(changeEventArg);
+							this.vsStart.emit(changeEventArg);
+						}
 
-					if (endChanged) {
-						this.end.emit(changeEventArg);
-						this.vsEnd.emit(changeEventArg);
-					}
+						if (endChanged) {
+							this.end.emit(changeEventArg);
+							this.vsEnd.emit(changeEventArg);
+						}
 
-					if (startChanged || endChanged) {
-						this.change.emit(changeEventArg);
-						this.vsChange.emit(changeEventArg);
-					}
-
-					this.parentChangeDetectorRef.detectChanges();
+						if (startChanged || endChanged) {
+							this.change.emit(changeEventArg);
+							this.vsChange.emit(changeEventArg);
+						}
 					
-					if (maxRunTimes > 0) {
-						this.refresh_internal(false, refreshCompletedCallback, maxRunTimes - 1);
-						return;
-					}
+						if (maxRunTimes > 0) {
+							this.refresh_internal(false, refreshCompletedCallback, maxRunTimes - 1);
+							return;
+						}
 
-					if (refreshCompletedCallback) {
-						refreshCompletedCallback();
+						if (refreshCompletedCallback) {
+							refreshCompletedCallback();
+						}
+					};
+					
+					
+					if (this.experimentalPerformanceBoost) {
+						handleChanged();
+						this.parentChangeDetectorRef.detectChanges();
+					}
+					else {
+						this.zone.run(handleChanged);
 					}
 				} else {
 					if (maxRunTimes > 0 && (scrollLengthChanged || paddingChanged)) {
