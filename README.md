@@ -470,7 +470,7 @@ virtual-scroller causes a full ChangeDetection cycle to run during every refresh
 
 The executeRefreshOutsideAngularZone is strongly discouraged because it disables Angular's automatic Change Detection from any code paths started by virtual-scroller. This essentially randomly converts some of your app's components to use ChangeDetectionStrategy.OnPush without you explicitly choosing to do so. Because this wasn't an intentional choice, you won't have code to tell Angular when those components need to re-bind their UI, which will cause the DOM to not update when it should. These UI bugs won't be consistent, because it'll depend on which code path caused your data-binding model to change. The list of potential code paths in virtual-scroller is too long to make an exhaustive list & which of your components are affected is completely dependent on what business logic you execute in response to those virtual-scroller code paths. If you choose to use this flag, it's your responsibility to do extensive testing in your app and to thoroughly read and understand the virtual-scroller source code. You probably should not make this choice unless you have a strong understanding of Angular's ChangeDetection internals.
 
-Although executeRefreshOutsideAngularZone is strongly discouraged, it is up to the consuming app's programmer to determine if it's the right decision for their application.
+Although use of the executeRefreshOutsideAngularZone flag is strongly discouraged, it is up to the consuming app's programmer to determine if it's the right decision for their application.
 
 If you're lucky, you can implement this flag as follows and get a free speed boost while scrolling:
 ```ts
@@ -486,7 +486,7 @@ constructor (public changeDetectorRef: ChangeDetectorRef) { }
 </virtual-scroller>
 ```
 
-If you're unlucky, this will cause a bunch of UI bugs because you've disabled Angular's change detection for any code path started by virtual-scroller. In these cases, you'll have to track down & fix each bug separately (usually by adding `changeDetectorRef.detectChanges()`). These bugs might continue to crop up in the future as you make minor code changes. In the end, you might decide to stop using the buggy flag & instead do the correct fix which is to switch all your components to using ChangeDetectionStrategy.OnPush.
+If you're unlucky, this will cause a bunch of UI bugs because you've disabled Angular's change detection for any code path started by virtual-scroller. In these cases, you'll have to track down & fix each bug separately (usually by adding `changeDetectorRef.detectChanges()`). These bugs might continue to crop up in the future as you make minor code changes. In the end, you might decide to stop using the buggy flag & instead do the correct fix which is to switch all your components to using ChangeDetectionStrategy.OnPush (which requires you to also explicitly tell Angular any time you change your data-model so Angular knows to re-bind).
 
 ## scrollDebounceTime / scrollThrottlingTime (for performance reasons)
 
