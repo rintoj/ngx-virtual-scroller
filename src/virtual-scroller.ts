@@ -1118,7 +1118,7 @@ export class VirtualScrollerComponent implements OnInit, OnChanges, OnDestroy {
 		}
 
 		let defaultScrollLengthPerWrapGroup = dimensions[this._childScrollDim];
-		let startingWrapGroupIndex = Math.ceil(arrayStartIndexWithBuffer / dimensions.itemsPerWrapGroup) || 0;
+		let startingWrapGroupIndex = Math.floor(arrayStartIndexWithBuffer / dimensions.itemsPerWrapGroup) || 0;
 
 		if (!this.enableUnequalChildrenSizes) {
 			return defaultScrollLengthPerWrapGroup * startingWrapGroupIndex;

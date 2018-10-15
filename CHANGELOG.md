@@ -1,3 +1,7 @@
+# v1.0.11
+
+* Fix issue #258
+
 # v1.0.10
 
 * Refactor of speed improvement flag (renamed to executeRefreshOutsideAngularZone). With instructions & warning.
