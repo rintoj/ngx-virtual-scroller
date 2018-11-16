@@ -1204,7 +1204,7 @@ export class VirtualScrollerComponent implements OnInit, OnChanges, OnDestroy {
 		let offset = this.getElementsOffset();
 
 		let scrollStartPosition = this.getScrollStartPosition();
-		if (scrollStartPosition > dimensions.scrollLength && !(this.parentScroll instanceof Window)) {
+		if (scrollStartPosition > (dimensions.scrollLength + offset) && !(this.parentScroll instanceof Window)) {
 			scrollStartPosition = dimensions.scrollLength;
 		} else {
 			scrollStartPosition -= offset;
