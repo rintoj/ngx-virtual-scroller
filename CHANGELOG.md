@@ -1,3 +1,7 @@
+# v1.0.12
+
+* Fix the bug, when parentScroll is significantly longer, then virtual scroller.
+
 # v1.0.11
 
 * Fix issue #258
