@@ -1,6 +1,10 @@
+# v1.0.13
+
+* Make OnPush strategy easier to implement.
+
 # v1.0.12
 
-* Fix the bug, when parentScroll is significantly longer, then virtual scroller.
+* Fix a bug when parentScroll is significantly longer than virtual scroller.
 
 # v1.0.11
 

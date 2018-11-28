@@ -488,6 +488,107 @@ constructor (public changeDetectorRef: ChangeDetectorRef) { }
 
 If you're unlucky, this will cause a bunch of UI bugs because you've disabled Angular's change detection for any code path started by virtual-scroller. In these cases, you'll have to track down & fix each bug separately (usually by adding `changeDetectorRef.detectChanges()`). These bugs might continue to crop up in the future as you make minor code changes. In the end, you might decide to stop using the buggy flag & instead do the correct fix which is to switch all your components to using ChangeDetectionStrategy.OnPush (which requires you to also explicitly tell Angular any time you change your data-model so Angular knows to re-bind).
 
+## Angular OnPush Detection Strategy (General performance advice. not specific to ngx-virtual-scroller)
+The default ChangeDetectionStrategy implemented by Angular monitors your entire app for code that *might* change state. If something triggers change detection, Angular recursively checks every component in your app to see if any of them need to be re-rendered. It determines this by comparing the old/new value of each bound property to see if anything has changed. This is helpful to the programmer because it's easy & it works like magic. If you change something, it displays on the screen. However, it's extremely slow. The default ChangeDetectionStrategy is really intented for quick-start apps. Once an application gets complex enough, it'll almost be mandatory to convert it to the OnPush strategy otherwise performance will grind to a halt.
+
+For example, virtual-scroller has a bound property [items]="items". If you use OnPush, you have to tell Angular if you change the items array, because it won't re-render automatically. With the default ChangeDetectionStrategy, this is handled automatically (but, the default ChangeDetectionStrategy is slow because it re-binds/re-renders extra times unnecessarily). 
+
+OnPush means the consuming app is taking full responsibility for telling Angular when to run change detection rather than allowing Angular to figure it out itself. This is much faster, however it's also much harder for the programmer to code. You have to code things differently: This means 1) avoid mutating state on any bound properties where possible & 2) manually running change detection when you do mutate state. OnPush can be done on a component-by-component basis, however if you really need speed, I recommend doing it for *EVERY* component in your app.
+
+My personal suggestion on the easiest way to implement OnPush across your entire app:
+```
+public class ManualChangeDetection {
+	public queueChangeDetection(): void {
+		this.changeDetectorRef.markForCheck(); // marks self for change detection on the next cycle, but doesn't actually schedule a cycle
+		this.queueApplicationTick();
+	}
+
+	public static STATIC_APPLICATION_REF: ApplicationRef;
+	public static queueApplicationTick: ()=> void = Util.debounce(() => {
+		if (ManualChangeDetection.STATIC_APPLICATION_REF['_runningTick']) {
+			return;
+		}
+
+		ManualChangeDetection.STATIC_APPLICATION_REF.tick();
+	}, 50);
+	
+	constructor(private changeDetectorRef: ChangeDetectorRef) {
+	}
+}  
+
+//note: this portion is only needed if you don't already have a debounce implementation in your app
+public class Util {
+	public static throttleTrailing(func: Function, wait: number): Function {
+		let timeout = undefined;
+		const result = function () {
+			const _this = this;
+			const _arguments = arguments;
+
+			if (timeout) {
+				return;
+			}
+
+			if (wait <= 0) {
+				func.apply(_this, _arguments);
+			} else {
+				timeout = setTimeout(function () {
+					timeout = undefined;
+					func.apply(_this, _arguments);
+				}, wait);
+			}
+		};
+		result['cancel'] = function () {
+			if (timeout) {
+				clearTimeout(timeout);
+				timeout = undefined;
+			}
+		};
+
+		return result;
+	}
+	
+	public static debounce(func: Function, wait: number): Function {
+		const throttled = Util.throttleTrailing(func, wait);
+		const result = function () {
+			throttled['cancel']();
+			throttled.apply(this, arguments);
+		};
+		result['cancel'] = function () {
+			throttled['cancel']();
+		};
+
+		return result;
+	}
+}  
+
+public class MyEntryLevelAppComponent
+{
+	constructor(applicationRef: ApplicationRef) {
+		ManualChangeDetection.STATIC_APPLICATION_REF = applicationRef;
+	}
+}
+
+@Component({
+	...
+  changeDetection: ChangeDetectionStrategy.OnPush
+	...
+})
+public class SomeRandomComponentWhichUsesOnPush {
+	private manualChangeDetection: ManualChangeDetection;
+	constructor(changeDetectorRef: ChangeDetectorRef) {
+		this.manualChangeDetection = new ManualChangeDetection(changeDetectorRef);
+	}
+	
+	public someFunctionThatMutatesState(): void {
+		this.someBoundProperty = someNewValue;
+		
+		this.manualChangeDetection.queueChangeDetection();
+	}
+}
+```
+The ManualChangeDetection/Util classes are helpers that can be copy/pasted directly into your app. The code for MyEntryLevelAppComponent & SomeRandomComponentWhichUsesOnPush are examples that you'll need to modify for your specific app. If you follow this pattern, OnPush is much easier to implement. However, the really hard part is analyzing all of your code to determine *where* you're mutating state. Unfortunately there's no magic bullet for this, you'll need to spend a lot of time reading/debugging/testing your code.
+
+
 ## scrollDebounceTime / scrollThrottlingTime (for performance reasons)
 
 Without these set, virtual-scroller will refresh immediately whenever the user scrolls.

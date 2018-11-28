@@ -13,7 +13,8 @@ import {
 	OnInit,
 	Output,
 	Renderer2,
-	ViewChild
+	ViewChild,
+	ChangeDetectorRef
 } from '@angular/core';
 
 import { PLATFORM_ID } from '@angular/core';
@@ -543,6 +544,7 @@ export class VirtualScrollerComponent implements OnInit, OnChanges, OnDestroy {
 	constructor(protected readonly element: ElementRef,
 		protected readonly renderer: Renderer2,
 		protected readonly zone: NgZone,
+		protected changeDetectorRef: ChangeDetectorRef,
 		@Inject(PLATFORM_ID) platformId: Object,
 		@Optional() @Inject('virtualScroller.scrollThrottlingTime') scrollThrottlingTime,
 		@Optional() @Inject('virtualScroller.scrollDebounceTime') scrollDebounceTime,
@@ -751,6 +753,7 @@ export class VirtualScrollerComponent implements OnInit, OnChanges, OnDestroy {
 						}
 
 						if (startChanged || endChanged) {
+							this.changeDetectorRef.markForCheck();
 							this.change.emit(changeEventArg);
 							this.vsChange.emit(changeEventArg);
 						}
