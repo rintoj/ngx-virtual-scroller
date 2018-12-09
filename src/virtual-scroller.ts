@@ -175,6 +175,9 @@ export class VirtualScrollerComponent implements OnInit, OnChanges, OnDestroy {
 
 	@Input()
 	public useMarginInsteadOfTranslate: boolean = false;
+	
+	@Input()
+	public stripedTable: boolean;
 
 	@Input()
 	public scrollbarWidth: number;
@@ -1195,6 +1198,10 @@ export class VirtualScrollerComponent implements OnInit, OnChanges, OnDestroy {
 		let startIndexWithBuffer = Math.min(Math.max(arrayStartIndex - bufferSize, 0), dimensions.itemCount - 1);
 		let endIndexWithBuffer = Math.min(Math.max(arrayEndIndex + bufferSize, 0), dimensions.itemCount - 1);
 
+		if(this.stripedTable && startIndexWithBuffer%2 == 1 && startIndexWithBuffer != 0){
+            		startIndexWithBuffer--;
+        	}
+		
 		return {
 			startIndex: arrayStartIndex,
 			endIndex: arrayEndIndex,
