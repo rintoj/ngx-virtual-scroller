@@ -1094,6 +1094,10 @@ export class VirtualScrollerComponent implements OnInit, OnChanges, OnDestroy {
 		} else {
 			scrollLength = numberOfWrapGroups * defaultScrollLengthPerWrapGroup;
 		}
+		
+		if(this.headerElementRef){
+		    scrollLength += parseInt(window.getComputedStyle(this.headerElementRef.nativeElement).height, 10);
+		}
 
 		let viewportLength = this.horizontal ? viewportWidth : viewportHeight;
 		let maxScrollPosition = Math.max(scrollLength - viewportLength, 0);
