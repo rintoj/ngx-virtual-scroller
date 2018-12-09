@@ -177,7 +177,10 @@ export class VirtualScrollerComponent implements OnInit, OnChanges, OnDestroy {
 	public useMarginInsteadOfTranslate: boolean = false;
 	
 	@Input()
-	public stripedTable: boolean;
+	public modifyOverflowStyleOfParentScroll: boolean = true;
+	
+	@Input()
+	public stripedTable: boolean = false;
 
 	@Input()
 	public scrollbarWidth: number;
@@ -325,7 +328,7 @@ export class VirtualScrollerComponent implements OnInit, OnChanges, OnDestroy {
 		this.addScrollEventHandlers();
 
 		const scrollElement = this.getScrollElement();
-		if (scrollElement !== this.element.nativeElement) {
+		if (this.modifyOverflowStyleOfParentScroll && scrollElement !== this.element.nativeElement) {
 			this.oldParentScrollOverflow = { x: scrollElement.style['overflow-x'], y: scrollElement.style['overflow-y'] };
 			scrollElement.style['overflow-y'] = this.horizontal ? 'visible' : 'auto';
 			scrollElement.style['overflow-x'] = this.horizontal ? 'auto' : 'visible';
