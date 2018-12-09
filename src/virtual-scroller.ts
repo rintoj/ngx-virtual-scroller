@@ -177,10 +177,10 @@ export class VirtualScrollerComponent implements OnInit, OnChanges, OnDestroy {
 	public useMarginInsteadOfTranslate: boolean = false;
 	
 	@Input()
-	public modifyOverflowStyleOfParentScroll: boolean = true;
+	public modifyOverflowStyleOfParentScroll: boolean;
 	
 	@Input()
-	public stripedTable: boolean = false;
+	public stripedTable: boolean;
 
 	@Input()
 	public scrollbarWidth: number;
@@ -558,7 +558,9 @@ export class VirtualScrollerComponent implements OnInit, OnChanges, OnDestroy {
 		@Optional() @Inject('virtualScroller.scrollbarWidth') scrollbarWidth,
 		@Optional() @Inject('virtualScroller.scrollbarHeight') scrollbarHeight,
 		@Optional() @Inject('virtualScroller.checkResizeInterval') checkResizeInterval,
-		@Optional() @Inject('virtualScroller.resizeBypassRefreshThreshold') resizeBypassRefreshThreshold) {
+		@Optional() @Inject('virtualScroller.resizeBypassRefreshThreshold') resizeBypassRefreshThreshold,
+		@Optional() @Inject('virtualScroller.modifyOverflowStyleOfParentScroll') modifyOverflowStyleOfParentScroll,
+		@Optional() @Inject('virtualScroller.stripedTable') stripedTable) {
 		this.isAngularUniversalSSR = isPlatformServer(platformId);
 
 		this.scrollThrottlingTime = typeof (scrollThrottlingTime) === 'number' ? scrollThrottlingTime : 0;
@@ -578,6 +580,16 @@ export class VirtualScrollerComponent implements OnInit, OnChanges, OnDestroy {
 		}
 		if (typeof (resizeBypassRefreshThreshold) === 'number') {
 			this.resizeBypassRefreshThreshold = resizeBypassRefreshThreshold;
+		}
+		
+		this.modifyOverflowStyleOfParentScroll = true;
+		if (typeof (modifyOverflowStyleOfParentScroll) === 'boolean') {
+			this.modifyOverflowStyleOfParentScroll = modifyOverflowStyleOfParentScroll;
+		}
+		
+		this.stripedTable = false;
+		if (typeof (stripedTable) === 'boolean') {
+			this.stripedTable = stripedTable;
 		}
 
 		this.horizontal = false;

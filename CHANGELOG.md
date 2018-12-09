@@ -1,3 +1,7 @@
+# v1.0.14
+
+* New properties stripedTable and modifyOverflowStyleOfParentScroll. Mnior bug fix to fixed table headers.
+
 # v1.0.13
 
 * Make OnPush strategy easier to implement.
