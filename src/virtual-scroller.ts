@@ -1114,7 +1114,7 @@ export class VirtualScrollerComponent implements OnInit, OnChanges, OnDestroy {
 		}
 		
 		if(this.headerElementRef){
-		    scrollLength += parseInt(window.getComputedStyle(this.headerElementRef.nativeElement).height, 10);
+		    scrollLength += this.headerElementRef.nativeElement.clientHeight;
 		}
 
 		let viewportLength = this.horizontal ? viewportWidth : viewportHeight;
