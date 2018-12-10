@@ -1192,6 +1192,13 @@ export class VirtualScrollerComponent implements OnInit, OnChanges, OnDestroy {
 		let maxStart = dimensions.itemCount - dimensions.itemsPerPage - 1;
 		let arrayStartIndex = Math.min(Math.floor(startingArrayIndex_fractional), maxStart);
 		arrayStartIndex -= arrayStartIndex % dimensions.itemsPerWrapGroup; // round down to start of wrapGroup
+		
+		if (this.stripedTable) {
+			let bufferBoundary = 2*dimensions.itemsPerWrapGroup;
+			if (arrayStartIndex % bufferBoundary !== 0) {			
+				arrayStartIndex = Math.max(arrayStartIndex - arrayStartIndex%bufferBoundary, 0);
+			}
+		}
 
 		let arrayEndIndex = Math.ceil(startingArrayIndex_fractional) + dimensions.itemsPerPage - 1;
 		let endIndexWithinWrapGroup = (arrayEndIndex + 1) % dimensions.itemsPerWrapGroup;
@@ -1213,10 +1220,6 @@ export class VirtualScrollerComponent implements OnInit, OnChanges, OnDestroy {
 		let startIndexWithBuffer = Math.min(Math.max(arrayStartIndex - bufferSize, 0), dimensions.itemCount - 1);
 		let endIndexWithBuffer = Math.min(Math.max(arrayEndIndex + bufferSize, 0), dimensions.itemCount - 1);
 
-		if(this.stripedTable && startIndexWithBuffer%2 == 1 && startIndexWithBuffer != 0){
-            		startIndexWithBuffer--;
-        	}
-		
 		return {
 			startIndex: arrayStartIndex,
 			endIndex: arrayEndIndex,

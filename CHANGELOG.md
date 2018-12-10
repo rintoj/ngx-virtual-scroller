@@ -1,6 +1,10 @@
+# v1.0.15
+
+* Minor bug fix to stripedTable & table headers.
+
 # v1.0.14
 
-* New properties stripedTable and modifyOverflowStyleOfParentScroll. Mnior bug fix to fixed table headers.
+* New properties stripedTable and modifyOverflowStyleOfParentScroll. Minor bug fix to fixed table headers.
 
 # v1.0.13
 
