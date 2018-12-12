@@ -1,3 +1,7 @@
+# v1.0.16
+
+* Bug fix to sticky header with parentScroll
+
 # v1.0.15
 
 * Minor bug fix to stripedTable & table headers.
