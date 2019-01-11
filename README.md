@@ -490,7 +490,7 @@ constructor (public changeDetectorRef: ChangeDetectorRef) { }
 
 If you're unlucky, this will cause a bunch of UI bugs because you've disabled Angular's change detection for any code path started by virtual-scroller. In these cases, you'll have to track down & fix each bug separately (usually by adding `changeDetectorRef.detectChanges()`). These bugs might continue to crop up in the future as you make minor code changes. In the end, you might decide to stop using the buggy flag & instead do the correct fix which is to switch all your components to using ChangeDetectionStrategy.OnPush (which requires you to also explicitly tell Angular any time you change your data-model so Angular knows to re-bind).
 
-## Angular OnPush Detection Strategy (General performance advice. not specific to ngx-virtual-scroller)
+## Angular OnPush Detection Strategy - General performance advice (not specific to ngx-virtual-scroller)
 The default ChangeDetectionStrategy implemented by Angular monitors your entire app for code that *might* change state. If something triggers change detection, Angular recursively checks every component in your app to see if any of them need to be re-rendered. It determines this by comparing the old/new value of each bound property to see if anything has changed. This is helpful to the programmer because it's easy & it works like magic. If you change something, it displays on the screen. However, it's extremely slow. The default ChangeDetectionStrategy is really intented for quick-start apps. Once an application gets complex enough, it'll almost be mandatory to convert it to the OnPush strategy otherwise performance will grind to a halt.
 
 For example, virtual-scroller has a bound property [items]="items". If you use OnPush, you have to tell Angular if you change the items array, because it won't re-render automatically. With the default ChangeDetectionStrategy, this is handled automatically (but, the default ChangeDetectionStrategy is slow because it re-binds/re-renders extra times unnecessarily). 
@@ -625,6 +625,12 @@ Object.defineProperty(win.document.body.style, 'transform', { value: () => { ret
 
 </virtual-scroller>
 ```
+
+## Known Issues
+The following are known issues that we don't know how to solve or don't have the resources to do so. Please don't submit a ticket for them. If you have an idea on how to fix them, please submit a pull request :)
+
+### Nested Scrollbars
+If there are 2 nested scrollbars on the page the mouse scrollwheel will only affect the scrollbar of the nearest parent to the current mouse position. This means if you scroll to the bottom of a virtual-scroller using the mousewheel & the window has an extra scrollbar, you cannot use the scrollwheel to scroll the page unless you move the mouse pointer out of the virtual-scroller element.
 
 ## Contributing
 Contributions are very welcome! Just send a pull request. Feel free to contact me or checkout my [GitHub](https://github.com/rintoj) page.
