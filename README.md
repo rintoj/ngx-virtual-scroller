@@ -350,6 +350,7 @@ Because of the *ngIf, Angular completely forgets any view state. If your compone
 For example, if your child component can expand/collapse via a button, most likely scrolling away & back will cause the expansion state to revert to the default state.
 
 To fix this, you'll need to store any "view" state properties in a variable & data-bind to it so that it can be restored when it gets removed/re-added from the DOM.
+
 Example:
 ```
 <virtual-scroller #scroll [items]="items">
