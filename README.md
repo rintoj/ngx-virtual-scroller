@@ -342,6 +342,22 @@ virtualScroller.invalidateCachedMeasurementForItem(item: any);
 virtualScroller.invalidateCachedMeasurementAtIndex(index: number);
 ```
 
+## If child view state is reverted after scrolling away & back 
+virtual-scroller essentially uses *ngIf to remove items that are scrolled out of view. This is what gives the performance benefits compared to keeping all the off-screen items in the DOM.
+
+Because of the *ngIf, Angular completely forgets any view state. If your component has the ability to change state, it's your app's responsibility to retain that viewstate in your own object which data-binds to the component.
+
+For example, if your child component can expand/collapse via a button, most likely scrolling away & back will cause the expansion state to revert to the default state.
+
+To fix this, you'll need to store any "view" state properties in a variable & data-bind to it so that it can be restored when it gets removed/re-added from the DOM.
+Example:
+```
+<virtual-scroller #scroll [items]="items">
+    <my-custom-component [expanded]="item.expanded" *ngFor="let item of scroll.viewPortItems">
+    </my-custom-component>
+</virtual-scroller>
+```
+
 ## If container size changes
 
 Note: This should now be auto-detected, however the 'refresh' method can still force it if neeeded.
