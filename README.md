@@ -112,7 +112,6 @@ You must also define width and height for the container and for its children.
 
 ```css
 virtual-scroller {
-  display: block;
   width: 350px;
   height: 200px;
 }
