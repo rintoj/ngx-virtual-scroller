@@ -14,7 +14,8 @@ import {
 	Output,
 	Renderer2,
 	ViewChild,
-	ChangeDetectorRef
+	ChangeDetectorRef,
+	InjectionToken
 } from '@angular/core';
 
 import { PLATFORM_ID } from '@angular/core';
@@ -23,6 +24,44 @@ import { isPlatformServer } from '@angular/common';
 import { CommonModule } from '@angular/common';
 
 import * as tween from '@tweenjs/tween.js'
+
+/** Default `virtualScroller` options that can be overridden. */
+export interface VirtualScrollerDefaultOptions {
+	scrollThrottlingTime: number;
+	scrollDebounceTime: number;
+	scrollAnimationTime: number;
+	scrollbarWidth?: number;
+	scrollbarHeight?: number;
+	checkResizeInterval: number
+	resizeBypassRefreshThreshold: number,
+	modifyOverflowStyleOfParentScroll: boolean,
+	stripedTable?: boolean
+}
+
+// InjectionToken with version 6.x^
+// export const VIRTUAL_SCROLLER_DEFAULT_OPTIONS =
+// 	new InjectionToken<VirtualScrollerDefaultOptions>('virtual-scroller-default-options', {
+// 		providedIn: 'root',
+// 		factory: VIRTUAL_SCROLLER_DEFAULT_OPTIONS_FACTORY
+// 	});
+
+// InjectionToken with version 4.x
+/** Injection token to be used to override the default options for `virtualScroller`. */
+export const VIRTUAL_SCROLLER_DEFAULT_OPTIONS =
+	new InjectionToken<VirtualScrollerDefaultOptions>('virtual-scroller-default-options');
+
+// used with both v 4.x and newer impl, but in different ways
+/** @docs-private */
+export function VIRTUAL_SCROLLER_DEFAULT_OPTIONS_FACTORY(): VirtualScrollerDefaultOptions {
+	return {
+		scrollThrottlingTime: 0,
+		scrollDebounceTime: 0,
+		scrollAnimationTime: 750,
+		checkResizeInterval: 1000,
+		resizeBypassRefreshThreshold: 5,
+		modifyOverflowStyleOfParentScroll: true
+	};
+}
 
 export interface WrapGroupDimensions {
 	numberOfKnownWrapGroupChildSizes: number;
@@ -157,7 +196,7 @@ export class VirtualScrollerComponent implements OnInit, OnChanges, OnDestroy {
 
 	@Input()
 	public executeRefreshOutsideAngularZone: boolean = false;
-	
+
 	protected _enableUnequalChildrenSizes: boolean = false;
 	@Input()
 	public get enableUnequalChildrenSizes(): boolean {
@@ -175,10 +214,10 @@ export class VirtualScrollerComponent implements OnInit, OnChanges, OnDestroy {
 
 	@Input()
 	public useMarginInsteadOfTranslate: boolean = false;
-	
+
 	@Input()
 	public modifyOverflowStyleOfParentScroll: boolean;
-	
+
 	@Input()
 	public stripedTable: boolean;
 
@@ -216,10 +255,10 @@ export class VirtualScrollerComponent implements OnInit, OnChanges, OnDestroy {
 	}
 
 	@Input()
-	public scrollAnimationTime: number = 750;
+	public scrollAnimationTime: number;
 
 	@Input()
-	public resizeBypassRefreshThreshold: number = 5;
+	public resizeBypassRefreshThreshold: number;
 
 	protected _scrollThrottlingTime: number;
 	@Input()
@@ -552,45 +591,19 @@ export class VirtualScrollerComponent implements OnInit, OnChanges, OnDestroy {
 		protected readonly zone: NgZone,
 		protected changeDetectorRef: ChangeDetectorRef,
 		@Inject(PLATFORM_ID) platformId: Object,
-		@Optional() @Inject('virtualScroller.scrollThrottlingTime') scrollThrottlingTime,
-		@Optional() @Inject('virtualScroller.scrollDebounceTime') scrollDebounceTime,
-		@Optional() @Inject('virtualScroller.scrollAnimationTime') scrollAnimationTime,
-		@Optional() @Inject('virtualScroller.scrollbarWidth') scrollbarWidth,
-		@Optional() @Inject('virtualScroller.scrollbarHeight') scrollbarHeight,
-		@Optional() @Inject('virtualScroller.checkResizeInterval') checkResizeInterval,
-		@Optional() @Inject('virtualScroller.resizeBypassRefreshThreshold') resizeBypassRefreshThreshold,
-		@Optional() @Inject('virtualScroller.modifyOverflowStyleOfParentScroll') modifyOverflowStyleOfParentScroll,
-		@Optional() @Inject('virtualScroller.stripedTable') stripedTable) {
+		@Optional() @Inject(VIRTUAL_SCROLLER_DEFAULT_OPTIONS)
+		private _defaultOptions: VirtualScrollerDefaultOptions) {
 		this.isAngularUniversalSSR = isPlatformServer(platformId);
 
-		this.scrollThrottlingTime = typeof (scrollThrottlingTime) === 'number' ? scrollThrottlingTime : 0;
-		this.scrollDebounceTime = typeof (scrollDebounceTime) === 'number' ? scrollDebounceTime : 0;
-
-		if (typeof (scrollAnimationTime) === 'number') {
-			this.scrollAnimationTime = scrollAnimationTime;
-		}
-		if (typeof (scrollbarWidth) === 'number') {
-			this.scrollbarWidth = scrollbarWidth;
-		}
-		if (typeof (scrollbarHeight) === 'number') {
-			this.scrollbarHeight = scrollbarHeight;
-		}
-		if (typeof (checkResizeInterval) === 'number') {
-			this.checkResizeInterval = checkResizeInterval;
-		}
-		if (typeof (resizeBypassRefreshThreshold) === 'number') {
-			this.resizeBypassRefreshThreshold = resizeBypassRefreshThreshold;
-		}
-		
-		this.modifyOverflowStyleOfParentScroll = true;
-		if (typeof (modifyOverflowStyleOfParentScroll) === 'boolean') {
-			this.modifyOverflowStyleOfParentScroll = modifyOverflowStyleOfParentScroll;
-		}
-		
-		this.stripedTable = false;
-		if (typeof (stripedTable) === 'boolean') {
-			this.stripedTable = stripedTable;
-		}
+		this.scrollThrottlingTime = this._defaultOptions.scrollThrottlingTime;
+		this.scrollDebounceTime = this._defaultOptions.scrollDebounceTime;
+		this.scrollAnimationTime = this._defaultOptions.scrollAnimationTime;
+		this.scrollbarWidth = this._defaultOptions.scrollbarWidth;
+		this.scrollbarHeight = this._defaultOptions.scrollbarHeight;
+		this.checkResizeInterval = this._defaultOptions.checkResizeInterval;
+		this.resizeBypassRefreshThreshold = this._defaultOptions.resizeBypassRefreshThreshold;
+		this.modifyOverflowStyleOfParentScroll = this._defaultOptions.modifyOverflowStyleOfParentScroll;
+		this.stripedTable = this._defaultOptions.stripedTable;
 
 		this.horizontal = false;
 		this.resetWrapGroupDimensions();
@@ -777,7 +790,7 @@ export class VirtualScrollerComponent implements OnInit, OnChanges, OnDestroy {
 							this.change.emit(changeEventArg);
 							this.vsChange.emit(changeEventArg);
 						}
-					
+
 						if (maxRunTimes > 0) {
 							this.refresh_internal(false, refreshCompletedCallback, maxRunTimes - 1);
 							return;
@@ -787,8 +800,8 @@ export class VirtualScrollerComponent implements OnInit, OnChanges, OnDestroy {
 							refreshCompletedCallback();
 						}
 					};
-					
-					
+
+
 					if (this.executeRefreshOutsideAngularZone) {
 						handleChanged();
 					}
@@ -1114,9 +1127,9 @@ export class VirtualScrollerComponent implements OnInit, OnChanges, OnDestroy {
 		} else {
 			scrollLength = numberOfWrapGroups * defaultScrollLengthPerWrapGroup;
 		}
-		
-		if(this.headerElementRef){
-		    scrollLength += this.headerElementRef.nativeElement.clientHeight;
+
+		if (this.headerElementRef) {
+			scrollLength += this.headerElementRef.nativeElement.clientHeight;
 		}
 
 		let viewportLength = this.horizontal ? viewportWidth : viewportHeight;
@@ -1194,11 +1207,11 @@ export class VirtualScrollerComponent implements OnInit, OnChanges, OnDestroy {
 		let maxStart = dimensions.itemCount - dimensions.itemsPerPage - 1;
 		let arrayStartIndex = Math.min(Math.floor(startingArrayIndex_fractional), maxStart);
 		arrayStartIndex -= arrayStartIndex % dimensions.itemsPerWrapGroup; // round down to start of wrapGroup
-		
+
 		if (this.stripedTable) {
-			let bufferBoundary = 2*dimensions.itemsPerWrapGroup;
-			if (arrayStartIndex % bufferBoundary !== 0) {			
-				arrayStartIndex = Math.max(arrayStartIndex - arrayStartIndex%bufferBoundary, 0);
+			let bufferBoundary = 2 * dimensions.itemsPerWrapGroup;
+			if (arrayStartIndex % bufferBoundary !== 0) {
+				arrayStartIndex = Math.max(arrayStartIndex - arrayStartIndex % bufferBoundary, 0);
 			}
 		}
 
@@ -1266,7 +1279,14 @@ export class VirtualScrollerComponent implements OnInit, OnChanges, OnDestroy {
 @NgModule({
 	exports: [VirtualScrollerComponent],
 	declarations: [VirtualScrollerComponent],
-	imports: [CommonModule]
+	imports: [CommonModule],
+	providers: [
+		// not needes with newer InjectionToken
+		{
+			provide: VIRTUAL_SCROLLER_DEFAULT_OPTIONS,
+			useFactory: VIRTUAL_SCROLLER_DEFAULT_OPTIONS_FACTORY
+		}
+	]
 
 })
 export class VirtualScrollerModule { }

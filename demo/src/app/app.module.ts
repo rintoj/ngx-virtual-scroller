@@ -17,7 +17,22 @@ import { ListWithApiComponent } from './lists/list-with-api.component';
 import { MultiColListComponent } from './lists/multi-col-list.component';
 import { TableListComponent } from './lists/table-list.component';
 import { VerticalListComponent } from './lists/vertical-list.component';
-import { VirtualScrollerModule } from 'ngx-virtual-scroller';
+
+import { VirtualScrollerModule} from 'ngx-virtual-scroller';
+
+// after update
+// import { VirtualScrollerModule, VIRTUAL_SCROLLER_DEFAULT_OPTIONS, VirtualScrollerDefaultOptions } from 'ngx-virtual-scroller';
+
+// export function MY_CUSTOM_DEFAULT_OPTIONS(): VirtualScrollerDefaultOptions {
+//   return {
+// 		scrollThrottlingTime: 10,
+// 		scrollDebounceTime: 100,
+// 		scrollAnimationTime: 800,
+// 		checkResizeInterval: 700,
+// 		resizeBypassRefreshThreshold: 4,
+// 		modifyOverflowStyleOfParentScroll: true
+// 	};
+// }
 
 @NgModule({
   declarations: [
@@ -49,6 +64,18 @@ import { VirtualScrollerModule } from 'ngx-virtual-scroller';
     VirtualScrollerModule
   ],
   providers: [
+    
+    // singel properties way
+    // {
+    //   VIRTUAL_SCROLLER_DEFAULT_OPTIONS, userValue: { checkResizeInterval: 1000, scrollAnimationTime: 750 }
+    // }
+    
+    // factory way
+    // {
+    //   VIRTUAL_SCROLLER_DEFAULT_OPTIONS, userFactory: MY_CUSTOM_DEFAULT_OPTIONS
+    // }
+    
+    // 4.x way
     { provide: 'virtualScroller.scrollThrottlingTime', useValue: 0 },
     { provide: 'virtualScroller.scrollDebounceTime', useValue: 0 },
     { provide: 'virtualScroller.scrollAnimationTime', useValue: 750 },
