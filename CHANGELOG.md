@@ -1,3 +1,7 @@
+# v1.0.17
+
+* Bug fix: bufferAmount < 5 was forced to 5 if enableUnequalChildrenSizes==true.
+
 # v1.0.16
 
 * Bug fix to sticky header with parentScroll

@@ -209,7 +209,7 @@ export class VirtualScrollerComponent implements OnInit, OnChanges, OnDestroy {
 	protected _bufferAmount: number = 0;
 	@Input()
 	public get bufferAmount(): number {
-		if (typeof (this._bufferAmount) === 'number' && this._bufferAmount > 0) {
+		if (typeof (this._bufferAmount) === 'number' && this._bufferAmount >= 0) {
 			return this._bufferAmount;
 		} else {
 			return this.enableUnequalChildrenSizes ? 5 : 0;	
