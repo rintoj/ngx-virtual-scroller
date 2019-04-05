@@ -1,3 +1,7 @@
+# v2.0.0
+
+* Update to latest version of Angular
+
 # v1.0.17
 
 * Bug fix: bufferAmount < 5 was forced to 5 if enableUnequalChildrenSizes==true.

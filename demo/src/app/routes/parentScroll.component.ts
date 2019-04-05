@@ -1,3 +1,4 @@
+import { map } from "rxjs/operators";
 import { Component, ViewChild } from '@angular/core';
 import { VirtualScrollerComponent } from 'ngx-virtual-scroller';
 import { Http } from '@angular/http';
@@ -70,7 +71,7 @@ export class ParentScrollComponent implements OnInit {
 
   public ngOnInit() {
     this.http.get('assets/data/items.json')
-      .map(response => response.json())
+      .pipe(map(response => response.json()))
       .subscribe(data => {
         this.items = data;
         this.setToFullList();

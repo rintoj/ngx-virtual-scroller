@@ -1,3 +1,4 @@
+import { map } from "rxjs/operators";
 import { Component } from '@angular/core';
 import { Http } from '@angular/http';
 import { ListItem } from '../lists/list-item.component';
@@ -15,7 +16,7 @@ export class SamplesComponent implements OnInit {
 
   ngOnInit() {
     this.http.get('assets/data/items.json')
-      .map(response => response.json())
+      .pipe(map(response => response.json()))
       .subscribe(data => this.items = data);
   }
 }
