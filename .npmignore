@@ -1,8 +1,11 @@
 src/
 node_modules/
 demo/
+docs/
 *.log
 /compiled
 *.ngFactory.ts
 tslint.json
 tsconfig.json
+debugDemo.bat
+debugDemo.sh

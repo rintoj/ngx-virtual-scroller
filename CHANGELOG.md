@@ -1,4 +1,4 @@
-# v2.0.4
+# v2.0.5
 
 * Use ng-packagr to properly format npm publish for Angular consumption (Ivy support)
 
