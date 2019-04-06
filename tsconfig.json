@@ -5,7 +5,7 @@
     "outDir": "./dist",
     "sourceMap": true,
     "declaration": true,
-    "module": "commonjs",
+    "module": "ES2015",
     "moduleResolution": "node",
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,

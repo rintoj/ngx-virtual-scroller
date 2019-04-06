@@ -1,6 +1,6 @@
 {
   "name": "ngx-virtual-scroller",
-  "version": "2.0.2",
+  "version": "2.0.3",
   "description": "Angular module for virtual -infinite- list. Supports horizontal/vertical, variable heights, & multi-column",
   "main": "dist/virtual-scroller.js",
   "files": [

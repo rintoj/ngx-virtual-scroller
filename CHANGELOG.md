@@ -1,6 +1,10 @@
+# v2.0.3
+
+* Switch to ES2015 Module (instead of CommonJS) to support Ivy.
+
 # v2.0.2
 
-* Update to latest version of Angular
+* Update to latest version of Angular & switch to ES2015 Module (instead of CommonJS) to support Ivy.
 
 # v1.0.17
 
