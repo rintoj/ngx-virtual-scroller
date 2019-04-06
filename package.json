@@ -1,6 +1,6 @@
 {
   "name": "ngx-virtual-scroller",
-  "version": "2.0.3",
+  "version": "2.0.4",
   "description": "Angular module for virtual -infinite- list. Supports horizontal/vertical, variable heights, & multi-column",
   "main": "dist/virtual-scroller.js",
   "files": [
@@ -9,13 +9,18 @@
   "types": "dist/virtual-scroller.d.ts",
   "scripts": {
     "cleanup": "rimraf dist",
-    "build": "npm run cleanup && npm run ngc",
-    "build:docs": "rimraf docs && mkdir docs && cd demo && npm run build && cd dist/demo && copyfiles **/* ../../../docs && cd ../../.. && replace \"<base href=\\\"/\\\">\" \"<base href=\\\"/ngx-virtual-scroller/\\\">\" docs/index.html",
+    "build": "ng-packagr -p package.json",
+    "build:docs": "rimraf demo/node_modules/ngx-virtual-scroller && cd dist && copyfiles **/* ../demo/node_modules/ngx-virtual-scroller && cd .. && rimraf docs && mkdir docs && cd demo && npm run build && cd dist/demo && copyfiles **/* ../../../docs && cd ../../.. && replace \"<base href=\\\"/\\\">\" \"<base href=\\\"/ngx-virtual-scroller/\\\">\" docs/index.html",
     "lint": "tslint src/**/*.ts",
-    "prepare": "npm run build:docs && npm run build",
+    "prepare": "npm run build && npm run build:docs",
     "test": "npm test",
     "ngc": "ngc",
     "update-npm-versions": "npm-check --skip-unused --update-all --save-exact --ignore typescript"
+  },
+  "ngPackage": {
+    "lib": {
+      "entryFile": "src/virtual-scroller.ts"
+    }
   },
   "repository": {
     "type": "git",
@@ -47,11 +52,10 @@
   "peerDependencies": {
     "@angular/core": ">=6.0.0"
   },
-  "dependencies": {
-    "@tweenjs/tween.js": "17.3.0",
-    "@types/tween.js": "17.2.0"
-  },
+  "dependencies": {  },
   "devDependencies": {
+    "@tweenjs/tween.js": "17.3.0",
+    "@types/tween.js": "17.2.0",
     "@angular/common": "7.2.12",
     "@angular/compiler": "7.2.12",
     "@angular/core": "7.2.12",
@@ -75,6 +79,7 @@
     "replace-x": "^1.5.0",
     "rimraf": "2.6.3",
     "tslint": "5.15.0",
-    "typescript": "3.2.4"
+    "typescript": "3.2.4",
+    "ng-packagr": "5.0.1"
   }
 }

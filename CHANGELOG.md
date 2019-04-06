@@ -1,3 +1,7 @@
+# v2.0.4
+
+* Use ng-packagr to properly format npm publish for Angular consumption (Ivy support)
+
 # v2.0.3
 
 * Switch to ES2015 Module (instead of CommonJS) to support Ivy.
