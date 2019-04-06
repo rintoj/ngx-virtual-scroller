@@ -1,19 +1,20 @@
 {
   "compilerOptions": {
-    "target": "es5",
+    "rootDir": "./src",
+    "outDir": "./dist",
+    "sourceMap": true,
+    "declaration": true,
     "module": "commonjs",
     "moduleResolution": "node",
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
+    "importHelpers": true,
+    "target": "es5",
     "allowSyntheticDefaultImports": true,
-    "sourceMap": true,
-    "declaration": true,
     "strictNullChecks": false,
-    "baseUrl": "./src",
-    "outDir": "./dist",
     "lib": [
-      "dom",
-      "es6"
+      "es2018",
+      "dom"
     ],
     "types": [
       "node"

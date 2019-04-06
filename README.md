@@ -10,7 +10,6 @@ Virtual Scroll displays a virtual, "infinite" list. Supports horizontal/vertical
 This module displays a small subset of records just enough to fill the viewport and uses the same DOM elements as the user scrolls.
 This method is effective because the number of DOM elements are always constant and tiny irrespective of the size of the list. Thus virtual scroll can display an infinitely growing list of items in an efficient way.
 
-* Angular 4+ compatible module
 * Supports multi-column
 * Easy to use apis
 * OpenSource and available in GitHub

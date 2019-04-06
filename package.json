@@ -1,13 +1,13 @@
 {
   "name": "ngx-virtual-scroller",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "Angular module for virtual -infinite- list. Supports horizontal/vertical, variable heights, & multi-column",
   "main": "dist/virtual-scroller.js",
   "types": "dist/virtual-scroller.d.ts",
   "scripts": {
     "cleanup": "rimraf dist",
     "build": "npm run cleanup && npm run ngc",
-    "build:docs": "cd demo && npm run build && copyfiles dist/* ../docs -f && cd .. && replace \"<base href=\\\"/\\\">\" \"<base href=\\\"/ngx-virtual-scroller/\\\">\" docs/index.html",
+    "build:docs": "cd demo && npm run build && copyfiles dist/demo/* ../docs -f && cd .. && replace \"<base href=\\\"/\\\">\" \"<base href=\\\"/ngx-virtual-scroller/\\\">\" docs/index.html",
     "lint": "tslint src/**/*.ts",
     "prepare": "npm run build:docs && npm run build",
     "test": "npm test",
@@ -41,32 +41,34 @@
     "url": "https://github.com/rintoj/ngx-virtual-scroller/issues"
   },
   "homepage": "https://github.com/rintoj/ngx-virtual-scroller#readme",
-  "devDependencies": {
-    "@angular/cli": "7.3.8",
+  "dependencies": {
     "@angular/common": "7.2.12",
     "@angular/compiler": "7.2.12",
-    "@angular/compiler-cli": "7.2.12",
     "@angular/core": "7.2.12",
     "@angular/forms": "7.2.12",
-    "@angular/http": "7.2.12",
     "@angular/platform-browser": "7.2.12",
     "@angular/platform-browser-dynamic": "7.2.12",
     "@angular/router": "7.2.12",
+    "@tweenjs/tween.js": "17.3.0",
+    "@types/tween.js": "17.2.0",
+    "core-js": "3.0.0",
+    "rxjs": "6.4.0",
+    "tslib": "^1.9.0",
+    "zone.js": "0.9.0"
+  },
+  "devDependencies": {
+    "@angular/cli": "7.3.8",
+    "@angular/compiler-cli": "7.2.12",
+    "@angular/language-service": "~7.2.0",
+    "@angular/http": "7.2.12",
     "@types/node": "11.13.0",
     "codelyzer": "5.0.0",
     "copyfiles": "^2.1.0",
-    "core-js": "3.0.0",
     "npm-check": "5.9.0",
     "replace": "1.1.0",
     "replace-x": "^1.5.0",
     "rimraf": "2.6.3",
-    "rxjs": "6.4.0",
     "tslint": "5.15.0",
-    "typescript": "3.2.4",
-    "zone.js": "0.9.0"
-  },
-  "dependencies": {
-    "@tweenjs/tween.js": "17.3.0",
-    "@types/tween.js": "17.2.0"
+    "typescript": "3.2.4"
   }
 }
