@@ -1,6 +1,7 @@
 {
+  "$schema": "./node_modules/ng-packagr/package.schema.json",
   "name": "ngx-virtual-scroller",
-  "version": "2.0.5",
+  "version": "2.0.6",
   "description": "Angular module for virtual -infinite- list. Supports horizontal/vertical, variable heights, & multi-column",
   "main": "dist/virtual-scroller.js",
   "types": "dist/virtual-scroller.d.ts",
@@ -10,14 +11,24 @@
     "build:docs": "rimraf demo/node_modules/ngx-virtual-scroller && cd dist && copyfiles **/* ../demo/node_modules/ngx-virtual-scroller && cd .. && rimraf docs && mkdir docs && cd demo && npm run build && cd dist/demo && copyfiles **/* ../../../docs && cd ../../.. && replace \"<base href=\\\"/\\\">\" \"<base href=\\\"/ngx-virtual-scroller/\\\">\" docs/index.html",
     "lint": "tslint src/**/*.ts",
     "prepare": "npm run build && npm run build:docs",
+    "debug-demo": "npm run prepare && cd demo && npm run start",
     "test": "npm test",
     "ngc": "ngc",
-    "update-npm-versions": "npm-check --skip-unused --update-all --save-exact --ignore typescript"
+    "update-npm-versions": "npm-check --skip-unused --update-all --save-exact --ignore typescript",
+	"publish": "npm publish ./dist",
+	"test-publish": "npm pack ./dist"
   },
   "ngPackage": {
     "lib": {
-      "entryFile": "src/virtual-scroller.ts"
-    }
+      "entryFile": "src/virtual-scroller.ts",
+	  "umdModuleIds": {
+		"@tweenjs/tween.js": "TWEEN"
+	  }
+    },
+    "whitelistedNonPeerDependencies": [
+      "@tweenjs/tween.js",
+      "@types/tween.js"
+    ]
   },
   "repository": {
     "type": "git",
@@ -49,9 +60,11 @@
   "peerDependencies": {
     "@angular/core": ">=6.0.0"
   },
-  "dependencies": {},
-  "devDependencies": {
+  "dependencies": {
     "@tweenjs/tween.js": "17.3.0",
+    "@types/tween.js": "17.2.0"
+  },
+  "devDependencies": {
     "@types/tween.js": "17.2.0",
     "@angular/common": "7.2.12",
     "@angular/compiler": "7.2.12",
