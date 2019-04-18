@@ -100,10 +100,8 @@ export class AppModule { }
 
 ```ts
 <virtual-scroller #scroll [items]="items">
-
     <my-custom-component *ngFor="let item of scroll.viewPortItems">
     </my-custom-component>
-
 </virtual-scroller>
 ```
 
@@ -260,7 +258,7 @@ Items must have fixed height and width for this module to work perfectly. If not
 
 ## Loading in chunks
 
-The event `end` is fired every time the scrollbar reaches the end of the list. You could use this to dynamically load more items at the end of the scroll. See below.
+The event `vsEnd` is fired every time the scrollbar reaches the end of the list. You could use this to dynamically load more items at the end of the scroll. See below.
 
 ```ts
 
@@ -270,12 +268,9 @@ import { ChangeEvent } from 'ngx-virtual-scroller';
 @Component({
     selector: 'list-with-api',
     template: `
-        <virtual-scroller [items]="buffer" (vsUpdate)="scrollItems = $event"
-            (vsEnd)="fetchMore($event)">
-
-            <my-custom-component *ngFor="let item of scrollItems"> </my-custom-component>
+        <virtual-scroller #scroll [items]="buffer" (vsEnd)="fetchMore($event)">
+            <my-custom-component *ngFor="let item of scroll.viewPortItems"> </my-custom-component>
             <div *ngIf="loading" class="loader">Loading...</div>
-
         </virtual-scroller>
     `
 })
@@ -373,8 +368,8 @@ import { VirtualScrollerComponent } from 'ngx-virtual-scroller';
 @Component({
     selector: 'rj-list',
     template: `
-        <virtual-scroller [items]="items" (vsUpdate)="scrollList = $event">
-            <div *ngFor="let item of scrollList; let i = index"> {{i}}: {{item}} </div>
+        <virtual-scroller #scroll [items]="items">
+            <div *ngFor="let item of scroll.viewPortItems; let i = index"> {{i}}: {{item}} </div>
         </virtual-scroller>
     `
 })
@@ -405,8 +400,8 @@ import { VirtualScrollerComponent } from 'ngx-virtual-scroller';
 @Component({
     selector: 'rj-list',
     template: `
-        <virtual-scroller [items]="items" (vsUpdate)="scrollList = $event">
-            <div *ngFor="let item of scrollList; let i = index"> {{i}}: {{item}} </div>
+        <virtual-scroller #scroll [items]="items">
+            <div *ngFor="let item of scroll.viewPortItems; let i = index"> {{i}}: {{item}} </div>
         </virtual-scroller>
     `
 })
