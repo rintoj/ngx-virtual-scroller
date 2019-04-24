@@ -1,3 +1,7 @@
+# v2.0.7
+
+* Add "sideEffects": true flag to package.json to prevent advanced optimizations which were causing runtime exceptions (due to get/set properties not being 'pure').
+
 # v2.0.6
 
 * Use ng-packagr to properly format npm publish for Angular consumption (Ivy support)
