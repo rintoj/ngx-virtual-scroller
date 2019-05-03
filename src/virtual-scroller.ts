@@ -664,9 +664,10 @@ export class VirtualScrollerComponent implements OnInit, OnChanges, OnDestroy {
 
 	protected throttleTrailing(func: Function, wait: number): Function {
 		let timeout = undefined;
+		let _arguments = arguments;
 		const result = function () {
 			const _this = this;
-			const _arguments = arguments;
+			_arguments = arguments
 
 			if (timeout) {
 				return;
