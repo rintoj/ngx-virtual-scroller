@@ -1,7 +1,7 @@
 {
   "$schema": "./node_modules/ng-packagr/package.schema.json",
   "name": "ngx-virtual-scroller",
-  "version": "2.0.8",
+  "version": "2.0.9",
   "description": "Angular module for virtual -infinite- list. Supports horizontal/vertical, variable heights, & multi-column",
   "main": "dist/virtual-scroller.js",
   "types": "dist/virtual-scroller.d.ts",
@@ -11,13 +11,13 @@
     "build": "ng-packagr -p package.json",
     "build:docs": "rimraf demo/node_modules/ngx-virtual-scroller && cd dist && copyfiles **/* ../demo/node_modules/ngx-virtual-scroller && cd .. && rimraf docs && mkdir docs && cd demo && npm run build && cd dist/demo && copyfiles **/* ../../../docs && cd ../../.. && replace \"<base href=\\\"/\\\">\" \"<base href=\\\"/ngx-virtual-scroller/\\\">\" docs/index.html",
     "lint": "tslint src/**/*.ts",
-    "prepare": "npm run build && npm run build:docs",
     "debug-demo": "npm run prepare && cd demo && npm run start",
     "test": "npm test",
     "ngc": "ngc",
     "update-npm-versions": "npm-check --skip-unused --update-all --save-exact --ignore typescript",
-	"publish": "npm publish ./dist",
-	"test-publish": "npm pack ./dist"
+	"prepublishOnly": "PLEASE RUN \"npm run prod-publish\" NOT \"npm publish\"",
+	"prod-publish": "npm run build && npm run build:docs && npm publish ./dist",
+	"publish-test": "npm pack ./dist"
   },
   "ngPackage": {
     "lib": {

@@ -1,4 +1,4 @@
-# v2.0.8
+# v2.0.9
 
 * Include margin in calculations for element size to improve smoothness of scrolling
 
