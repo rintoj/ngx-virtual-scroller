@@ -599,10 +599,28 @@ export class VirtualScrollerComponent implements OnInit, OnChanges, OnDestroy {
 		this.horizontal = false;
 		this.resetWrapGroupDimensions();
 	}
+	
+	protected getElementSize(element: HTMLElement) : ClientRect {
+		let result = element.getBoundingClientRect();
+		let styles = getComputedStyle(element);
+		let marginTop = parseInt(styles['margin-top'], 10) || 0;
+		let marginBottom = parseInt(styles['margin-bottom'], 10) || 0;
+		let marginLeft = parseInt(styles['margin-left'], 10) || 0;
+		let marginRight = parseInt(styles['margin-right'], 10) || 0;
+		
+		return {
+			top: result.top + marginTop,
+			bottom: result.bottom + marginBottom,
+			left: result.left + marginLeft,
+			right: result.right + marginRight,
+			width: result.width + marginLeft + marginRight,
+			height: result.height + marginTop + marginBottom
+		};
+	}
 
 	protected previousScrollBoundingRect: ClientRect;
 	protected checkScrollElementResized(): void {
-		let boundingRect = this.getScrollElement().getBoundingClientRect();
+		let boundingRect = this.getElementSize(this.getScrollElement());
 
 		let sizeChanged: boolean;
 		if (!this.previousScrollBoundingRect) {
@@ -870,8 +888,8 @@ export class VirtualScrollerComponent implements OnInit, OnChanges, OnDestroy {
 
 		if (this.parentScroll) {
 			let scrollElement = this.getScrollElement();
-			let elementClientRect = this.element.nativeElement.getBoundingClientRect();
-			let scrollClientRect = scrollElement.getBoundingClientRect();
+			let elementClientRect = this.getElementSize(this.element.nativeElement);
+			let scrollClientRect = this.getElementSize(scrollElement);
 			if (this.horizontal) {
 				offset += elementClientRect.left - scrollClientRect.left;
 			}
@@ -999,7 +1017,7 @@ export class VirtualScrollerComponent implements OnInit, OnChanges, OnDestroy {
 				}
 
 				let child = content.children[0];
-				let clientRect = child.getBoundingClientRect();
+				let clientRect = this.getElementSize(child);
 				this.minMeasuredChildWidth = Math.min(this.minMeasuredChildWidth, clientRect.width);
 				this.minMeasuredChildHeight = Math.min(this.minMeasuredChildHeight, clientRect.height);
 			}
@@ -1024,7 +1042,7 @@ export class VirtualScrollerComponent implements OnInit, OnChanges, OnDestroy {
 			for (let i = 0; i < content.children.length; ++i) {
 				++arrayStartIndex;
 				let child = content.children[i];
-				let clientRect = child.getBoundingClientRect();
+				let clientRect = this.getElementSize(child);
 
 				maxWidthForWrapGroup = Math.max(maxWidthForWrapGroup, clientRect.width);
 				maxHeightForWrapGroup = Math.max(maxHeightForWrapGroup, clientRect.height);

@@ -1,3 +1,7 @@
+# v2.0.8
+
+* Include margin in calculations for element size to improve smoothness of scrolling
+
 # v2.0.7
 
 * Add "sideEffects": true flag to package.json to prevent advanced optimizations which were causing runtime exceptions (due to get/set properties not being 'pure').
