@@ -15,6 +15,7 @@ This method is effective because the number of DOM elements are always constant 
 * OpenSource and available in GitHub
 
 ## Breaking Changes:
+* v2.1.0: Dependency Injection syntax was changed.
 * v1.0.6: viewPortIndices API property removed. (use viewPortInfo instead)
 * v1.0.3: Renamed everything from virtual-scroll to virtual-scroller and from virtualScroll to virtualScroller
 * v0.4.13: resizeBypassRefreshTheshold renamed to resizeBypassRefreshThreshold (typo)
@@ -155,22 +156,22 @@ interface ChangeEvent extends IPageInfo {
 
 | Attribute      | Type   | Description
 |----------------|--------|------------
-| checkResizeInterval | number | How often in milliseconds to check if virtual-scroller (or parentScroll) has been resized. If resized, it'll call Refresh() method. Defaults to 1000. Can be injected by DI with token "virtualScroller.checkResizeInterval".
-| resizeBypassRefreshThreshold | number | How many pixels to ignore during resize check if virtual-scroller (or parentScroll) are only resized by a very small amount. Defaults to 5. Can be injected by DI with token "virtualScroller.resizeBypassRefreshThreshold".
+| checkResizeInterval | number | How often in milliseconds to check if virtual-scroller (or parentScroll) has been resized. If resized, it'll call Refresh() method. Defaults to 1000.
+| resizeBypassRefreshThreshold | number | How many pixels to ignore during resize check if virtual-scroller (or parentScroll) are only resized by a very small amount. Defaults to 5.
 | enableUnequalChildrenSizes | boolean | If you want to use the "unequal size" children feature. This is not perfect, but hopefully "close-enough" for most situations. Defaults to false.
-| scrollDebounceTime | number | Milliseconds to delay refreshing viewport if user is scrolling quickly (for performance reasons). Default is 0. Can be injected by DI with token "virtualScroller.scrollDebounceTime".
-| scrollThrottlingTime | number | Milliseconds to delay refreshing viewport if user is scrolling quickly (for performance reasons). Default is 0. Can be injected by DI with token "virtualScroller.scrollThrottlingTime".
+| scrollDebounceTime | number | Milliseconds to delay refreshing viewport if user is scrolling quickly (for performance reasons). Default is 0.
+| scrollThrottlingTime | number | Milliseconds to delay refreshing viewport if user is scrolling quickly (for performance reasons). Default is 0.
 | useMarginInsteadOfTranslate | boolean | Defaults to false. Translate is faster in many scenarios because it can use GPU acceleration, but it can be slower if your scroll container or child elements don't use any transitions or opacity. More importantly, translate creates a new "containing block" which breaks position:fixed because it'll be relative to the transform rather than the window. If you're experiencing issues with position:fixed on your child elements, turn this flag on.
-| modifyOverflowStyleOfParentScroll | boolean | Defaults to true. Set to false if you want to prevent ngx-virtual-scroller from automatically changing the overflow style setting of the parentScroll element to 'scroll'. Can be injected by DI with token "virtualScroller.modifyOverflowStyleOfParentScroll"
-| scrollbarWidth | number | If you want to override the auto-calculated scrollbar width. This is used to determine the dimensions of the viewable area when calculating the number of items to render. Can be injected by DI with token "virtualScroller.scrollbarWidth".
-| scrollbarHeight | number | If you want to override the auto-calculated scrollbar height. This is used to determine the dimensions of the viewable area when calculating the number of items to render. Can be injected by DI with token "virtualScroller.scrollbarHeight".
+| modifyOverflowStyleOfParentScroll | boolean | Defaults to true. Set to false if you want to prevent ngx-virtual-scroller from automatically changing the overflow style setting of the parentScroll element to 'scroll'.
+| scrollbarWidth | number | If you want to override the auto-calculated scrollbar width. This is used to determine the dimensions of the viewable area when calculating the number of items to render.
+| scrollbarHeight | number | If you want to override the auto-calculated scrollbar height. This is used to determine the dimensions of the viewable area when calculating the number of items to render.
 | horizontal | boolean | Whether the scrollbars should be vertical or horizontal. Defaults to false.
 | items          | any[]  | The data that builds the templates within the virtual scroll. This is the same data that you'd pass to ngFor. It's important to note that when this data has changed, then the entire virtual scroll is refreshed.
-| stripedTable          | boolean  | Defaults to false. Set to true if you use a striped table. In this case, the rows will be added/removed two by two to keep the strips consistent. Can be injected by DI with token "virtualScroller.stripedTable"
+| stripedTable          | boolean  | Defaults to false. Set to true if you use a striped table. In this case, the rows will be added/removed two by two to keep the strips consistent.
 | childWidth (DEPRECATED)     | number | The minimum width of the item template's cell. Use this if enableUnequalChildrenSizes isn't working well enough. (The actual rendered size of the first cell is used by default if not specified.)
 | childHeight (DEPRECATED)    | number | The minimum height of the item template's cell. Use this if enableUnequalChildrenSizes isn't working well enough. (The actual rendered size of the first cell is used by default if not specified.)
 | bufferAmount | number | The number of elements to be rendered above & below the current container's viewport. Increase this if enableUnequalChildrenSizes isn't working well enough. (defaults to enableUnequalChildrenSizes ? 5 : 0)
-| scrollAnimationTime | number | The time in milliseconds for the scroll animation to run for. Default value is 750. 0 will completely disable the tween/animation. Can be injected by DI with token "virtualScroller.scrollAnimationTime".
+| scrollAnimationTime | number | The time in milliseconds for the scroll animation to run for. Default value is 750. 0 will completely disable the tween/animation.
 | parentScroll   | Element / Window | Element (or window), which will have scrollbar. This element must be one of the parents of virtual-scroller
 | compareItems   | Function | Predicate of syntax (item1:any, item2:any)=>boolean which is used when items array is modified to determine which items have been changed (determines if cached child size measurements need to be refreshed or not for enableUnequalChildrenSizes). Defaults to === comparison.
 | start (DEPRECATED) / vsStart         | Event<ChangeEvent>  | This event is fired every time `start` index changes and emits `ChangeEvent`.
@@ -422,20 +423,41 @@ export class ListComponent {
 
 ## Dependency Injection of configuration settings
 
-Some config settings can be set via DI, so you can set them globally instead of on each instance of virtual-scroller.
+Some default config settings can be overridden via DI, so you can set them globally instead of on each instance of virtual-scroller.
 
 ```ts
  providers: [
-    {  provide: 'virtualScroller.scrollThrottlingTime', useValue: 0  },
-    {  provide: 'virtualScroller.scrollDebounceTime', useValue: 0  },
-    {  provide: 'virtualScroller.scrollAnimationTime', useValue: 750  },
-	{  provide: 'virtualScroller.scrollbarWidth', useValue: undefined  },
-	{  provide: 'virtualScroller.scrollbarHeight', useValue: undefined  },
-	{  provide: 'virtualScroller.checkResizeInterval', useValue: 1000  },
-	{  provide: 'virtualScroller.resizeBypassRefreshThreshold', useValue: 5  }
+		provide: 'virtual-scroller-default-options', useValue: {
+			scrollThrottlingTime: 0,
+			scrollDebounceTime: 0,
+			scrollAnimationTime: 750,
+			checkResizeInterval: 1000,
+			resizeBypassRefreshThreshold: 5,
+			modifyOverflowStyleOfParentScroll: true,
+			stripedTable: false
+		}
   ],
 ```
 
+OR
+
+```ts
+export function vsDefaultOptionsFactory(): VirtualScrollerDefaultOptions {
+	return {
+		scrollThrottlingTime: 0,
+		scrollDebounceTime: 0,
+		scrollAnimationTime: 750,
+		checkResizeInterval: 1000,
+		resizeBypassRefreshThreshold: 5,
+		modifyOverflowStyleOfParentScroll: true,
+		stripedTable: false
+	};
+}
+
+ providers: [
+		provide: 'virtual-scroller-default-options', useFactory: vsDefaultOptionsFactory
+  ],
+```
 
 ## Sorting Items
 

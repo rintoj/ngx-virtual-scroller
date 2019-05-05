@@ -1,3 +1,7 @@
+# v2.1.0
+
+* Syntax of Dependency Injection changed
+
 # v2.0.9
 
 * Include margin in calculations for element size to improve smoothness of scrolling

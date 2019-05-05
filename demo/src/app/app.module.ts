@@ -17,7 +17,22 @@ import { ListWithApiComponent } from './lists/list-with-api.component';
 import { MultiColListComponent } from './lists/multi-col-list.component';
 import { TableListComponent } from './lists/table-list.component';
 import { VerticalListComponent } from './lists/vertical-list.component';
-import { VirtualScrollerModule } from 'ngx-virtual-scroller';
+
+import { VirtualScrollerModule, VirtualScrollerDefaultOptions } from 'ngx-virtual-scroller';
+
+const customDefaultOptions = {
+	scrollThrottlingTime: 0,
+	scrollDebounceTime: 0,
+	scrollAnimationTime: 750,
+	checkResizeInterval: 1000,
+	resizeBypassRefreshThreshold: 5,
+	modifyOverflowStyleOfParentScroll: true,
+	stripedTable: false
+};
+
+//export function defaultOptionsFactory(): VirtualScrollerDefaultOptions {
+//	return customDefaultOptions;
+//}
 
 @NgModule({
   declarations: [
@@ -49,13 +64,12 @@ import { VirtualScrollerModule } from 'ngx-virtual-scroller';
     VirtualScrollerModule
   ],
   providers: [
-    { provide: 'virtualScroller.scrollThrottlingTime', useValue: 0 },
-    { provide: 'virtualScroller.scrollDebounceTime', useValue: 0 },
-    { provide: 'virtualScroller.scrollAnimationTime', useValue: 750 },
-    { provide: 'virtualScroller.scrollbarWidth', useValue: undefined },
-    { provide: 'virtualScroller.scrollbarHeight', useValue: undefined },
-    { provide: 'virtualScroller.checkResizeInterval', useValue: 1000 },
-    { provide: 'virtualScroller.resizeBypassRefreshThreshold', useValue: 5 }
+    {
+		provide: 'virtual-scroller-default-options', useValue: customDefaultOptions
+	}
+	//{
+	//	'virtual-scroller-default-options', useFactory: defaultOptionsFactory
+	//}
   ],
   bootstrap: [AppComponent]
 })
