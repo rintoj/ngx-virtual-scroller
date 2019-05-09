@@ -552,48 +552,48 @@ public class ManualChangeDetection {
 
 //note: this portion is only needed if you don't already have a debounce implementation in your app
 public class Util {
-	public static throttleTrailing(func: Function, wait: number): Function {
-		let timeout = undefined;
+    public static throttleTrailing(func: Function, wait: number): Function {
+        let timeout = undefined;
         let _arguments = undefined;
-		const result = function () {
-			const _this = this;
+        const result = function () {
+            const _this = this;
             _arguments = arguments;
 
-			if (timeout) {
-				return;
-			}
+            if (timeout) {
+                return;
+            }
 
-			if (wait <= 0) {
-				func.apply(_this, _arguments);
-			} else {
-			timeout = setTimeout(function () {
-				timeout = undefined;
-				func.apply(_this, _arguments);
-			}, wait);
-			}
-		};
-		result['cancel'] = function () {
-			if (timeout) {
-				clearTimeout(timeout);
-				timeout = undefined;
-			}
-		};
+            if (wait <= 0) {
+                func.apply(_this, _arguments);
+            } else {
+                timeout = setTimeout(function () {
+                    timeout = undefined;
+                    func.apply(_this, _arguments);
+                }, wait);
+            }
+        };
+        result['cancel'] = function () {
+            if (timeout) {
+                clearTimeout(timeout);
+                timeout = undefined;
+            }
+        };
 
-		return result;
-	}
-	
-	public static debounce(func: Function, wait: number): Function {
-		const throttled = Util.throttleTrailing(func, wait);
-		const result = function () {
-			throttled['cancel']();
-			throttled.apply(this, arguments);
-		};
-		result['cancel'] = function () {
-			throttled['cancel']();
-		};
+        return result;
+    }
 
-		return result;
-	}
+    public static debounce(func: Function, wait: number): Function {
+        const throttled = Util.throttleTrailing(func, wait);
+        const result = function () {
+            throttled['cancel']();
+            throttled.apply(this, arguments);
+        };
+        result['cancel'] = function () {
+            throttled['cancel']();
+        };
+
+        return result;
+    }
 }  
 
 public class MyEntryLevelAppComponent
