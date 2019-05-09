@@ -554,9 +554,10 @@ public class ManualChangeDetection {
 public class Util {
 	public static throttleTrailing(func: Function, wait: number): Function {
 		let timeout = undefined;
+        let _arguments = undefined;
 		const result = function () {
 			const _this = this;
-			const _arguments = arguments;
+            _arguments = arguments;
 
 			if (timeout) {
 				return;
@@ -565,10 +566,10 @@ public class Util {
 			if (wait <= 0) {
 				func.apply(_this, _arguments);
 			} else {
-				timeout = setTimeout(function () {
-					timeout = undefined;
-					func.apply(_this, _arguments);
-				}, wait);
+			timeout = setTimeout(function () {
+				timeout = undefined;
+				func.apply(_this, _arguments);
+			}, wait);
 			}
 		};
 		result['cancel'] = function () {
