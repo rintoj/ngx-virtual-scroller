@@ -1,22 +1,16 @@
-import { map } from "rxjs/operators";
 import { Component } from '@angular/core';
-import { Http } from '@angular/http';
 import { ListItem } from '../lists/list-item.component';
-import { OnInit } from '@angular/core';
+import { BaseList } from '../lists/base-list';
 
 @Component({
   selector: 'samples',
   templateUrl: 'samples.component.html'
 })
-export class SamplesComponent implements OnInit {
+export class SamplesComponent {
 
-  items: ListItem[];
+  public items: ListItem[] = [];
 
-  constructor(private http: Http) { }
-
-  ngOnInit() {
-    this.http.get('assets/data/items.json')
-      .pipe(map(response => response.json()))
-      .subscribe(data => this.items = data);
+  constructor() {
+	this.items = BaseList.generateMultipleRandomItems(10000);	  
   }
 }

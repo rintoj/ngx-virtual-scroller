@@ -85,11 +85,6 @@ export interface IPageInfo {
 	maxScrollPosition: number;
 }
 
-export interface ChangeEvent extends IPageInfo {
-	start: number;
-	end: number;
-}
-
 export interface IViewport extends IPageInfo {
 	padding: number;
 	scrollLength: number;
@@ -365,24 +360,16 @@ export class VirtualScrollerComponent implements OnInit, OnChanges, OnDestroy {
 	}
 
 	@Output()
-	public update: EventEmitter<any[]> = new EventEmitter<any[]>();
-	@Output()
 	public vsUpdate: EventEmitter<any[]> = new EventEmitter<any[]>();
 
 	@Output()
-	public change: EventEmitter<ChangeEvent> = new EventEmitter<ChangeEvent>();
-	@Output()
-	public vsChange: EventEmitter<ChangeEvent> = new EventEmitter<ChangeEvent>();
+	public vsChange: EventEmitter<IPageInfo> = new EventEmitter<IPageInfo>();
 
 	@Output()
-	public start: EventEmitter<ChangeEvent> = new EventEmitter<ChangeEvent>();
-	@Output()
-	public vsStart: EventEmitter<ChangeEvent> = new EventEmitter<ChangeEvent>();
+	public vsStart: EventEmitter<IPageInfo> = new EventEmitter<IPageInfo>();
 
 	@Output()
-	public end: EventEmitter<ChangeEvent> = new EventEmitter<ChangeEvent>();
-	@Output()
-	public vsEnd: EventEmitter<ChangeEvent> = new EventEmitter<ChangeEvent>();
+	public vsEnd: EventEmitter<IPageInfo> = new EventEmitter<IPageInfo>();
 
 	@ViewChild('content', { read: ElementRef })
 	protected contentElementRef: ElementRef;
@@ -413,10 +400,25 @@ export class VirtualScrollerComponent implements OnInit, OnChanges, OnDestroy {
 		this.refresh_internal(indexLengthChanged || firstRun);
 	}
 
+	
 	public ngDoCheck(): void {
 		if (this.cachedItemsLength !== this.items.length) {
 			this.cachedItemsLength = this.items.length;
 			this.refresh_internal(true);
+			return;
+		}
+		
+		if (this.previousViewPort && this.viewPortItems && this.viewPortItems.length > 0) {
+			let itemsArrayChanged = false;
+			for (let i = 0; i < this.viewPortItems.length; ++i) {
+				if (!this.compareItems(this.items[this.previousViewPort.startIndexWithBuffer + i], this.viewPortItems[i])) {
+					itemsArrayChanged = true;
+					break;
+				}
+			}
+			if (itemsArrayChanged) {
+				this.refresh_internal(true);
+			}
 		}
 	}
 
@@ -765,9 +767,7 @@ export class VirtualScrollerComponent implements OnInit, OnChanges, OnDestroy {
 					this.renderer.setStyle(this.headerElementRef.nativeElement, 'webkitTransform', `${this._translateDir}(${offset}px)`);
 				}
 
-				const changeEventArg: ChangeEvent = (startChanged || endChanged) ? {
-					start: viewport.startIndex,
-					end: viewport.endIndex,
+				const changeEventArg: IPageInfo = (startChanged || endChanged) ? {
 					startIndex: viewport.startIndex,
 					endIndex: viewport.endIndex,
 					scrollStartPosition: viewport.scrollStartPosition,
@@ -782,22 +782,18 @@ export class VirtualScrollerComponent implements OnInit, OnChanges, OnDestroy {
 					const handleChanged = () => {
 						// update the scroll list to trigger re-render of components in viewport
 						this.viewPortItems = viewport.startIndexWithBuffer >= 0 && viewport.endIndexWithBuffer >= 0 ? this.items.slice(viewport.startIndexWithBuffer, viewport.endIndexWithBuffer + 1) : [];
-						this.update.emit(this.viewPortItems);
 						this.vsUpdate.emit(this.viewPortItems);
 
 						if (startChanged) {
-							this.start.emit(changeEventArg);
 							this.vsStart.emit(changeEventArg);
 						}
 
 						if (endChanged) {
-							this.end.emit(changeEventArg);
 							this.vsEnd.emit(changeEventArg);
 						}
 
 						if (startChanged || endChanged) {
 							this.changeDetectorRef.markForCheck();
-							this.change.emit(changeEventArg);
 							this.vsChange.emit(changeEventArg);
 						}
 
@@ -1261,6 +1257,7 @@ export class VirtualScrollerComponent implements OnInit, OnChanges, OnDestroy {
 		let offset = this.getElementsOffset();
 
 		let scrollStartPosition = this.getScrollStartPosition();
+
 		if (scrollStartPosition > (dimensions.scrollLength + offset) && !(this.parentScroll instanceof Window)) {
 			scrollStartPosition = dimensions.scrollLength;
 		} else {

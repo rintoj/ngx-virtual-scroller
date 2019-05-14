@@ -15,20 +15,21 @@ This method is effective because the number of DOM elements are always constant 
 * OpenSource and available in GitHub
 
 ## Breaking Changes:
+* v2.2.0: Several deprecated properties removed (see changelog).
 * v2.1.0: Dependency Injection syntax was changed.
 * v1.0.6: viewPortIndices API property removed. (use viewPortInfo instead)
 * v1.0.3: Renamed everything from virtual-scroll to virtual-scroller and from virtualScroll to virtualScroller
 * v0.4.13: resizeBypassRefreshTheshold renamed to resizeBypassRefreshThreshold (typo)
 * v0.4.12: The start and end values of the change/start/end events were including bufferAmount, which made them confusing. This has been corrected.
 	viewPortIndices.arrayStartIndex renamed to viewPortIndices.startIndex and viewPortIndices.arrayEndIndex renamed to viewPortIndices.endIndex
-* v0.4.4: The value of ChangeEvent.end wasn't intuitive. This has been corrected. Both ChangeEvent.start and ChangeEvent.end are the 0-based array indexes of the items being rendered in the viewport. (Previously Change.End was the array index + 1)
+* v0.4.4: The value of IPageInfo.endIndex wasn't intuitive. This has been corrected. Both IPageInfo.startIndex and IPageInfo.endIndex are the 0-based array indexes of the items being rendered in the viewport. (Previously Change.EndIndex was the array index + 1)
 
 NOTE: API methods marked (DEPRECATED) will be removed in the next major version. Please attempt to stop using them in your code & create an issue if you believe they're still necessary.
 
 ## New features:
 
 * Support for fixed <thead> on <table> elements.
-* Added API to query for current scroll px position (also passed as argument to ChangeEvent listeners)
+* Added API to query for current scroll px position (also passed as argument to IPageInfo listeners)
 * Added API to invalidate cached child item measurements (if your child item sizes change dynamically)
 * Added API to scroll to specific px position
 * If scroll container resizes, the items will auto-refresh. Can be disabled if it causes any performance issues by setting [checkResizeInterval]="0"
@@ -145,11 +146,6 @@ interface IPageInfo {
 	endIndexWithBuffer: number;
 	maxScrollPosition: number;
 }
-
-interface ChangeEvent extends IPageInfo {
-	start: number; (DEPRECATED. use startIndex instead)
-	end: number; (DEPRECATED. use endIndex instead)
-}
 ```
 
 ## API
@@ -174,13 +170,13 @@ interface ChangeEvent extends IPageInfo {
 | scrollAnimationTime | number | The time in milliseconds for the scroll animation to run for. Default value is 750. 0 will completely disable the tween/animation.
 | parentScroll   | Element / Window | Element (or window), which will have scrollbar. This element must be one of the parents of virtual-scroller
 | compareItems   | Function | Predicate of syntax (item1:any, item2:any)=>boolean which is used when items array is modified to determine which items have been changed (determines if cached child size measurements need to be refreshed or not for enableUnequalChildrenSizes). Defaults to === comparison.
-| start (DEPRECATED) / vsStart         | Event<ChangeEvent>  | This event is fired every time `start` index changes and emits `ChangeEvent`.
-| end (DEPRECATED) / vsEnd         | Event<ChangeEvent>  | This event is fired every time `end` index changes and emits `ChangeEvent`.
-| change (DEPRECATED) / vsChange         | Event<ChangeEvent>  | This event is fired every time the `start` or `end` indexes or scroll position change and emits `ChangeEvent`.
-| update (DEPRECATED) / vsUpdate         | Event<any[]>  | This event is fired every time the `start` or `end` indexes change and emits the list of items which should be visible based on the current scroll position from `start` to `end`. The list emitted by this event must be used with `*ngFor` to render the actual list of items within `<virtual-scroller>`
+| vsStart         | Event<IPageInfo>  | This event is fired every time `start` index changes and emits `IPageInfo`.
+| vsEnd         | Event<IPageInfo>  | This event is fired every time `end` index changes and emits `IPageInfo`.
+| vsChange         | Event<IPageInfo>  | This event is fired every time the `start` or `end` indexes or scroll position change and emits `IPageInfo`.
+| vsUpdate         | Event<any[]>  | This event is fired every time the `start` or `end` indexes change and emits the list of items which should be visible based on the current scroll position from `start` to `end`. The list emitted by this event must be used with `*ngFor` to render the actual list of items within `<virtual-scroller>`
 | viewPortInfo | IPageInfo | Allows querying the the current viewport info on demand rather than listening for events.
 | viewPortItems | any[] | The array of items currently being rendered to the viewport.
-| refresh (DEPRECATED) | ()=>void | Function to force re-rendering of current items in viewport.
+| refresh | ()=>void | Function to force re-rendering of current items in viewport.
 | invalidateAllCachedMeasurements | ()=>void | Function to force re-measuring *all* cached item sizes. If enableUnequalChildrenSizes===false, only 1 item will be re-measured.
 | invalidateCachedMeasurementForItem | (item:any)=>void | Function to force re-measuring cached item size.
 | invalidateCachedMeasurementAtIndex | (index:number)=>void | Function to force re-measuring cached item size.
@@ -263,7 +259,7 @@ The event `vsEnd` is fired every time the scrollbar reaches the end of the list.
 
 ```ts
 
-import { ChangeEvent } from 'ngx-virtual-scroller';
+import { IPageInfo } from 'ngx-virtual-scroller';
 ...
 
 @Component({
@@ -283,8 +279,8 @@ export class ListWithApiComponent implements OnChanges {
     protected buffer: ListItem[] = [];
     protected loading: boolean;
 
-    protected fetchMore(event: ChangeEvent) {
-        if (event.end !== this.buffer.length-1) return;
+    protected fetchMore(event: IPageInfo) {
+        if (event.endIndex !== this.buffer.length-1) return;
         this.loading = true;
         this.fetchNextChunk(this.buffer.length, 10).then(chunk => {
             this.buffer = this.buffer.concat(chunk);

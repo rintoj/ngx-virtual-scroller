@@ -1,20 +1,22 @@
-import { Component, Input, OnChanges, ViewChild } from '@angular/core';
-import { VirtualScrollerComponent } from 'ngx-virtual-scroller';
-import { ListItem, ListItemComponent } from './list-item.component';
+import { Component } from '@angular/core';
+import { ListItem } from './list-item.component';
+import { BaseList } from './base-list';
 
 @Component({
   selector: 'vertical-list',
   template: `
     <button (click)="sortByName()">Sort By Name</button>
     <button (click)="sortByIndex()">Sort By Index</button>
+    <button (click)="prependItems()">Prepend 10 Items</button>
+    <button (click)="appendItems()">Append 10 Items</button>
     <button (click)="reduceListToEmpty()">Reduce to 0 Items</button>
     <button (click)="reduceList()">Reduce to 100 Items</button>
-    <button (click)="setToFullList()">Revert to 1000 Items</button>
+    <button (click)="setToFullList()">Revert to original Items</button>
     <button (click)="scroll.scrollToIndex(50)">Scroll to index 50</button>
     <button (click)="scroll.scrollToPosition(1500)">Scroll to position 1500</button>
-    <button (click)="randomHeight = !randomHeight">Toggle Random Height</button>
-    <button *ngIf="randomHeight" (click)="ListItemComponent.ResetSeed();">Re-Randomize Item Sizes</button>
-    <button *ngIf="randomHeight" (click)="scroll.invalidateAllCachedMeasurements();">Invalidate cached measurements</button>
+    <button (click)="randomSize = !randomSize">Toggle Random Height</button>
+    <button *ngIf="randomSize" (click)="ListItemComponent.ResetSeed();">Re-Randomize Item Sizes</button>
+    <button *ngIf="randomSize" (click)="scroll.invalidateAllCachedMeasurements();">Invalidate cached measurements</button>
 
     <div class="status">
         Showing <span>{{scroll.viewPortInfo.startIndex}}</span>
@@ -25,44 +27,13 @@ import { ListItem, ListItemComponent } from './list-item.component';
     </div>
 
     <virtual-scroller #scroll
-      [enableUnequalChildrenSizes]="randomHeight"
+      [enableUnequalChildrenSizes]="randomSize"
       [items]="filteredList">
 
-      <list-item [randomHeight]="randomHeight" *ngFor="let item of scroll.viewPortItems" [item]="item"> </list-item>
+      <list-item [randomHeight]="randomSize" *ngFor="let item of scroll.viewPortItems" [item]="item"> </list-item>
 
     </virtual-scroller>
   `
 })
-export class VerticalListComponent implements OnChanges {
-  @Input()
-  public items: ListItem[];
-
-  public ListItemComponent = ListItemComponent;
-  public randomHeight = false;
-  public filteredList: ListItem[];
-
-  public reduceListToEmpty() {
-    this.filteredList = [];
-  }
-
-  public reduceList() {
-    this.filteredList = (this.items || []).slice(0, 100);
-  }
-
-  public sortByName() {
-    this.filteredList = [].concat(this.filteredList || []).sort((a, b) => -(a.name < b.name) || +(a.name !== b.name));
-  }
-
-  public sortByIndex() {
-    this.filteredList = [].concat(this.filteredList || []).sort((a, b) => -(a.index < b.index) || +(a.index !== b.index));
-  }
-
-  public setToFullList() {
-    this.filteredList = (this.items || []).slice();
-  }
-
-  public ngOnChanges() {
-    this.setToFullList();
-  }
-
+export class VerticalListComponent extends BaseList {
 }

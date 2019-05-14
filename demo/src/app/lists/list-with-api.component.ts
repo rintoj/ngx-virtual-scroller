@@ -1,18 +1,19 @@
-import { ChangeEvent, VirtualScrollerComponent } from 'ngx-virtual-scroller';
-import { Component, ViewChild } from '@angular/core';
-import { Input } from '@angular/core';
-import { ListItem, ListItemComponent } from './list-item.component';
-import { OnChanges } from '@angular/core';
-import { SimpleChanges } from '@angular/core';
+import { Component } from '@angular/core';
+import { ListItem } from './list-item.component';
+import { BaseList } from './base-list';
+import { IPageInfo } from 'ngx-virtual-scroller';
 
 @Component({
   selector: 'list-with-api',
   template: `
+    <label>Add items at Top <input type="checkbox" (change)="shouldPrependItems = !shouldPrependItems" /></label>
     <button (click)="sortByName()">Sort By Name</button>
     <button (click)="sortByIndex()">Sort By Index</button>
-    <button (click)="randomHeight = !randomHeight">Toggle Random Height</button>
-    <button *ngIf="randomHeight" (click)="ListItemComponent.ResetSeed();">Re-Randomize Item Sizes</button>
-    <button *ngIf="randomHeight" (click)="scroll.invalidateAllCachedMeasurements();">Invalidate cached measurements</button>
+    <button (click)="scroll.scrollToIndex(50)">Scroll to index 50</button>
+    <button (click)="scroll.scrollToPosition(1500)">Scroll to position 1500</button>
+    <button (click)="randomSize = !randomSize">Toggle Random Height</button>
+    <button *ngIf="randomSize" (click)="ListItemComponent.ResetSeed();">Re-Randomize Item Sizes</button>
+    <button *ngIf="randomSize" (click)="scroll.invalidateAllCachedMeasurements();">Invalidate cached measurements</button>
 
     <div class="status">
         Showing <span>{{scroll.viewPortInfo.startIndex}}</span>
@@ -23,61 +24,53 @@ import { SimpleChanges } from '@angular/core';
     </div>
 
     <virtual-scroller #scroll
-      [enableUnequalChildrenSizes]="randomHeight"
-      [items]="buffer"
-      (end)="fetchMore($event)">
+      [enableUnequalChildrenSizes]="randomSize"
+      [items]="filteredList"
+	  (vsStart)="shouldPrependItems && fetchMore($event)"
+      (vsEnd)="!shouldPrependItems && fetchMore($event)">
 
-      <list-item [randomHeight]="randomHeight" *ngFor="let item of scroll.viewPortItems" [item]="item"> </list-item>
+      <list-item [randomHeight]="randomSize" *ngFor="let item of scroll.viewPortItems" [item]="item"> </list-item>
       <div *ngIf="loading" class="loader">Loading...</div>
 
     </virtual-scroller>
   `,
   styleUrls: ['./list-with-api.scss']
 })
-export class ListWithApiComponent implements OnChanges {
-  @Input()
-  public items: ListItem[];
-
-  public ListItemComponent = ListItemComponent;
-  public randomHeight = false;
-  public buffer: ListItem[] = [];
-  public readonly bufferSize: number = 10;
+export class ListWithApiComponent extends BaseList {
+  public shouldPrependItems = false;
   public timer;
   public loading: boolean = false;
 
-  public ngOnChanges(changes: SimpleChanges) {
+  public ngOnChanges() {
+	this.filteredList = [];
     this.reset();
   }
 
   private reset() {
-    this.fetchNextChunk(0, this.bufferSize);
+    this.fetchNextChunk();
   }
 
-  public fetchMore(event: ChangeEvent) {
-    if (event.end === this.buffer.length - 1) {
-      this.fetchNextChunk(this.buffer.length, this.bufferSize);
+  public fetchMore(event: IPageInfo) {
+    if (this.shouldPrependItems && event.startIndex === 0) {
+      this.fetchNextChunk();
+    }
+    if (!this.shouldPrependItems && event.endIndex === this.filteredList.length - 1) {
+      this.fetchNextChunk();
     }
   }
 
-  private fetchNextChunk(skip: number, limit: number): void {
+  private fetchNextChunk(): void {
     this.loading = true;
     clearTimeout(this.timer);
     this.timer = setTimeout(() => {
       this.loading = false;
 
-	  if (skip >= this.items.length) {
-	    return;
+	  if (this.shouldPrependItems) {
+		this.prependItems();
 	  }
-	
-      this.buffer = (this.buffer || []).concat(this.items.slice(skip, skip + limit));
+	  else {
+		this.appendItems();
+	  }
     }, 1000 + Math.random() * 1000);
-  }
-
-  public sortByName() {
-    this.buffer = [].concat(this.buffer || []).sort((a, b) => -(a.name < b.name) || +(a.name !== b.name));
-  }
-
-  public sortByIndex() {
-    this.buffer = [].concat(this.buffer || []).sort((a, b) => -(a.index < b.index) || +(a.index !== b.index));
   }
 }

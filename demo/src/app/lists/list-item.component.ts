@@ -1,13 +1,15 @@
 import { Component, Input, HostBinding } from '@angular/core';
 
 export interface ListItem {
-    index?: number;
-    name?: string;
-    gender?: string;
-    age?: number;
-    email?: string;
-    phone?: string;
-    address?: string;
+	id: string;
+    index: number;
+    name: string;
+    gender: string;
+    age: number;
+    email: string;
+    phone: string;
+    address: string;
+	company: string;
 }
 
 @Component({
@@ -17,7 +19,7 @@ export interface ListItem {
         <div class="item-content">
             <div class="name">{{item.name}}</div>
             <div>
-                <span class="badge">{{item.age}}/{{item.gender?.substr(0, 1).toUpperCase()}}</span>
+                <span class="badge">{{item.age}}/{{item.gender.substr(0, 1).toUpperCase()}}</span>
                 <span>{{item.email}} | {{item.phone}}</span>
             </div>
             <div>{{item.address}}</div>

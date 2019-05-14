@@ -33,47 +33,6 @@
 
       <h2>Loading in <span>Chunks</span></h2>
       <list-with-api [items]="items"></list-with-api>
-      <p>
-        <strong>change</strong> event is fired every time start or end index change.
-        You could use this to load more items at the end of the scroll. See below.
-      </p>
-      <pre><code class="javascript">
-		      import {{'{'}} ChangeEvent {{'}'}} from 'ngx-virtual-scroller';
-		      ...
-
-		      @Component({{'{'}}
-			      selector: 'list-with-api',
-			      template: `
-&lt;virtual-scroller [items]="buffer" (update)="scrollItems = $event" (change)="onListChange($event)"&gt;
-  &lt;my-custom-component *ngFor="let item of scrollItems" [item]="item"&gt; &lt;/my-custom-component&gt;
-  &lt;div *ngIf="loading" class="loader"&gt;Loading...&lt;/div&gt;
-&lt;/virtual-scroller&gt;
-			      `
-		      {{'}'}})
-		      export class ListWithApiComponent implements OnChanges {{'{'}}
-
-			      @Input()
-			      items: ListItem[];
-
-			      buffer: ListItem[] = [];
-			      loading: boolean;
-
-			      onListChange(event: ChangeEvent) {{'{'}}
-				      if (event.end !== this.buffer.length) return;
-				      this.loading = true;
-				      this.fetchNextChunk(this.buffer.length, 10).then(chunk => {{'{'}}
-				        this.buffer = this.buffer.concat(chunk);
-				        this.loading = false;
-				      {{'}'}}, () => this.loading = false);
-			      {{'}'}}
-
-			      fetchNextChunk(skip: number, limit: number): Promise&lt;ListItem[]&gt; {{'{'}}
-				      return new Promise((resolve, reject) => {{'{'}}
-					    ....
-				      {{'}'}});
-			      {{'}'}}
-		      {{'}'}}
-		  </code></pre>
     </div>
   </section>
 </div>
