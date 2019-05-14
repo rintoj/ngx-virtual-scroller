@@ -8,6 +8,8 @@ import { BaseList } from '../lists/base-list';
 <h1>Window/Parent Scroll</h1>
 <button (click)="sortByName()">Sort By Name</button>
 <button (click)="sortByIndex()">Sort By Index</button>
+    <button (click)="prependItems()">Prepend 10 Items</button>
+    <button (click)="appendItems()">Append 10 Items</button>
 <button (click)="reduceListToEmpty()">Reduce to 0 Items</button>
 <button (click)="reduceList()">Reduce to 100 Items</button>
 <button (click)="setToFullList()">Revert to original Items</button>
@@ -38,6 +40,8 @@ import { BaseList } from '../lists/base-list';
 export class ParentScrollComponent extends BaseList {
   constructor() {
 	super();
+	  
 	this.items = BaseList.generateMultipleRandomItems(10000);
+    this.setToFullList();
   }
 }

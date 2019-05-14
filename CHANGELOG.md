@@ -1,5 +1,6 @@
 # v2.2.0
 
+* If items array is prepended with additional items, keep scroll on currently visible items, if possible.
 * Removed ChangeEvent (replaced by IPageInfo)
 * Removed several deprecated properties (ChangeEvent.start, ChangeEvent.end, update/change/start/end events [renamed to vsUpdate/vsChange/vsStart/vsEnd])
 * Auto-refresh improvement: During ngDoCheck, evaluates if javascript objects associated with any currently visible items have been replaced with different objects (for example: items array has been sorted, but still has the same items & length).

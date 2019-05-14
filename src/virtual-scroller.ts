@@ -729,6 +729,39 @@ export class VirtualScrollerComponent implements OnInit, OnChanges, OnDestroy {
 		//The code would typically quit out on the 2nd iteration anyways. The main time it'd think more than 2 runs would be necessary would be for vastly different sized child items or if this is the 1st time the items array was initialized.
 		//Without maxRunTimes, If the user is actively scrolling this code would become an infinite loop until they stopped scrolling. This would be okay, except each scroll event would start an additional infinte loop. We want to short-circuit it to prevent this.
 
+		if (itemsArrayModified) {
+		//if items were prepended, scroll forward to keep same items visible
+			let oldViewPort = this.previousViewPort;
+			let oldViewPortItems = this.viewPortItems;
+			
+			let oldRefreshCompletedCallback = refreshCompletedCallback;
+			refreshCompletedCallback = () => {
+				let scrollLengthDelta = this.previousViewPort.scrollLength - oldViewPort.scrollLength;
+				if (scrollLengthDelta > 0 && this.viewPortItems) {
+					let oldStartItem = oldViewPortItems[0];
+					let oldStartItemIndex = this.items.findIndex(x => this.compareItems(oldStartItem, x));
+					if (oldStartItemIndex > this.previousViewPort.startIndexWithBuffer) {
+						let itemOrderChanged = false;
+						for (let i = 1; i < this.viewPortItems.length; ++i) {
+							if (!this.compareItems(this.items[oldStartItemIndex + i], oldViewPortItems[i])) {
+								itemOrderChanged = true;
+								break;
+							}
+						}
+						
+						if (!itemOrderChanged) {
+							this.scrollToPosition(this.previousViewPort.scrollStartPosition + scrollLengthDelta , 0, oldRefreshCompletedCallback);
+							return;
+						}
+					}
+				}
+				
+				if (oldRefreshCompletedCallback) {
+					oldRefreshCompletedCallback();
+				}
+			};
+		}			
+
 		this.zone.runOutsideAngular(() => {
 			requestAnimationFrame(() => {
 
@@ -1257,7 +1290,6 @@ export class VirtualScrollerComponent implements OnInit, OnChanges, OnDestroy {
 		let offset = this.getElementsOffset();
 
 		let scrollStartPosition = this.getScrollStartPosition();
-
 		if (scrollStartPosition > (dimensions.scrollLength + offset) && !(this.parentScroll instanceof Window)) {
 			scrollStartPosition = dimensions.scrollLength;
 		} else {

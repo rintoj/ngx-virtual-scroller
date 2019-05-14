@@ -16,6 +16,7 @@ This method is effective because the number of DOM elements are always constant 
 
 ## Breaking Changes:
 * v2.2.0: Several deprecated properties removed (see changelog).
+	If items array is prepended with additional items, keep scroll on currently visible items, if possible. There is no flag to disable this, because it seems to be the best user-experience in all cases. If you disagree, please create an issue.
 * v2.1.0: Dependency Injection syntax was changed.
 * v1.0.6: viewPortIndices API property removed. (use viewPortInfo instead)
 * v1.0.3: Renamed everything from virtual-scroll to virtual-scroller and from virtualScroll to virtualScroller

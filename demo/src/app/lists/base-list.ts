@@ -1,9 +1,9 @@
-import { Component, Input, OnChanges, ViewChild } from '@angular/core'; 
+import { Component, Input, ViewChild } from '@angular/core'; 
 import { VirtualScrollerComponent } from 'ngx-virtual-scroller';
 import { ListItem, ListItemComponent } from './list-item.component';
 import { Chance } from 'chance';
 
-export class BaseList implements OnChanges {
+export class BaseList {
   @Input()
   public items: ListItem[];
 
@@ -62,10 +62,10 @@ export class BaseList implements OnChanges {
   }
 
   public setToFullList() {
-    this.filteredList = this.items || [];
+    this.filteredList = [].concat(this.items || []) || [];
   }
 
-  public ngOnChanges() {
+  constructor() {
     this.setToFullList();
   }
 }
