@@ -1,4 +1,4 @@
-# v2.2.0
+# v3.0.0
 
 * If items array is prepended with additional items, keep scroll on currently visible items, if possible.
 * Removed ChangeEvent (replaced by IPageInfo)
