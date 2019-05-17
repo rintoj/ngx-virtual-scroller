@@ -511,14 +511,14 @@ Here's an example of how to do this:
 ```
 
 ```ts
-	public interface IComplexItem {
-		uniqueIdentifier: number;
-		extraData: any;
-	}
+public interface IComplexItem {
+	uniqueIdentifier: number;
+	extraData: any;
+}
 
-	public myTrackByFunction(index: number, complexItem: IComplexItem): number {
-		return complexItem.uniqueIdentifier;
-	}
+public myTrackByFunction(index: number, complexItem: IComplexItem): number {
+	return complexItem.uniqueIdentifier;
+}
 ```
 
 ## Performance - ChangeDetection
@@ -536,6 +536,7 @@ The correct fix is to make cycles as fast as possible and to avoid unnecessary C
 ChangeDetectionStrategy.OnPush means the consuming app is taking full responsibility for telling Angular when to run change detection rather than allowing Angular to figure it out itself. For example, virtual-scroller has a bound property [items]="myItems". If you use OnPush, you have to tell Angular when you change the myItems array, because it won't determine this automatically.
 OnPush is much harder for the programmer to code. You have to code things differently: This means 1) avoid mutating state on any bound properties where possible & 2) manually running change detection when you do mutate state.
 OnPush can be done on a component-by-component basis, however I recommend doing it for *EVERY* component in your app.
+
 If your biggest priority is making virtual-scroller faster, the best candidates for OnPush will be all custom components being used as children underneath virtual-scroller. If you have a hierarchy of multiple custom components under virtual-scroller, ALL of them need to be converted to OnPush.
 
 My personal suggestion on the easiest way to implement OnPush across your entire app:
@@ -633,7 +634,9 @@ public class SomeRandomComponentWhichUsesOnPush {
 The ManualChangeDetection/Util classes are helpers that can be copy/pasted directly into your app. The code for MyEntryLevelAppComponent & SomeRandomComponentWhichUsesOnPush are examples that you'll need to modify for your specific app. If you follow this pattern, OnPush is much easier to implement. However, the really hard part is analyzing all of your code to determine *where* you're mutating state. Unfortunately there's no magic bullet for this, you'll need to spend a lot of time reading/debugging/testing your code.
 
 
-## scrollDebounceTime / scrollThrottlingTime (for performance reasons)
+## Performance - scrollDebounceTime / scrollThrottlingTime
+
+These APIs are meant as a quick band-aid fix for performance issues. Please read the other performance sections above to learn the correct way to fix performance issues.
 
 Without these set, virtual-scroller will refresh immediately whenever the user scrolls.
 Throttle will delay refreshing until # milliseconds after scroll started. As the user continues to scroll, it will wait the same # milliseconds in between each successive refresh. Even if the user stops scrolling, it will still wait the allocated time before the final refresh.
