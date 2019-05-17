@@ -188,7 +188,7 @@ interface IPageInfo {
 | ssrChildHeight | number | The hard-coded height of the item template's cell to use if rendering via Angular Universal/Server-Side-Rendering
 | ssrViewportWidth | number | The hard-coded visible width of the virtual-scroller (or [parentScroll]) to use if rendering via Angular Universal/Server-Side-Rendering. Defaults to 1920.
 | ssrViewportHeight | number | The hard-coded visible height of the virtual-scroller (or [parentScroll]) to use if rendering via Angular Universal/Server-Side-Rendering. Defaults to 1080.
-| executeRefreshOutsideAngularZone | boolean | Defaults to false. This flag can provide a performance boost, but it causes side-effects related to Angular ChangeDetection that must be understood by the programmer. Strongly discouraged - this is detailed in a separate section.
+| executeRefreshOutsideAngularZone (deprecated) | boolean | Defaults to false. DO NOT USE. This flag disables Angular ChangeDetection while scrolling (which provides a performance boost at the expense of making your app buggy). Read the "Performance" section below to learn a better approach.
 
 Note: The Events without the "vs" prefix have been deprecated because they might conflict with native DOM events due to their "bubbling" nature. See https://github.com/angular/angular/issues/13997
 An example is if an <input> element inside <virtual-scroller> emits a "change" event which bubbles up to the (change) handler of virtual-scroller. Using the vs prefix will prevent this bubbling conflict because there are currently no official DOM events prefixed with vs.
@@ -493,38 +493,50 @@ If you want to nest additional elements inside virtual scroll besides the list i
 </virtual-scroller>
 ```
 
-## Performance (and the executeRefreshOutsideAngularZone flag)
+## Performance - TrackBy
 
-Each component in Angular by default uses the ChangeDetectionStrategy.Default "CheckAlways" strategy. This means that Change Detection cycles will run frequently and will check *EVERY* data-binding expression on *EVERY* component to see if anything has changed. This makes it easier for programmers to code apps, but also makes apps slow. For simple apps it may not be noticed, but as apps become more complex it quickly becomes apparent. The correct way to fix this is to make cycles as fast as possible and to avoid unnecessary ChangeDetection cycles. Cycles will be faster if you avoid complex business logic in data-bindings. You can avoid unnecessary Cycles by converting your components to use ChangeDetectionStrategy.OnPush. When doing this, you have to explicitly tell Angular when you're modifying the value of a data-binding expression, because it will not be checked automatically. This topic can be researched online, there are a lot of detailed articles about it.
+virtual-scroller uses *ngFor to render the visible items. When an *ngFor array changes, Angular uses a trackBy function to determine if it should re-use or re-generate each component in the loop.
+For example, if 5 items are visible and scrolling causes 1 item to swap out but the other 4 remain visible, there's no reason Angular should re-generate those 4 components from scratch, it should reuse them.
+A trackBy function must return either a number or string as a unique identifier for your object. 
+If the array used by *ngFor is of type number[] or string[], Angular's default trackBy function will work automatically, you don't need to do anything extra.
+If the array used by *ngFor is of type any[], you must code your own trackBy function.
 
-virtual-scroller causes a full ChangeDetection cycle to run during every refresh (scrolling/etc). This is standard practice for all Angular components/libraries. If you have an app that is usually fast, but becomes slow while scrolling virtual-scroller, the correct solution is to convert all of your components to use ChangeDetectionStrategy.OnPush. However, this may not be easy. If you want a quick solution that masks the real problem, you can use the scrollThrottlingTime, scrollDebounceTime, or executeRefreshOutsideAngularZone APIs.
-
-The executeRefreshOutsideAngularZone is strongly discouraged because it disables Angular's automatic Change Detection from any code paths started by virtual-scroller. This essentially randomly converts some of your app's components to use ChangeDetectionStrategy.OnPush without you explicitly choosing to do so. Because this wasn't an intentional choice, you won't have code to tell Angular when those components need to re-bind their UI, which will cause the DOM to not update when it should. These UI bugs won't be consistent, because it'll depend on which code path caused your data-binding model to change. The list of potential code paths in virtual-scroller is too long to make an exhaustive list & which of your components are affected is completely dependent on what business logic you execute in response to those virtual-scroller code paths. If you choose to use this flag, it's your responsibility to do extensive testing in your app and to thoroughly read and understand the virtual-scroller source code. You probably should not make this choice unless you have a strong understanding of Angular's ChangeDetection internals.
-
-Although use of the executeRefreshOutsideAngularZone flag is strongly discouraged, it is up to the consuming app's programmer to determine if it's the right decision for their application.
-
-If you're lucky, you can implement this flag as follows and get a free speed boost while scrolling:
-```ts
-//parent.component.ts
-constructor (public changeDetectorRef: ChangeDetectorRef) { }
-```
+Here's an example of how to do this:
 
 ```html
-<!-- parent.component.html -->
-<virtual-scroller #scroll [items]="items" [executeRefreshOutsideAngularZone]="true" (vsUpdate)="changeDetectorRef.detectChanges();">
-    <my-custom-component *ngFor="let item of scroll.viewPortItems">
-    </my-custom-component>
+<virtual-scroller #scroll [items]="myComplexItems">
+	<my-custom-component [myComplexItem]="complexItem" *ngFor="let complexItem of scroll.viewPortItems; trackBy: myTrackByFunction">
+	</my-custom-component>
 </virtual-scroller>
 ```
 
-If you're unlucky, this will cause a bunch of UI bugs because you've disabled Angular's change detection for any code path started by virtual-scroller. In these cases, you'll have to track down & fix each bug separately (usually by adding `changeDetectorRef.detectChanges()`). These bugs might continue to crop up in the future as you make minor code changes. In the end, you might decide to stop using the buggy flag & instead do the correct fix which is to switch all your components to using ChangeDetectionStrategy.OnPush (which requires you to also explicitly tell Angular any time you change your data-model so Angular knows to re-bind).
+```ts
+	public interface IComplexItem {
+		uniqueIdentifier: number;
+		extraData: any;
+	}
 
-## Angular OnPush Detection Strategy - General performance advice (not specific to ngx-virtual-scroller)
-The default ChangeDetectionStrategy implemented by Angular monitors your entire app for code that *might* change state. If something triggers change detection, Angular recursively checks every component in your app to see if any of them need to be re-rendered. It determines this by comparing the old/new value of each bound property to see if anything has changed. This is helpful to the programmer because it's easy & it works like magic. If you change something, it displays on the screen. However, it's extremely slow. The default ChangeDetectionStrategy is really intented for quick-start apps. Once an application gets complex enough, it'll almost be mandatory to convert it to the OnPush strategy otherwise performance will grind to a halt.
+	public myTrackByFunction(index: number, complexItem: IComplexItem): number {
+		return complexItem.uniqueIdentifier;
+	}
+```
 
-For example, virtual-scroller has a bound property [items]="items". If you use OnPush, you have to tell Angular if you change the items array, because it won't re-render automatically. With the default ChangeDetectionStrategy, this is handled automatically (but, the default ChangeDetectionStrategy is slow because it re-binds/re-renders extra times unnecessarily). 
+## Performance - ChangeDetection
 
-OnPush means the consuming app is taking full responsibility for telling Angular when to run change detection rather than allowing Angular to figure it out itself. This is much faster, however it's also much harder for the programmer to code. You have to code things differently: This means 1) avoid mutating state on any bound properties where possible & 2) manually running change detection when you do mutate state. OnPush can be done on a component-by-component basis, however if you really need speed, I recommend doing it for *EVERY* component in your app.
+virtual-scroller is coded to be extremely fast. If scrolling is slow in your app, the issue is with your custom component code, not with virtual-scroller itself.
+Below is an explanation of how to correct your code. This will make your entire app much faster, including virtual-scroller.
+
+Each component in Angular by default uses the ChangeDetectionStrategy.Default "CheckAlways" strategy. This means that Change Detection cycles will be running constantly which will check *EVERY* data-binding expression on *EVERY* component to see if anything has changed.
+This makes it easier for programmers to code apps, but also makes apps extremely slow.
+
+If virtual-scroller feels slow, a possible quick solution that masks the real problem is to use scrollThrottlingTime or scrollDebounceTime APIs.
+
+The correct fix is to make cycles as fast as possible and to avoid unnecessary ChangeDetection cycles. Cycles will be faster if you avoid complex logic in data-bindings. You can avoid unnecessary Cycles by converting your components to use ChangeDetectionStrategy.OnPush.
+
+ChangeDetectionStrategy.OnPush means the consuming app is taking full responsibility for telling Angular when to run change detection rather than allowing Angular to figure it out itself. For example, virtual-scroller has a bound property [items]="myItems". If you use OnPush, you have to tell Angular when you change the myItems array, because it won't determine this automatically.
+OnPush is much harder for the programmer to code. You have to code things differently: This means 1) avoid mutating state on any bound properties where possible & 2) manually running change detection when you do mutate state.
+OnPush can be done on a component-by-component basis, however I recommend doing it for *EVERY* component in your app.
+If your biggest priority is making virtual-scroller faster, the best candidates for OnPush will be all custom components being used as children underneath virtual-scroller. If you have a hierarchy of multiple custom components under virtual-scroller, ALL of them need to be converted to OnPush.
 
 My personal suggestion on the easiest way to implement OnPush across your entire app:
 ```
@@ -541,7 +553,7 @@ public class ManualChangeDetection {
 		}
 
 		ManualChangeDetection.STATIC_APPLICATION_REF.tick();
-	}, 50);
+	}, 5);
 	
 	constructor(private changeDetectorRef: ChangeDetectorRef) {
 	}
