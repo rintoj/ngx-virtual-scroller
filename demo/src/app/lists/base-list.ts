@@ -1,11 +1,20 @@
-import { Component, Input, ViewChild } from '@angular/core'; 
-import { VirtualScrollerComponent } from 'ngx-virtual-scroller';
+import { Input } from '@angular/core'; 
 import { ListItem, ListItemComponent } from './list-item.component';
 import { Chance } from 'chance';
 
 export class BaseList {
+  protected _items: ListItem[];
+
   @Input()
-  public items: ListItem[];
+  public get items(): ListItem[]
+  {
+	  return this._items;
+  }
+  public set items(value: ListItem[])
+  {
+	  this._items = value;
+	  this.setToFullList();
+  }
 
   public ListItemComponent = ListItemComponent;
   public randomSize = false;
