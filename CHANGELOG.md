@@ -1,3 +1,7 @@
+# v3.0.1
+
+* Use new Angular8 syntax for ViewChild/ContentChild (https://angular.io/guide/static-query-migration)
+
 # v3.0.0
 
 * If items array is prepended with additional items, keep scroll on currently visible items, if possible.
