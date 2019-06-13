@@ -1,3 +1,7 @@
+# v3.0.2
+
+* Bug fix when prepending items (was scrolling to previously visible item even if scroll was at top of list)
+
 # v3.0.1
 
 * Use new Angular8 syntax for ViewChild/ContentChild (https://angular.io/guide/static-query-migration)

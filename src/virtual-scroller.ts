@@ -729,7 +729,7 @@ export class VirtualScrollerComponent implements OnInit, OnChanges, OnDestroy {
 		//The code would typically quit out on the 2nd iteration anyways. The main time it'd think more than 2 runs would be necessary would be for vastly different sized child items or if this is the 1st time the items array was initialized.
 		//Without maxRunTimes, If the user is actively scrolling this code would become an infinite loop until they stopped scrolling. This would be okay, except each scroll event would start an additional infinte loop. We want to short-circuit it to prevent this.
 
-		if (itemsArrayModified) {
+		if (itemsArrayModified && this.previousViewPort.scrollStartPosition > 0) {
 		//if items were prepended, scroll forward to keep same items visible
 			let oldViewPort = this.previousViewPort;
 			let oldViewPortItems = this.viewPortItems;
