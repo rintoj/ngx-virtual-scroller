@@ -188,7 +188,7 @@ interface IPageInfo {
 | ssrChildHeight | number | The hard-coded height of the item template's cell to use if rendering via Angular Universal/Server-Side-Rendering
 | ssrViewportWidth | number | The hard-coded visible width of the virtual-scroller (or [parentScroll]) to use if rendering via Angular Universal/Server-Side-Rendering. Defaults to 1920.
 | ssrViewportHeight | number | The hard-coded visible height of the virtual-scroller (or [parentScroll]) to use if rendering via Angular Universal/Server-Side-Rendering. Defaults to 1080.
-| executeRefreshOutsideAngularZone (deprecated) | boolean | Defaults to false. DO NOT USE. This flag disables Angular ChangeDetection while scrolling (which provides a performance boost at the expense of making your app buggy). Read the "Performance" section below to learn a better approach.
+| executeRefreshOutsideAngularZone | boolean | Defaults to false. Disables full-app Angular ChangeDetection while scrolling, which can give a performance boost. Requires developer to manually execute change detection on any components which may have changed. USE WITH CAUTION - Read the "Performance" section below.
 
 Note: The Events without the "vs" prefix have been deprecated because they might conflict with native DOM events due to their "bubbling" nature. See https://github.com/angular/angular/issues/13997
 An example is if an <input> element inside <virtual-scroller> emits a "change" event which bubbles up to the (change) handler of virtual-scroller. Using the vs prefix will prevent this bubbling conflict because there are currently no official DOM events prefixed with vs.
@@ -541,6 +541,8 @@ If your biggest priority is making virtual-scroller faster, the best candidates 
 
 My personal suggestion on the easiest way to implement OnPush across your entire app:
 ```
+import { ChangeDetectorRef } from '@angular/core';
+
 public class ManualChangeDetection {
 	public queueChangeDetection(): void {
 		this.changeDetectorRef.markForCheck(); // marks self for change detection on the next cycle, but doesn't actually schedule a cycle
@@ -633,10 +635,43 @@ public class SomeRandomComponentWhichUsesOnPush {
 ```
 The ManualChangeDetection/Util classes are helpers that can be copy/pasted directly into your app. The code for MyEntryLevelAppComponent & SomeRandomComponentWhichUsesOnPush are examples that you'll need to modify for your specific app. If you follow this pattern, OnPush is much easier to implement. However, the really hard part is analyzing all of your code to determine *where* you're mutating state. Unfortunately there's no magic bullet for this, you'll need to spend a lot of time reading/debugging/testing your code.
 
+## Performance - executeRefreshOutsideAngularZone 
+
+This API is meant as a quick band-aid fix for performance issues. Please read the other performance sections above to learn the ideal way to fix performance issues.
+
+ChangeDetectionStrategy.OnPush is the recommended strategy as it improves the entire app performance, not just virtual-scroller. However, ChangeDetectionStrategy.OnPush is hard to implement. executeRefreshOutsideAngularZone may be an easier initial approach until you're ready to tackle ChangeDetectionStrategy.OnPush.
+
+If you've correctly implemented ChangeDetectionStrategy.OnPush for 100% of your components, the executeRefreshOutsideAngularZone will not provide any performance benefit. 
+If you have not yet done this, scrolling may feel slow. This is because Angular performs a full-app change detection while scrolling. However, it's likely that only the components inside the scroller actually need the change detection to run, so a full-app change detection cycle is overkill.
+In this case you can get a free/easy performance boost with the following code:
+```ts
+import { ChangeDetectorRef } from '@angular/core';
+
+public class MainComponent {
+	constructor(public changeDetectorRef: ChangeDetectorRef) {
+	}
+}
+```
+
+```
+<virtual-scroller #scroll [items]="items" [executeRefreshOutsideAngularZone]="true" (vsUpdate)="changeDetectorRef.detectChanges()">
+    <my-custom-component *ngFor="let item of scroll.viewPortItems">
+    </my-custom-component>
+</virtual-scroller>
+```
+
+Note: executeRefreshOutsideAngularZone will disable Angular ChangeDetection during all virtual-scroller events, including: vsUpdate, vsStart, vsEnd, vsChange. If you change any data-bound properties inside these event handlers, you must perform manual change detection on those specific components. This can be done via changeDetectorRef.detectChanges() at the end of the event handler. Note: The changeDetectorRef is component-specific, so you'll need to inject it into a private variable in the constructor of the appropriate component before calling it in response to the virtual-scroller events.
+WARNING - Failure to performa manual change detection in response to virtual-scroller events will cause your components to render a stale UI for a short time (until the next Change Detection cycle), which will make your app feel buggy.
+
+Note - changeDetectorRef.detectChanges() will execute change detection on the component and all its nested children. If multiple components need to run change detection in response to a virtual-scroller event, you can call detectChanges from a higher-level component in the ancestor hierarchy rather than on each individual component. However, its important to avoid too many extra change detection cycles by not going too high in the hierarchy unless all the nested children really need to have change detection performed.
+
+Note - All virtual-scroller events are emitted at the same time in response to its internal "refresh" function. Some of these event emitters are bypassed if certain criteria don't apply. however vsUpdate will always be emitted. For this reason, you should consolidate all data-bound property changes & manual change detection into the vsUpdate event handler, to avoid duplicate change detection cycles from executing during the other virtual-scroller events.
+
+In the above code example, (vsUpdate)="changeDetectorRef.detectChanges()" is necessary because scroll.viewPortItems was changed internally be virtual-scroller during its internal "render" function before emitting (vsUpdate). executeRefreshOutsideAngularZone prevents MainComponent from refreshing its data-binding in response to this change, so a manual Change Detection cycle must be run. No extra manual change detection code is necessary for virtual-scroller or my-custom-component, even if their data-bound properties have changed, because they're nested children of MainComponent.
 
 ## Performance - scrollDebounceTime / scrollThrottlingTime
 
-These APIs are meant as a quick band-aid fix for performance issues. Please read the other performance sections above to learn the correct way to fix performance issues.
+These APIs are meant as a quick band-aid fix for performance issues. Please read the other performance sections above to learn the ideal way to fix performance issues.
 
 Without these set, virtual-scroller will refresh immediately whenever the user scrolls.
 Throttle will delay refreshing until # milliseconds after scroll started. As the user continues to scroll, it will wait the same # milliseconds in between each successive refresh. Even if the user stops scrolling, it will still wait the allocated time before the final refresh.
