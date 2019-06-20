@@ -10,35 +10,34 @@ Virtual Scroll displays a virtual, "infinite" list. Supports horizontal/vertical
 This module displays a small subset of records just enough to fill the viewport and uses the same DOM elements as the user scrolls.
 This method is effective because the number of DOM elements are always constant and tiny irrespective of the size of the list. Thus virtual scroll can display an infinitely growing list of items in an efficient way.
 
-* Supports multi-column
-* Easy to use apis
-* OpenSource and available in GitHub
+	* Supports multi-column
+	* Easy to use apis
+	* OpenSource and available in GitHub
 
 ## Breaking Changes:
-* v3.0.0: Several deprecated properties removed (see changelog).
-	If items array is prepended with additional items, keep scroll on currently visible items, if possible. There is no flag to disable this, because it seems to be the best user-experience in all cases. If you disagree, please create an issue.
-* v2.1.0: Dependency Injection syntax was changed.
-* v1.0.6: viewPortIndices API property removed. (use viewPortInfo instead)
-* v1.0.3: Renamed everything from virtual-scroll to virtual-scroller and from virtualScroll to virtualScroller
-* v0.4.13: resizeBypassRefreshTheshold renamed to resizeBypassRefreshThreshold (typo)
-* v0.4.12: The start and end values of the change/start/end events were including bufferAmount, which made them confusing. This has been corrected.
-	viewPortIndices.arrayStartIndex renamed to viewPortIndices.startIndex and viewPortIndices.arrayEndIndex renamed to viewPortIndices.endIndex
-* v0.4.4: The value of IPageInfo.endIndex wasn't intuitive. This has been corrected. Both IPageInfo.startIndex and IPageInfo.endIndex are the 0-based array indexes of the items being rendered in the viewport. (Previously Change.EndIndex was the array index + 1)
+	* v3.0.0: Several deprecated properties removed (see changelog).
+		If items array is prepended with additional items, keep scroll on currently visible items, if possible. There is no flag to disable this, because it seems to be the best user-experience in all cases. If you disagree, please create an issue.
+	* v2.1.0: Dependency Injection syntax was changed.
+	* v1.0.6: viewPortIndices API property removed. (use viewPortInfo instead)
+	* v1.0.3: Renamed everything from virtual-scroll to virtual-scroller and from virtualScroll to virtualScroller
+	* v0.4.13: resizeBypassRefreshTheshold renamed to resizeBypassRefreshThreshold (typo)
+	* v0.4.12: The start and end values of the change/start/end events were including bufferAmount, which made them confusing. This has been corrected.
+		viewPortIndices.arrayStartIndex renamed to viewPortIndices.startIndex and viewPortIndices.arrayEndIndex renamed to viewPortIndices.endIndex
+	* v0.4.4: The value of IPageInfo.endIndex wasn't intuitive. This has been corrected. Both IPageInfo.startIndex and IPageInfo.endIndex are the 0-based array indexes of the items being rendered in the viewport. (Previously Change.EndIndex was the array index + 1)
 
 NOTE: API methods marked (DEPRECATED) will be removed in the next major version. Please attempt to stop using them in your code & create an issue if you believe they're still necessary.
 
 ## New features:
-
-* Support for fixed <thead> on <table> elements.
-* Added API to query for current scroll px position (also passed as argument to IPageInfo listeners)
-* Added API to invalidate cached child item measurements (if your child item sizes change dynamically)
-* Added API to scroll to specific px position
-* If scroll container resizes, the items will auto-refresh. Can be disabled if it causes any performance issues by setting [checkResizeInterval]="0"
-* useMarginInsteadOfTranslate flag. Defaults to false. This can affect performance (better/worse depending on your circumstances), and also creates a workaround for the transform+position:fixed browser bug.
-* Support for horizontal scrollbars
-* Support for elements with different sizes
-* Added ability to put other elements inside of scroll (Need to wrap list itself in @ContentChild('container'))
-* Added ability to use any parent with scrollbar instead of this element (@Input() parentScroll)
+	* Support for fixed <thead> on <table> elements.
+	* Added API to query for current scroll px position (also passed as argument to IPageInfo listeners)
+	* Added API to invalidate cached child item measurements (if your child item sizes change dynamically)
+	* Added API to scroll to specific px position
+	* If scroll container resizes, the items will auto-refresh. Can be disabled if it causes any performance issues by setting [checkResizeInterval]="0"
+	* useMarginInsteadOfTranslate flag. Defaults to false. This can affect performance (better/worse depending on your circumstances), and also creates a workaround for the transform+position:fixed browser bug.
+	* Support for horizontal scrollbars
+	* Support for elements with different sizes
+	* Added ability to put other elements inside of scroll (Need to wrap list itself in @ContentChild('container'))
+	* Added ability to use any parent with scrollbar instead of this element (@Input() parentScroll)
  
 ## Demo
 
@@ -683,7 +682,7 @@ The initial SSR render isn't a fully functioning site, it's essentially an HTML 
 virtual-scroller relies on javascript APIs to measure the size of child elements and the scrollable area of their parent. These APIs do not work in SSR because the HTML/CSS "screenshot" is generated on the server via Node, it doesn't execute/render the site as a browser would. This means virtual-scroller will see all measurements as undefined and the "screenshot" will not be generated correctly. Most likely, only 1 child element will appear in your virtual-scroller. This "screenshot" can be fixed with polyfills. However, when the browser renders the "screenshot", the scrolling behaviour still won't work until the full app has loaded.
 
 SSR is an advanced (and complex) topic that can't be fully addressed here. Please research this on your own. However, here are some suggestions:
-1. Use https://www.npmjs.com/package/domino and https://www.npmjs.com/package/raf polyfills in your main.server.ts file
+1) Use https://www.npmjs.com/package/domino and https://www.npmjs.com/package/raf polyfills in your main.server.ts file
 ```ts
 const domino = require('domino');
 require('raf/polyfill');
@@ -693,8 +692,8 @@ global['window'] = win;
 global['document'] = win.document;
 Object.defineProperty(win.document.body.style, 'transform', { value: () => { return { enumerable: true, configurable: true }; } });
 ```
-2. Determine a default screen size you want to use for the SSR "screenshot" calculations (suggestion: 1920x1080). This won't be accurate for all users, but will hopefully be close enough. Once the full Angular app loads in the background, their real device screensize will take over.
-3. Run your app in a real browser without SSR and determine the average width/height of the child elements inside virtual-scroller as well as the width/height of the virtual-scroller (or [parentScroll] element). Use these values to set the [ssrChildWidth]/[ssrChildHeight]/[ssrViewportWidth]/[ssrViewportHeight] properties.
+2) Determine a default screen size you want to use for the SSR "screenshot" calculations (suggestion: 1920x1080). This won't be accurate for all users, but will hopefully be close enough. Once the full Angular app loads in the background, their real device screensize will take over.
+3) Run your app in a real browser without SSR and determine the average width/height of the child elements inside virtual-scroller as well as the width/height of the virtual-scroller (or [parentScroll] element). Use these values to set the [ssrChildWidth]/[ssrChildHeight]/[ssrViewportWidth]/[ssrViewportHeight] properties.
 ```html
 <virtual-scroller #scroll [items]="items">
 
