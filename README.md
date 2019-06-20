@@ -683,7 +683,7 @@ The initial SSR render isn't a fully functioning site, it's essentially an HTML 
 virtual-scroller relies on javascript APIs to measure the size of child elements and the scrollable area of their parent. These APIs do not work in SSR because the HTML/CSS "screenshot" is generated on the server via Node, it doesn't execute/render the site as a browser would. This means virtual-scroller will see all measurements as undefined and the "screenshot" will not be generated correctly. Most likely, only 1 child element will appear in your virtual-scroller. This "screenshot" can be fixed with polyfills. However, when the browser renders the "screenshot", the scrolling behaviour still won't work until the full app has loaded.
 
 SSR is an advanced (and complex) topic that can't be fully addressed here. Please research this on your own. However, here are some suggestions:
-1) Use https://www.npmjs.com/package/domino and https://www.npmjs.com/package/raf polyfills in your main.server.ts file
+1. Use https://www.npmjs.com/package/domino and https://www.npmjs.com/package/raf polyfills in your main.server.ts file
 ```ts
 const domino = require('domino');
 require('raf/polyfill');
@@ -693,8 +693,8 @@ global['window'] = win;
 global['document'] = win.document;
 Object.defineProperty(win.document.body.style, 'transform', { value: () => { return { enumerable: true, configurable: true }; } });
 ```
-2) Determine a default screen size you want to use for the SSR "screenshot" calculations (suggestion: 1920x1080). This won't be accurate for all users, but will hopefully be close enough. Once the full Angular app loads in the background, their real device screensize will take over.
-3) Run your app in a real browser without SSR and determine the average width/height of the child elements inside virtual-scroller as well as the width/height of the virtual-scroller (or [parentScroll] element). Use these values to set the [ssrChildWidth]/[ssrChildHeight]/[ssrViewportWidth]/[ssrViewportHeight] properties.
+2. Determine a default screen size you want to use for the SSR "screenshot" calculations (suggestion: 1920x1080). This won't be accurate for all users, but will hopefully be close enough. Once the full Angular app loads in the background, their real device screensize will take over.
+3. Run your app in a real browser without SSR and determine the average width/height of the child elements inside virtual-scroller as well as the width/height of the virtual-scroller (or [parentScroll] element). Use these values to set the [ssrChildWidth]/[ssrChildHeight]/[ssrViewportWidth]/[ssrViewportHeight] properties.
 ```html
 <virtual-scroller #scroll [items]="items">
 
