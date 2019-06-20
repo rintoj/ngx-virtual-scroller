@@ -121,7 +121,6 @@ my-custom-component {
   width: 100%;
   height: 30px;
 }
-
 ```
 
 **Step 4:** Create 'my-custom-component' component.
@@ -137,7 +136,7 @@ Child component is not necessary if your item is simple enough. See below.
 ```
 
 ## Interfaces
-```
+```ts
 interface IPageInfo {
 	startIndex: number;
 	endIndex: number;
@@ -259,7 +258,6 @@ Items must have fixed height and width for this module to work perfectly. If not
 The event `vsEnd` is fired every time the scrollbar reaches the end of the list. You could use this to dynamically load more items at the end of the scroll. See below.
 
 ```ts
-
 import { IPageInfo } from 'ngx-virtual-scroller';
 ...
 
@@ -343,7 +341,7 @@ For example, if your child component can expand/collapse via a button, most like
 To fix this, you'll need to store any "view" state properties in a variable & data-bind to it so that it can be restored when it gets removed/re-added from the DOM.
 
 Example:
-```
+```html
 <virtual-scroller #scroll [items]="items">
     <my-custom-component [expanded]="item.expanded" *ngFor="let item of scroll.viewPortItems">
     </my-custom-component>
@@ -540,7 +538,7 @@ OnPush can be done on a component-by-component basis, however I recommend doing 
 If your biggest priority is making virtual-scroller faster, the best candidates for OnPush will be all custom components being used as children underneath virtual-scroller. If you have a hierarchy of multiple custom components under virtual-scroller, ALL of them need to be converted to OnPush.
 
 My personal suggestion on the easiest way to implement OnPush across your entire app:
-```
+```ts
 import { ChangeDetectorRef } from '@angular/core';
 
 public class ManualChangeDetection {
@@ -653,7 +651,7 @@ public class MainComponent {
 }
 ```
 
-```
+```html
 <virtual-scroller #scroll [items]="items" [executeRefreshOutsideAngularZone]="true" (vsUpdate)="changeDetectorRef.detectChanges()">
     <my-custom-component *ngFor="let item of scroll.viewPortItems">
     </my-custom-component>
@@ -686,7 +684,7 @@ virtual-scroller relies on javascript APIs to measure the size of child elements
 
 SSR is an advanced (and complex) topic that can't be fully addressed here. Please research this on your own. However, here are some suggestions:
 1) Use https://www.npmjs.com/package/domino and https://www.npmjs.com/package/raf polyfills in your main.server.ts file
-```
+```ts
 const domino = require('domino');
 require('raf/polyfill');
 const win = domino.createWindow(template);
@@ -697,7 +695,7 @@ Object.defineProperty(win.document.body.style, 'transform', { value: () => { ret
 ```
 2) Determine a default screen size you want to use for the SSR "screenshot" calculations (suggestion: 1920x1080). This won't be accurate for all users, but will hopefully be close enough. Once the full Angular app loads in the background, their real device screensize will take over.
 3) Run your app in a real browser without SSR and determine the average width/height of the child elements inside virtual-scroller as well as the width/height of the virtual-scroller (or [parentScroll] element). Use these values to set the [ssrChildWidth]/[ssrChildHeight]/[ssrViewportWidth]/[ssrViewportHeight] properties.
-```
+```html
 <virtual-scroller #scroll [items]="items">
 
     <my-custom-component *ngFor="let item of scroll.viewPortItems" [ssrChildWidth]="138" [ssrChildHeight]="175" [ssrViewportWidth]="1500" [ssrViewportHeight]="800">
