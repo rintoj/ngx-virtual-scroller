@@ -650,7 +650,7 @@ export class VirtualScrollerComponent implements OnInit, OnChanges, OnDestroy {
 	protected _marginDir;
 	protected updateDirection(): void {
 		if (this.horizontal) {
-			this._invisiblePaddingProperty = 'width';
+			this._invisiblePaddingProperty = 'scaleY';
 			this._offsetType = 'offsetLeft';
 			this._pageOffsetType = 'pageXOffset';
 			this._childScrollDim = 'childWidth';
@@ -659,7 +659,7 @@ export class VirtualScrollerComponent implements OnInit, OnChanges, OnDestroy {
 			this._scrollType = 'scrollLeft';
 		}
 		else {
-			this._invisiblePaddingProperty = 'height';
+			this._invisiblePaddingProperty = 'scaleX';
 			this._offsetType = 'offsetTop';
 			this._pageOffsetType = 'pageYOffset';
 			this._childScrollDim = 'childHeight';
@@ -779,7 +779,7 @@ export class VirtualScrollerComponent implements OnInit, OnChanges, OnDestroy {
 				this.previousViewPort = viewport;
 
 				if (scrollLengthChanged) {
-					this.renderer.setStyle(this.invisiblePaddingElementRef.nativeElement, this._invisiblePaddingProperty, `${viewport.scrollLength}px`);
+					this.renderer.setStyle(this.invisiblePaddingElementRef.nativeElement, "transform", this._invisiblePaddingProperty+`(${viewport.scrollLength}px)`);
 				}
 
 				if (paddingChanged) {
