@@ -1,3 +1,7 @@
+# v3.0.3
+
+* Add Null-Safety check
+
 # v3.0.2
 
 * Bug fix when prepending items (was scrolling to previously visible item even if scroll was at top of list)

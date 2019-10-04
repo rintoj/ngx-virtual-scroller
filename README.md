@@ -9,7 +9,7 @@
           <img src="https://moviepix.app/images/Title_Small.png">
         </a>
       </td>
-    </tr><tr></tr>
+    </tr>
   </tbody>
 </table>
 
