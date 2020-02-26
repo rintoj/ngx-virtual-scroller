@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component,Input } from '@angular/core';
 import { ListItem } from './list-item.component';
 import { BaseList } from './base-list';
 
@@ -35,7 +35,7 @@ import { BaseList } from './base-list';
     <virtual-scroller #scroll
       [enableUnequalChildrenSizes]="randomSize"
       [horizontal]="true"
-      [items]="filteredList">
+      [items]="filteredList" [RTL] = "rtl">
       
       <list-item [randomWidth]="randomSize" *ngFor="let item of scroll.viewPortItems" class="inline" [item]="item"> </list-item>
     </virtual-scroller>
@@ -43,4 +43,5 @@ import { BaseList } from './base-list';
   styleUrls: ['./horizontal-list.scss']
 })
 export class HorizontalListComponent extends BaseList {
+  @Input() rtl:boolean;
 }
