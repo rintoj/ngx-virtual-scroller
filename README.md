@@ -90,7 +90,7 @@ note: viewPortItems must be a public field to work with AOT
 **Step 1:** Install ngx-virtual-scroller
 
 ```sh
-npm install ngx-virtual-scroller --save
+npm install ngx-virtual-scroller
 ```
 
 **Step 2:** Import virtual scroll module into your app module
