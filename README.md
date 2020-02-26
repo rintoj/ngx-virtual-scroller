@@ -42,6 +42,7 @@ This method is effective because the number of DOM elements are always constant 
 NOTE: API methods marked (DEPRECATED) will be removed in the next major version. Please attempt to stop using them in your code & create an issue if you believe they're still necessary.
 
 ## New features:
+	* RTL Support on Horizontal scrollers
 	* Support for fixed <thead> on <table> elements.
 	* Added API to query for current scroll px position (also passed as argument to IPageInfo listeners)
 	* Added API to invalidate cached child item measurements (if your child item sizes change dynamically)

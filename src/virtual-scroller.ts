@@ -118,8 +118,6 @@ export interface IViewport extends IPageInfo {
 	}
 	
 	:host.horizontal.selfScroll.rtl {
-		overflow-y: visible;
-		overflow-x: auto;
 		transform: scaleX(-1);
 	}
 
@@ -156,10 +154,7 @@ export interface IViewport extends IPageInfo {
 		white-space: initial;
 	}
 
-	:host.rtl.horizontal .scrollable-content  ::ng-deep > * {
-		flex-shrink: 0;
-		flex-grow: 0;
-		white-space: initial;
+	:host.horizontal.rtl .scrollable-content  ::ng-deep > * {
 		transform:scaleX(-1);
 	}
 	

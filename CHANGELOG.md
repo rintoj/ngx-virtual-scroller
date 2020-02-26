@@ -1,3 +1,9 @@
+# v4.0.1
+
+* Add RTL Support
+* Minor bug fixes
+* Compiled from Angular 9
+
 # v3.0.3
 
 * Add Null-Safety check
