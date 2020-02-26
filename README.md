@@ -201,6 +201,7 @@ interface IPageInfo {
 | ssrViewportWidth | number | The hard-coded visible width of the virtual-scroller (or [parentScroll]) to use if rendering via Angular Universal/Server-Side-Rendering. Defaults to 1920.
 | ssrViewportHeight | number | The hard-coded visible height of the virtual-scroller (or [parentScroll]) to use if rendering via Angular Universal/Server-Side-Rendering. Defaults to 1080.
 | executeRefreshOutsideAngularZone | boolean | Defaults to false. Disables full-app Angular ChangeDetection while scrolling, which can give a performance boost. Requires developer to manually execute change detection on any components which may have changed. USE WITH CAUTION - Read the "Performance" section below.
+| RTL | boolean | Defaults to false. set to true if you want horizontal slider to support RTL.
 
 Note: The Events without the "vs" prefix have been deprecated because they might conflict with native DOM events due to their "bubbling" nature. See https://github.com/angular/angular/issues/13997
 An example is if an <input> element inside <virtual-scroller> emits a "change" event which bubbles up to the (change) handler of virtual-scroller. Using the vs prefix will prevent this bubbling conflict because there are currently no official DOM events prefixed with vs.
