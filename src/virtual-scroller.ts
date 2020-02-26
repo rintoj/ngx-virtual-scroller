@@ -226,7 +226,7 @@ export class VirtualScrollerComponent implements OnInit, OnChanges, OnDestroy {
 	@Input()
 	public ssrViewportHeight: number = 1080;
 
-	protected _bufferAmount: number = 0;
+	protected _bufferAmount: number;
 	@Input()
 	public get bufferAmount(): number {
 		if (typeof (this._bufferAmount) === 'number' && this._bufferAmount >= 0) {
