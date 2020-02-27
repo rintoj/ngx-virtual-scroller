@@ -1,4 +1,4 @@
-# v4.0.1
+# v4.0.2
 
 * Add RTL Support
 * Minor bug fixes
