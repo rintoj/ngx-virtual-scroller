@@ -149,7 +149,12 @@ export interface IViewport extends IPageInfo {
 	}
 	
     .total-padding {
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 1px;
       width: 1px;
+      transform-origin: 0 0;
       opacity: 0;
     }
     
