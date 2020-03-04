@@ -438,37 +438,37 @@ export class ListComponent {
 Some default config settings can be overridden via DI, so you can set them globally instead of on each instance of virtual-scroller.
 
 ```ts
- providers: [
-		provide: 'virtual-scroller-default-options', useValue: {
-			scrollThrottlingTime: 0,
-			scrollDebounceTime: 0,
-			scrollAnimationTime: 750,
-			checkResizeInterval: 1000,
-			resizeBypassRefreshThreshold: 5,
-			modifyOverflowStyleOfParentScroll: true,
-			stripedTable: false
-		}
-  ],
+providers: [
+    provide: 'virtual-scroller-default-options', useValue: {
+        checkResizeInterval: 1000,
+        modifyOverflowStyleOfParentScroll: true,
+        resizeBypassRefreshThreshold: 5,
+        scrollAnimationTime: 750,
+        scrollDebounceTime: 0,
+        scrollThrottlingTime: 0,
+        stripedTable: false
+    }
+],
 ```
 
 OR
 
 ```ts
 export function vsDefaultOptionsFactory(): VirtualScrollerDefaultOptions {
-	return {
-		scrollThrottlingTime: 0,
-		scrollDebounceTime: 0,
-		scrollAnimationTime: 750,
-		checkResizeInterval: 1000,
-		resizeBypassRefreshThreshold: 5,
-		modifyOverflowStyleOfParentScroll: true,
-		stripedTable: false
-	};
+    return {
+        checkResizeInterval: 1000,
+        modifyOverflowStyleOfParentScroll: true,
+        resizeBypassRefreshThreshold: 5,
+        scrollAnimationTime: 750,
+        scrollDebounceTime: 0,
+        scrollThrottlingTime: 0,
+        stripedTable: false
+    };
 }
 
- providers: [
-		provide: 'virtual-scroller-default-options', useFactory: vsDefaultOptionsFactory
-  ],
+providers: [
+    provide: 'virtual-scroller-default-options', useFactory: vsDefaultOptionsFactory
+],
 ```
 
 ## Sorting Items
