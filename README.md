@@ -164,45 +164,45 @@ interface IPageInfo {
 
 ## API
 
-| Attribute                          | Type      | Description | Default
-|------------------------------------|-----------|-------------| -------
-| bufferAmount                       | number    | The number of elements to be rendered above & below the current container's viewport. Increase this if enableUnequalChildrenSizes isn't working well enough. | enableUnequalChildrenSizes ? 5 : 0
-| checkResizeInterval                | number    | How often in milliseconds to check if virtual-scroller (or parentScroll) has been resized. If resized, it'll call Refresh() method | 1000
-| compareItems                       | Function  | Predicate of syntax (item1:any, item2:any)=>boolean which is used when items array is modified to determine which items have been changed (determines if cached child size measurements need to be refreshed or not for enableUnequalChildrenSizes). | === comparison
-| enableUnequalChildrenSizes         | boolean   | If you want to use the "unequal size" children feature. This is not perfect, but hopefully "close-enough" for most situations. | false
-| executeRefreshOutsideAngularZone   | boolean   | Disables full-app Angular ChangeDetection while scrolling, which can give a performance boost. Requires developer to manually execute change detection on any components which may have changed. USE WITH CAUTION - Read the "Performance" section below. | false
-| horizontal                         | boolean   | Whether the scrollbars should be vertical or horizontal. | false
-| invalidateAllCachedMeasurements    | ()=>void  | Function to force re-measuring *all* cached item sizes. If enableUnequalChildrenSizes===false, only 1 item will be re-measured.
-| invalidateCachedMeasurementAtIndex | (index:number)=>void | Function to force re-measuring cached item size.
-| invalidateCachedMeasurementForItem | (item:any)=>void | Function to force re-measuring cached item size.
-| items                              | any[]     | The data that builds the templates within the virtual scroll. This is the same data that you'd pass to ngFor. It's important to note that when this data has changed, then the entire virtual scroll is refreshed.
-| modifyOverflowStyleOfParentScroll  | boolean   | Set to false if you want to prevent ngx-virtual-scroller from automatically changing the overflow style setting of the parentScroll element to 'scroll'. | true
-| parentScroll                       | Element / Window | Element (or window), which will have scrollbar. This element must be one of the parents of virtual-scroller
-| refresh                            | ()=>void  | Function to force re-rendering of current items in viewport.
-| RTL                                | boolean   | Set to true if you want horizontal slider to support RTL. | false
-| resizeBypassRefreshThreshold       | number    | How many pixels to ignore during resize check if virtual-scroller (or parentScroll) are only resized by a very small amount. | 5
-| scrollAnimationTime                | number    | The time in milliseconds for the scroll animation to run for. 0 will completely disable the tween/animation. | 750
-| scrollDebounceTime                 | number    | Milliseconds to delay refreshing viewport if user is scrolling quickly (for performance reasons). | 0
-| scrollInto                         | (item:any, alignToBeginning:boolean = true, additionalOffset:number = 0, animationMilliseconds:number = undefined, animationCompletedCallback:()=>void = undefined)=>void | Scrolls to item
-| scrollThrottlingTime               | number    | Milliseconds to delay refreshing viewport if user is scrolling quickly (for performance reasons). | 0
-| scrollToIndex                      | (index:number, alignToBeginning:boolean = true, additionalOffset:number = 0, animationMilliseconds:number = undefined, animationCompletedCallback:()=>void = undefined)=>void | Scrolls to item at index
-| scrollToPosition                   | (scrollPosition:number, animationMilliseconds:number = undefined, animationCompletedCallback: ()=>void = undefined)=>void | Scrolls to px position
-| scrollbarHeight                    | number    | If you want to override the auto-calculated scrollbar height. This is used to determine the dimensions of the viewable area when calculating the number of items to render.
-| scrollbarWidth                     | number    | If you want to override the auto-calculated scrollbar width. This is used to determine the dimensions of the viewable area when calculating the number of items to render.
-| ssrChildHeight                     | number    | The hard-coded height of the item template's cell to use if rendering via Angular Universal/Server-Side-Rendering
-| ssrChildWidth                      | number    | The hard-coded width of the item template's cell to use if rendering via Angular Universal/Server-Side-Rendering
-| ssrViewportHeight                  | number    | The hard-coded visible height of the virtual-scroller (or [parentScroll]) to use if rendering via Angular Universal/Server-Side-Rendering. | 1080
-| ssrViewportWidth                   | number    | The hard-coded visible width of the virtual-scroller (or [parentScroll]) to use if rendering via Angular Universal/Server-Side-Rendering. | 1920
-| stripedTable                       | boolean   | Set to true if you use a striped table. In this case, the rows will be added/removed two by two to keep the strips consistent. | false
-| useMarginInsteadOfTranslate        | boolean   | Translate is faster in many scenarios because it can use GPU acceleration, but it can be slower if your scroll container or child elements don't use any transitions or opacity. More importantly, translate creates a new "containing block" which breaks position:fixed because it'll be relative to the transform rather than the window. If you're experiencing issues with position:fixed on your child elements, turn this flag on. | false
-| viewPortInfo                       | IPageInfo | Allows querying the the current viewport info on demand rather than listening for events.
-| viewPortItems                      | any[] | The array of items currently being rendered to the viewport.
-| vsChange                           | Event<IPageInfo> | This event is fired every time the `start` or `end` indexes or scroll position change and emits `IPageInfo`.
-| vsEnd                              | Event<IPageInfo> | This event is fired every time `end` index changes and emits `IPageInfo`.
-| vsStart                            | Event<IPageInfo> | This event is fired every time `start` index changes and emits `IPageInfo`.
-| vsUpdate                           | Event<any[]> | This event is fired every time the `start` or `end` indexes change and emits the list of items which should be visible based on the current scroll position from `start` to `end`. The list emitted by this event must be used with `*ngFor` to render the actual list of items within `<virtual-scroller>`
-| childHeight (DEPRECATED)           | number    | The minimum height of the item template's cell. Use this if enableUnequalChildrenSizes isn't working well enough. (The actual rendered size of the first cell is used by default if not specified.)
-| childWidth (DEPRECATED)            | number    | The minimum width of the item template's cell. Use this if enableUnequalChildrenSizes isn't working well enough. (The actual rendered size of the first cell is used by default if not specified.)
+| Attribute                          | `Type` & Default  | Description
+|------------------------------------|-------------------|--------------|
+| bufferAmount                       | `number` enableUnequalChildrenSizes ? 5 : 0 | The number of elements to be rendered above & below the current container's viewport. Increase this if enableUnequalChildrenSizes isn't working well enough.
+| checkResizeInterval                | `number` 1000     | How often in milliseconds to check if virtual-scroller (or parentScroll) has been resized. If resized, it'll call Refresh() method
+| compareItems                       | `Function` === comparison | Predicate of syntax (item1:any, item2:any)=>boolean which is used when items array is modified to determine which items have been changed (determines if cached child size measurements need to be refreshed or not for enableUnequalChildrenSizes).
+| enableUnequalChildrenSizes         | `boolean` false   | If you want to use the "unequal size" children feature. This is not perfect, but hopefully "close-enough" for most situations.
+| executeRefreshOutsideAngularZone   | `boolean` false   | Disables full-app Angular ChangeDetection while scrolling, which can give a performance boost. Requires developer to manually execute change detection on any components which may have changed. USE WITH CAUTION - Read the "Performance" section below.
+| horizontal                         | `boolean` false   | Whether the scrollbars should be vertical or horizontal.
+| invalidateAllCachedMeasurements    | `Function`        | `()=>void` - to force re-measuring *all* cached item sizes. If enableUnequalChildrenSizes===false, only 1 item will be re-measured.
+| invalidateCachedMeasurementAtIndex | `Function`        | `(index:number)=>void` - to force re-measuring cached item size.
+| invalidateCachedMeasurementForItem | `Function`        | `(item:any)=>void` - to force re-measuring cached item size.
+| items                              | any[]             | The data that builds the templates within the virtual scroll. This is the same data that you'd pass to ngFor. It's important to note that when this data has changed, then the entire virtual scroll is refreshed.
+| modifyOverflowStyleOfParentScroll  | `boolean` true    | Set to false if you want to prevent ngx-virtual-scroller from automatically changing the overflow style setting of the parentScroll element to 'scroll'.
+| parentScroll                       | Element / Window  | Element (or window), which will have scrollbar. This element must be one of the parents of virtual-scroller
+| refresh                            | `Function`        | `()=>void` - to force re-rendering of current items in viewport.
+| RTL                                | `boolean` false   | Set to true if you want horizontal slider to support RTL.
+| resizeBypassRefreshThreshold       | `number` 5        | How many pixels to ignore during resize check if virtual-scroller (or parentScroll) are only resized by a very small amount.
+| scrollAnimationTime                | `number` 750      | The time in milliseconds for the scroll animation to run for. 0 will completely disable the tween/animation.
+| scrollDebounceTime                 | `number` 0        | Milliseconds to delay refreshing viewport if user is scrolling quickly (for performance reasons).
+| scrollInto                         | `Function`        | `(item:any, alignToBeginning:boolean = true, additionalOffset:number = 0, animationMilliseconds:number = undefined, animationCompletedCallback:()=>void = undefined)=>void` - Scrolls to item
+| scrollThrottlingTime               | `number` 0        | Milliseconds to delay refreshing viewport if user is scrolling quickly (for performance reasons).
+| scrollToIndex                      | `Function`        | `(index:number, alignToBeginning:boolean = true, additionalOffset:number = 0, animationMilliseconds:number = undefined, animationCompletedCallback:()=>void = undefined)=>void` - Scrolls to item at index
+| scrollToPosition                   | `Function`        | `(scrollPosition:number, animationMilliseconds:number = undefined, animationCompletedCallback: ()=>void = undefined)=>void` - Scrolls to px position
+| scrollbarHeight                    | `number`          | If you want to override the auto-calculated scrollbar height. This is used to determine the dimensions of the viewable area when calculating the number of items to render.
+| scrollbarWidth                     | `number`          | If you want to override the auto-calculated scrollbar width. This is used to determine the dimensions of the viewable area when calculating the number of items to render.
+| ssrChildHeight                     | `number`          | The hard-coded height of the item template's cell to use if rendering via Angular Universal/Server-Side-Rendering
+| ssrChildWidth                      | `number`          | The hard-coded width of the item template's cell to use if rendering via Angular Universal/Server-Side-Rendering
+| ssrViewportHeight                  | `number` 1080     | The hard-coded visible height of the virtual-scroller (or [parentScroll]) to use if rendering via Angular Universal/Server-Side-Rendering.
+| ssrViewportWidth                   | `number` 1920     | The hard-coded visible width of the virtual-scroller (or [parentScroll]) to use if rendering via Angular Universal/Server-Side-Rendering.
+| stripedTable                       | `boolean` false   | Set to true if you use a striped table. In this case, the rows will be added/removed two by two to keep the strips consistent.
+| useMarginInsteadOfTranslate        | `boolean` false   | Translate is faster in many scenarios because it can use GPU acceleration, but it can be slower if your scroll container or child elements don't use any transitions or opacity. More importantly, translate creates a new "containing block" which breaks position:fixed because it'll be relative to the transform rather than the window. If you're experiencing issues with position:fixed on your child elements, turn this flag on.
+| viewPortInfo                       | `IPageInfo`       | Allows querying the the current viewport info on demand rather than listening for events.
+| viewPortItems                      | any[]             | The array of items currently being rendered to the viewport.
+| vsChange                           | Event<IPageInfo>  | This event is fired every time the `start` or `end` indexes or scroll position change and emits `IPageInfo`.
+| vsEnd                              | Event<IPageInfo>  | This event is fired every time `end` index changes and emits `IPageInfo`.
+| vsStart                            | Event<IPageInfo>  | This event is fired every time `start` index changes and emits `IPageInfo`.
+| vsUpdate                           | Event<any[]>      | This event is fired every time the `start` or `end` indexes change and emits the list of items which should be visible based on the current scroll position from `start` to `end`. The list emitted by this event must be used with `*ngFor` to render the actual list of items within `<virtual-scroller>`
+| childHeight *(DEPRECATED)*         | `number`          | The minimum height of the item template's cell. Use this if enableUnequalChildrenSizes isn't working well enough. (The actual rendered size of the first cell is used by default if not specified.)
+| childWidth *(DEPRECATED)*          | `number`          | The minimum width of the item template's cell. Use this if enableUnequalChildrenSizes isn't working well enough. (The actual rendered size of the first cell is used by default if not specified.)
 
 Note: The Events without the "vs" prefix have been deprecated because they might conflict with native DOM events due to their "bubbling" nature. See https://github.com/angular/angular/issues/13997
 An example is if an <input> element inside <virtual-scroller> emits a "change" event which bubbles up to the (change) handler of virtual-scroller. Using the vs prefix will prevent this bubbling conflict because there are currently no official DOM events prefixed with vs.
