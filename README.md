@@ -318,24 +318,24 @@ Note: The #header angular selector will make the <thead> element fixed to top. I
 
 ```html
 <virtual-scroller #scroll [items]="myItems">
-	<table>
-		<thead #header>
-			<th>Index</th>
-			<th>Name</th>
-			<th>Gender</th>
-			<th>Age</th>
-			<th>Address</th>
-		</thead>
-		<tbody #container>
-			<tr *ngFor="let item of scroll.viewPortItems">
-				<td>{{item.index}}</td>
-				<td>{{item.name}}</td>
-				<td>{{item.gender}}</td>
-				<td>{{item.age}}</td>
-				<td>{{item.address}}</td>
-			</tr>
-		</tbody>
-	</table>
+    <table>
+        <thead #header>
+            <th>Index</th>
+            <th>Name</th>
+            <th>Gender</th>
+            <th>Age</th>
+            <th>Address</th>
+        </thead>
+        <tbody #container>
+            <tr *ngFor="let item of scroll.viewPortItems">
+                <td>{{item.index}}</td>
+                <td>{{item.name}}</td>
+                <td>{{item.gender}}</td>
+                <td>{{item.age}}</td>
+                <td>{{item.address}}</td>
+            </tr>
+        </tbody>
+    </table>
 </virtual-scroller>
 ```
 
