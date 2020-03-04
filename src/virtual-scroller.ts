@@ -1,21 +1,20 @@
 import {
+	ChangeDetectorRef,
 	Component,
 	ContentChild,
 	ElementRef,
 	EventEmitter,
 	Inject,
-	Optional,
 	Input,
 	NgModule,
 	NgZone,
 	OnChanges,
 	OnDestroy,
 	OnInit,
+	Optional,
 	Output,
 	Renderer2,
 	ViewChild,
-	ChangeDetectorRef,
-	InjectionToken
 } from '@angular/core';
 
 import { PLATFORM_ID } from '@angular/core';
@@ -26,63 +25,63 @@ import { CommonModule } from '@angular/common';
 import * as tween from '@tweenjs/tween.js'
 
 export interface VirtualScrollerDefaultOptions {
-	scrollThrottlingTime: number;
-	scrollDebounceTime: number;
-	scrollAnimationTime: number;
-	scrollbarWidth?: number;
-	scrollbarHeight?: number;
 	checkResizeInterval: number
-	resizeBypassRefreshThreshold: number,
 	modifyOverflowStyleOfParentScroll: boolean,
+	resizeBypassRefreshThreshold: number,
+	scrollAnimationTime: number;
+	scrollDebounceTime: number;
+	scrollThrottlingTime: number;
+	scrollbarHeight?: number;
+	scrollbarWidth?: number;
 	stripedTable: boolean
 }
 
 export function VIRTUAL_SCROLLER_DEFAULT_OPTIONS_FACTORY(): VirtualScrollerDefaultOptions {
 	return {
-		scrollThrottlingTime: 0,
-		scrollDebounceTime: 0,
-		scrollAnimationTime: 750,
 		checkResizeInterval: 1000,
-		resizeBypassRefreshThreshold: 5,
 		modifyOverflowStyleOfParentScroll: true,
+		resizeBypassRefreshThreshold: 5,
+		scrollAnimationTime: 750,
+		scrollDebounceTime: 0,
+		scrollThrottlingTime: 0,
 		stripedTable: false
 	};
 }
 
 export interface WrapGroupDimensions {
-	numberOfKnownWrapGroupChildSizes: number;
-	sumOfKnownWrapGroupChildWidths: number;
-	sumOfKnownWrapGroupChildHeights: number;
 	maxChildSizePerWrapGroup: WrapGroupDimension[];
+	numberOfKnownWrapGroupChildSizes: number;
+	sumOfKnownWrapGroupChildHeights: number;
+	sumOfKnownWrapGroupChildWidths: number;
 }
 
 export interface WrapGroupDimension {
-	childWidth: number;
 	childHeight: number;
+	childWidth: number;
 	items: any[];
 }
 
 export interface IDimensions {
-	itemCount: number;
-	itemsPerWrapGroup: number;
-	wrapGroupsPerPage: number;
-	itemsPerPage: number;
-	pageCount_fractional: number;
-	childWidth: number;
 	childHeight: number;
+	childWidth: number;
+	itemCount: number;
+	itemsPerPage: number;
+	itemsPerWrapGroup: number;
+	maxScrollPosition: number;
+	pageCount_fractional: number;
 	scrollLength: number;
 	viewportLength: number;
-	maxScrollPosition: number;
+	wrapGroupsPerPage: number;
 }
 
 export interface IPageInfo {
-	startIndex: number;
 	endIndex: number;
-	scrollStartPosition: number;
-	scrollEndPosition: number;
-	startIndexWithBuffer: number;
 	endIndexWithBuffer: number;
 	maxScrollPosition: number;
+	scrollEndPosition: number;
+	scrollStartPosition: number;
+	startIndex: number;
+	startIndexWithBuffer: number;
 }
 
 export interface IViewport extends IPageInfo {
@@ -108,23 +107,23 @@ export interface IViewport extends IPageInfo {
 	styles: [`
     :host {
       position: relative;
-	  display: block;
+	  	display: block;
       -webkit-overflow-scrolling: touch;
     }
 
-	:host.horizontal.selfScroll {
+		:host.horizontal.selfScroll {
       overflow-y: visible;
       overflow-x: auto;
-	}
-	
-	:host.horizontal.selfScroll.rtl {
-		transform: scaleX(-1);
-	}
+		}
 
-	:host.vertical.selfScroll {
+		:host.horizontal.selfScroll.rtl {
+			transform: scaleX(-1);
+		}
+
+		:host.vertical.selfScroll {
       overflow-y: auto;
       overflow-x: visible;
-	}
+		}
 
     .scrollable-content {
       top: 0;
@@ -136,28 +135,28 @@ export interface IViewport extends IPageInfo {
       position: absolute;
     }
 
-	.scrollable-content ::ng-deep > * {
-		box-sizing: border-box;
-	}
+		.scrollable-content ::ng-deep > * {
+			box-sizing: border-box;
+		}
 
-	:host.horizontal {
-		white-space: nowrap;
-	}
+		:host.horizontal {
+			white-space: nowrap;
+		}
 
-	:host.horizontal .scrollable-content {
-		display: flex;
-	}
+		:host.horizontal .scrollable-content {
+			display: flex;
+		}
 
-	:host.horizontal .scrollable-content ::ng-deep > * {
-		flex-shrink: 0;
-		flex-grow: 0;
-		white-space: initial;
-	}
+		:host.horizontal .scrollable-content ::ng-deep > * {
+			flex-shrink: 0;
+			flex-grow: 0;
+			white-space: initial;
+		}
 
-	:host.horizontal.rtl .scrollable-content  ::ng-deep > * {
-		transform:scaleX(-1);
-	}
-	
+		:host.horizontal.rtl .scrollable-content ::ng-deep > * {
+			transform:scaleX(-1);
+		}
+
     .total-padding {
       width: 1px;
       opacity: 0;
@@ -202,9 +201,10 @@ export class VirtualScrollerComponent implements OnInit, OnChanges, OnDestroy {
 		this.minMeasuredChildWidth = undefined;
 		this.minMeasuredChildHeight = undefined;
 	}
+
 	@Input()
 	public RTL: boolean = false;
-	
+
 	@Input()
 	public useMarginInsteadOfTranslate: boolean = false;
 
@@ -412,7 +412,6 @@ export class VirtualScrollerComponent implements OnInit, OnChanges, OnDestroy {
 		this.refresh_internal(indexLengthChanged || firstRun);
 	}
 
-
 	public ngDoCheck(): void {
 		if (this.cachedItemsLength !== this.items.length) {
 			this.cachedItemsLength = this.items.length;
@@ -545,7 +544,7 @@ export class VirtualScrollerComponent implements OnInit, OnChanges, OnDestroy {
 			this.currentTween = undefined;
 		}
 
-		if (!animationMilliseconds) {
+		if (animationMilliseconds === 0) {
 			this.renderer.setProperty(scrollElement, this._scrollType, scrollPosition);
 			this.refresh_internal(false, animationCompletedCallback);
 			return;
@@ -590,24 +589,26 @@ export class VirtualScrollerComponent implements OnInit, OnChanges, OnDestroy {
 
 	protected isAngularUniversalSSR: boolean;
 
-	constructor(protected readonly element: ElementRef,
+	constructor(
+		protected readonly element: ElementRef,
 		protected readonly renderer: Renderer2,
 		protected readonly zone: NgZone,
 		protected changeDetectorRef: ChangeDetectorRef,
 		@Inject(PLATFORM_ID) platformId: Object,
 		@Optional() @Inject('virtual-scroller-default-options')
-		options: VirtualScrollerDefaultOptions) {
+		options: VirtualScrollerDefaultOptions
+	) {
 
 		this.isAngularUniversalSSR = isPlatformServer(platformId);
 
-		this.scrollThrottlingTime = options.scrollThrottlingTime;
-		this.scrollDebounceTime = options.scrollDebounceTime;
-		this.scrollAnimationTime = options.scrollAnimationTime;
-		this.scrollbarWidth = options.scrollbarWidth;
-		this.scrollbarHeight = options.scrollbarHeight;
 		this.checkResizeInterval = options.checkResizeInterval;
-		this.resizeBypassRefreshThreshold = options.resizeBypassRefreshThreshold;
 		this.modifyOverflowStyleOfParentScroll = options.modifyOverflowStyleOfParentScroll;
+		this.resizeBypassRefreshThreshold = options.resizeBypassRefreshThreshold;
+		this.scrollAnimationTime = options.scrollAnimationTime;
+		this.scrollDebounceTime = options.scrollDebounceTime;
+		this.scrollThrottlingTime = options.scrollThrottlingTime;
+		this.scrollbarHeight = options.scrollbarHeight;
+		this.scrollbarWidth = options.scrollbarWidth;
 		this.stripedTable = options.stripedTable;
 
 		this.horizontal = false;
@@ -662,22 +663,22 @@ export class VirtualScrollerComponent implements OnInit, OnChanges, OnDestroy {
 	protected _marginDir;
 	protected updateDirection(): void {
 		if (this.horizontal) {
+			this._childScrollDim = 'childWidth';
 			this._invisiblePaddingProperty = 'width';
+			this._marginDir = 'margin-left';
 			this._offsetType = 'offsetLeft';
 			this._pageOffsetType = 'pageXOffset';
-			this._childScrollDim = 'childWidth';
-			this._marginDir = 'margin-left';
-			this._translateDir = 'translateX';
 			this._scrollType = 'scrollLeft';
+			this._translateDir = 'translateX';
 		}
 		else {
+			this._childScrollDim = 'childHeight';
 			this._invisiblePaddingProperty = 'height';
+			this._marginDir = 'margin-top';
 			this._offsetType = 'offsetTop';
 			this._pageOffsetType = 'pageYOffset';
-			this._childScrollDim = 'childHeight';
-			this._marginDir = 'margin-top';
-			this._translateDir = 'translateY';
 			this._scrollType = 'scrollTop';
+			this._translateDir = 'translateY';
 		}
 	}
 
@@ -740,7 +741,7 @@ export class VirtualScrollerComponent implements OnInit, OnChanges, OnDestroy {
 		//The default of 2x max will probably be accurate enough without causing too large a performance bottleneck
 		//The code would typically quit out on the 2nd iteration anyways. The main time it'd think more than 2 runs would be necessary would be for vastly different sized child items or if this is the 1st time the items array was initialized.
 		//Without maxRunTimes, If the user is actively scrolling this code would become an infinite loop until they stopped scrolling. This would be okay, except each scroll event would start an additional infinte loop. We want to short-circuit it to prevent this.
-		
+
 		if (itemsArrayModified && this.previousViewPort && this.previousViewPort.scrollStartPosition > 0) {
 		//if items were prepended, scroll forward to keep same items visible
 			let oldViewPort = this.previousViewPort;
@@ -1187,16 +1188,16 @@ export class VirtualScrollerComponent implements OnInit, OnChanges, OnDestroy {
 		let maxScrollPosition = Math.max(scrollLength - viewportLength, 0);
 
 		return {
-			itemCount: itemCount,
-			itemsPerWrapGroup: itemsPerWrapGroup,
-			wrapGroupsPerPage: wrapGroupsPerPage,
-			itemsPerPage: itemsPerPage,
-			pageCount_fractional: pageCount_fractional,
-			childWidth: defaultChildWidth,
 			childHeight: defaultChildHeight,
+			childWidth: defaultChildWidth,
+			itemCount: itemCount,
+			itemsPerPage: itemsPerPage,
+			itemsPerWrapGroup: itemsPerWrapGroup,
+			maxScrollPosition: maxScrollPosition,
+			pageCount_fractional: pageCount_fractional,
 			scrollLength: scrollLength,
 			viewportLength: viewportLength,
-			maxScrollPosition: maxScrollPosition
+			wrapGroupsPerPage: wrapGroupsPerPage,
 		};
 	}
 
