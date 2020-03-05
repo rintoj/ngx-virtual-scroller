@@ -228,7 +228,7 @@ If you want to use the scrollbar of a parent element, set `parentScroll` to a na
 </div>
 ```
 
-If the parentScroll is a custom angular component (instead of a native HTML element such as DIV), Angular will wrap the `#scrollingBlock` variable in an ElementRef https://angular.io/api/core/ElementRef in which case you'll need to use the `.nativeElement` property to get to the underlying JavasSript DOM element reference.
+If the parentScroll is a custom angular component (instead of a native HTML element such as DIV), Angular will wrap the `#scrollingBlock` variable in an ElementRef https://angular.io/api/core/ElementRef in which case you'll need to use the `.nativeElement` property to get to the underlying JavaScript DOM element reference.
 
 ```html
 <custom-angular-component #scrollingBlock>
@@ -721,9 +721,9 @@ If both Debounce & Throttling are set, debounce takes precedence.
 
 ## Angular Universal / Server-Side Rendering
 
-The initial SSR render isn't a fully functioning site, it's essentially an HTML "screenshot" (HTML/CSS, but no JS). However, it immediately swaps out your "screenshot" with the real site as soon as the full app has downloaded in the background. The intent of SSR is to give a correct visual very quickly, because a full angular app could take a long time to download. This makes the user *think* your site is fast, because hopefully they won't click on anything that requires JS before the fully-functioning site has finished loading in the background. Also, it allows screen scrapers without JavasSript to work correctly (example: Facebook posts/etc).
+The initial SSR render isn't a fully functioning site, it's essentially an HTML "screenshot" (HTML/CSS, but no JS). However, it immediately swaps out your "screenshot" with the real site as soon as the full app has downloaded in the background. The intent of SSR is to give a correct visual very quickly, because a full angular app could take a long time to download. This makes the user *think* your site is fast, because hopefully they won't click on anything that requires JS before the fully-functioning site has finished loading in the background. Also, it allows screen scrapers without JavaScript to work correctly (example: Facebook posts/etc).
 
-virtual-scroller relies on JavasSript APIs to measure the size of child elements and the scrollable area of their parent. These APIs do not work in SSR because the HTML/CSS "screenshot" is generated on the server via Node, it doesn't execute/render the site as a browser would. This means _virtual-scroller_ will see all measurements as undefined and the "screenshot" will not be generated correctly. Most likely, only 1 child element will appear in your _virtual-scroller_. This "screenshot" can be fixed with polyfills. However, when the browser renders the "screenshot", the scrolling behaviour still won't work until the full app has loaded.
+virtual-scroller relies on JavaScript APIs to measure the size of child elements and the scrollable area of their parent. These APIs do not work in SSR because the HTML/CSS "screenshot" is generated on the server via Node, it doesn't execute/render the site as a browser would. This means _virtual-scroller_ will see all measurements as undefined and the "screenshot" will not be generated correctly. Most likely, only 1 child element will appear in your _virtual-scroller_. This "screenshot" can be fixed with polyfills. However, when the browser renders the "screenshot", the scrolling behaviour still won't work until the full app has loaded.
 
 SSR is an advanced (and complex) topic that can't be fully addressed here. Please research this on your own. However, here are some suggestions:
 1) Use https://www.npmjs.com/package/domino and https://www.npmjs.com/package/raf polyfills in your `main.server.ts` file
