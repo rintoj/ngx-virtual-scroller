@@ -180,7 +180,7 @@ In _alphabetical_ order:
 | invalidateCachedMeasurementAtIndex | `Function`        | `(index:number)=>void` - to force re-measuring cached item size.
 | invalidateCachedMeasurementForItem | `Function`        | `(item:any)=>void` - to force re-measuring cached item size.
 | items                              | any[]             | The data that builds the templates within the virtual scroll. This is the same data that you'd pass to `ngFor`. It's important to note that when this data has changed, then the entire virtual scroll is refreshed.
-| modifyOverflowStyleOfParentScroll  | `boolean` true    | Set to false if you want to prevent ngx-virtual-scroller from automatically changing the overflow style setting of the parentScroll element to 'scroll'.
+| modifyOverflowStyleOfParentScroll  | `boolean` true    | Set to false if you want to prevent _ngx-virtual-scroller_ from automatically changing the overflow style setting of the parentScroll element to 'scroll'.
 | parentScroll                       | Element / Window  | Element (or window), which will have scrollbar. This element must be one of the parents of virtual-scroller
 | refresh                            | `Function`        | `()=>void` - to force re-rendering of current items in viewport.
 | RTL                                | `boolean` false   | Set to `true` if you want horizontal slider to support right to left script (RTL).
@@ -343,7 +343,7 @@ export class ListWithApiComponent implements OnChanges {
 ```
 
 ## If child size changes
-virtual-scroller caches the measurements for the rendered items. If `enableUnequalChildrenSizes===true` then each item is measured and cached separately. Otherwise, the 1st measured item is used for all items.
+_virtual-scroller_ caches the measurements for the rendered items. If `enableUnequalChildrenSizes===true` then each item is measured and cached separately. Otherwise, the 1st measured item is used for all items.
 
 If your items can change sizes dynamically, you'll need to notify _virtual-scroller_ to re-measure them. There are 3 methods for doing this:
 ```ts
@@ -353,7 +353,7 @@ virtualScroller.invalidateCachedMeasurementAtIndex(index: number);
 ```
 
 ## If child view state is reverted after scrolling away & back
-virtual-scroller essentially uses *ngIf to remove items that are scrolled out of view. This is what gives the performance benefits compared to keeping all the off-screen items in the DOM.
+_virtual-scroller_ essentially uses `*ngIf` to remove items that are scrolled out of view. This is what gives the performance benefits compared to keeping all the off-screen items in the DOM.
 
 Because of the *ngIf, Angular completely forgets any view state. If your component has the ability to change state, it's your app's responsibility to retain that viewstate in your own object which data-binds to the component.
 
@@ -373,7 +373,7 @@ Example:
 
 *Note* - This should now be auto-detected, however the 'refresh' method can still force it if neeeded.
 
-This was implemented using the setInterval method which may cause minor performance issues. It shouldn't be noticeable, but can be disabled via `[checkResizeInterval]="0"`
+This was implemented using the `setInterval` method which may cause minor performance issues. It shouldn't be noticeable, but can be disabled via `[checkResizeInterval]="0"`
 
 Performance will be improved once "Resize Observer" (https://wicg.github.io/ResizeObserver/) is fully implemented.
 
@@ -519,7 +519,7 @@ If you want to nest additional elements inside virtual scroll besides the list i
 
 ## Performance - TrackBy
 
-virtual-scroller uses `*ngFor` to render the visible items. When an `*ngFor` array changes, Angular uses a _trackBy_ function to determine if it should re-use or re-generate each component in the loop.
+_virtual-scroller_ uses `*ngFor` to render the visible items. When an `*ngFor` array changes, Angular uses a _trackBy_ function to determine if it should re-use or re-generate each component in the loop.
 
 For example, if 5 items are visible and scrolling causes 1 item to swap out but the other 4 remain visible, there's no reason Angular should re-generate those 4 components from scratch, it should reuse them.
 
@@ -665,7 +665,7 @@ public class SomeRandomComponentWhichUsesOnPush {
     }
 }
 ```
-The ManualChangeDetection/Util classes are helpers that can be copy/pasted directly into your app. The code for MyEntryLevelAppComponent & SomeRandomComponentWhichUsesOnPush are examples that you'll need to modify for your specific app. If you follow this pattern, _OnPush_ is much easier to implement. However, the really hard part is analyzing all of your code to determine *where* you're mutating state. Unfortunately there's no magic bullet for this, you'll need to spend a lot of time reading/debugging/testing your code.
+The _ManualChangeDetection/Util_ classes are helpers that can be copy/pasted directly into your app. The code for _MyEntryLevelAppComponent_ & _SomeRandomComponentWhichUsesOnPush_ are examples that you'll need to modify for your specific app. If you follow this pattern, _OnPush_ is much easier to implement. However, the really hard part is analyzing all of your code to determine *where* you're mutating state. Unfortunately there's no magic bullet for this, you'll need to spend a lot of time reading/debugging/testing your code.
 
 ## Performance - executeRefreshOutsideAngularZone
 
@@ -674,7 +674,9 @@ This API is meant as a quick band-aid fix for performance issues. Please read th
 `ChangeDetectionStrategy.OnPush` is the recommended strategy as it improves the entire app performance, not just _virtual-scroller_. However, `ChangeDetectionStrategy.OnPush` is hard to implement. `executeRefreshOutsideAngularZone` may be an easier initial approach until you're ready to tackle `ChangeDetectionStrategy.OnPush`.
 
 If you've correctly implemented `ChangeDetectionStrategy.OnPush` for 100% of your components, the `executeRefreshOutsideAngularZone` will not provide any performance benefit.
+
 If you have not yet done this, scrolling may feel slow. This is because Angular performs a full-app change detection while scrolling. However, it's likely that only the components inside the scroller actually need the change detection to run, so a full-app change detection cycle is overkill.
+
 In this case you can get a free/easy performance boost with the following code:
 ```ts
 import { ChangeDetectorRef } from '@angular/core';
@@ -723,7 +725,7 @@ If both Debounce & Throttling are set, debounce takes precedence.
 
 The initial SSR render isn't a fully functioning site, it's essentially an HTML "screenshot" (HTML/CSS, but no JS). However, it immediately swaps out your "screenshot" with the real site as soon as the full app has downloaded in the background. The intent of SSR is to give a correct visual very quickly, because a full angular app could take a long time to download. This makes the user *think* your site is fast, because hopefully they won't click on anything that requires JS before the fully-functioning site has finished loading in the background. Also, it allows screen scrapers without JavaScript to work correctly (example: Facebook posts/etc).
 
-virtual-scroller relies on JavaScript APIs to measure the size of child elements and the scrollable area of their parent. These APIs do not work in SSR because the HTML/CSS "screenshot" is generated on the server via Node, it doesn't execute/render the site as a browser would. This means _virtual-scroller_ will see all measurements as undefined and the "screenshot" will not be generated correctly. Most likely, only 1 child element will appear in your _virtual-scroller_. This "screenshot" can be fixed with polyfills. However, when the browser renders the "screenshot", the scrolling behaviour still won't work until the full app has loaded.
+_virtual-scroller_ relies on JavaScript APIs to measure the size of child elements and the scrollable area of their parent. These APIs do not work in SSR because the HTML/CSS "screenshot" is generated on the server via Node, it doesn't execute/render the site as a browser would. This means _virtual-scroller_ will see all measurements as undefined and the "screenshot" will not be generated correctly. Most likely, only 1 child element will appear in your _virtual-scroller_. This "screenshot" can be fixed with polyfills. However, when the browser renders the "screenshot", the scrolling behaviour still won't work until the full app has loaded.
 
 SSR is an advanced (and complex) topic that can't be fully addressed here. Please research this on your own. However, here are some suggestions:
 1) Use https://www.npmjs.com/package/domino and https://www.npmjs.com/package/raf polyfills in your `main.server.ts` file
