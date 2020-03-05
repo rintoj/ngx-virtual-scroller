@@ -201,15 +201,16 @@ In _alphabetical_ order:
 | useMarginInsteadOfTranslate        | `boolean` false   | Translate is faster in many scenarios because it can use GPU acceleration, but it can be slower if your scroll container or child elements don't use any transitions or opacity. More importantly, translate creates a new "containing block" which breaks position:fixed because it'll be relative to the transform rather than the window. If you're experiencing issues with position:fixed on your child elements, turn this flag on.
 | viewPortInfo                       | `IPageInfo`       | Allows querying the the current viewport info on demand rather than listening for events.
 | viewPortItems                      | any[]             | The array of items currently being rendered to the viewport.
-| vsChange                           | Event<IPageInfo>  | This event is fired every time the `start` or `end` indexes or scroll position change and emits `IPageInfo`.
-| vsEnd                              | Event<IPageInfo>  | This event is fired every time `end` index changes and emits `IPageInfo`.
-| vsStart                            | Event<IPageInfo>  | This event is fired every time `start` index changes and emits `IPageInfo`.
-| vsUpdate                           | Event<any[]>      | This event is fired every time the `start` or `end` indexes change and emits the list of items which should be visible based on the current scroll position from `start` to `end`. The list emitted by this event must be used with `*ngFor` to render the actual list of items within `<virtual-scroller>`
+| vsChange                           | `Event<IPageInfo>`| This event is fired every time the `start` or `end` indexes or scroll position change and emits `IPageInfo`.
+| vsEnd                              | `Event<IPageInfo>`| This event is fired every time `end` index changes and emits `IPageInfo`.
+| vsStart                            | `Event<IPageInfo>`| This event is fired every time `start` index changes and emits `IPageInfo`.
+| vsUpdate                           | `Event<any[]>`    | This event is fired every time the `start` or `end` indexes change and emits the list of items which should be visible based on the current scroll position from `start` to `end`. The list emitted by this event must be used with `*ngFor` to render the actual list of items within `<virtual-scroller>`
 | childHeight *(DEPRECATED)*         | `number`          | The minimum height of the item template's cell. Use this if `enableUnequalChildrenSizes` isn't working well enough. (The actual rendered size of the first cell is used by default if not specified.)
 | childWidth *(DEPRECATED)*          | `number`          | The minimum width of the item template's cell. Use this if `enableUnequalChildrenSizes` isn't working well enough. (The actual rendered size of the first cell is used by default if not specified.)
 
 *Note* - The Events without the "vs" prefix have been deprecated because they might conflict with native DOM events due to their "bubbling" nature. See https://github.com/angular/angular/issues/13997
-An example is if an <input> element inside <virtual-scroller> emits a "change" event which bubbles up to the (change) handler of virtual-scroller. Using the vs prefix will prevent this bubbling conflict because there are currently no official DOM events prefixed with vs.
+
+An example is if an `<input>` element inside `<virtual-scroller>` emits a "change" event which bubbles up to the (change) handler of virtual-scroller. Using the vs prefix will prevent this bubbling conflict because there are currently no official DOM events prefixed with vs.
 
 ## Use parent scrollbar
 
