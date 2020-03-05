@@ -382,7 +382,9 @@ import { VirtualScrollerComponent } from 'ngx-virtual-scroller';
     selector: 'rj-list',
     template: `
         <virtual-scroller #scroll [items]="items">
-            <div *ngFor="let item of scroll.viewPortItems; let i = index"> {{i}}: {{item}} </div>
+            <div *ngFor="let item of scroll.viewPortItems; let i = index">
+                {{i}}: {{item}}
+            </div>
         </virtual-scroller>
     `
 })
@@ -414,7 +416,9 @@ import { VirtualScrollerComponent } from 'ngx-virtual-scroller';
     selector: 'rj-list',
     template: `
         <virtual-scroller #scroll [items]="items">
-            <div *ngFor="let item of scroll.viewPortItems; let i = index"> {{i}}: {{item}} </div>
+            <div *ngFor="let item of scroll.viewPortItems; let i = index">
+                {{i}}: {{item}}
+            </div>
         </virtual-scroller>
     `
 })
@@ -524,8 +528,10 @@ Here's an example of how to do this:
 
 ```html
 <virtual-scroller #scroll [items]="myComplexItems">
-	<my-custom-component [myComplexItem]="complexItem" *ngFor="let complexItem of scroll.viewPortItems; trackBy: myTrackByFunction">
-	</my-custom-component>
+    <my-custom-component
+        [myComplexItem]="complexItem"
+        *ngFor="let complexItem of scroll.viewPortItems; trackBy: myTrackByFunction">
+    </my-custom-component>
 </virtual-scroller>
 ```
 
@@ -669,13 +675,17 @@ In this case you can get a free/easy performance boost with the following code:
 import { ChangeDetectorRef } from '@angular/core';
 
 public class MainComponent {
-	constructor(public changeDetectorRef: ChangeDetectorRef) {
-	}
+    constructor(public changeDetectorRef: ChangeDetectorRef) { }
 }
 ```
 
 ```html
-<virtual-scroller #scroll [items]="items" [executeRefreshOutsideAngularZone]="true" (vsUpdate)="changeDetectorRef.detectChanges()">
+<virtual-scroller
+    #scroll
+    [items]="items"
+    [executeRefreshOutsideAngularZone]="true"
+    (vsUpdate)="changeDetectorRef.detectChanges()"
+>
     <my-custom-component *ngFor="let item of scroll.viewPortItems">
     </my-custom-component>
 </virtual-scroller>
