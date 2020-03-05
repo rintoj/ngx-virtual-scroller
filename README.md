@@ -24,35 +24,37 @@ Virtual Scroll displays a virtual, "infinite" list. Supports horizontal/vertical
 This module displays a small subset of records just enough to fill the viewport and uses the same DOM elements as the user scrolls.
 This method is effective because the number of DOM elements are always constant and tiny irrespective of the size of the list. Thus virtual scroll can display an infinitely growing list of items in an efficient way.
 
-	* Supports multi-column
-	* Easy to use apis
-	* OpenSource and available in GitHub
+- Supports multi-column
+- Easy to use APIs
+- Open source and available in GitHub
 
 ## Breaking Changes:
-	* v3.0.0: Several deprecated properties removed (see changelog).
-		If items array is prepended with additional items, keep scroll on currently visible items, if possible. There is no flag to disable this, because it seems to be the best user-experience in all cases. If you disagree, please create an issue.
-	* v2.1.0: Dependency Injection syntax was changed.
-	* v1.0.6: viewPortIndices API property removed. (use viewPortInfo instead)
-	* v1.0.3: Renamed everything from virtual-scroll to virtual-scroller and from virtualScroll to virtualScroller
-	* v0.4.13: resizeBypassRefreshTheshold renamed to resizeBypassRefreshThreshold (typo)
-	* v0.4.12: The start and end values of the change/start/end events were including bufferAmount, which made them confusing. This has been corrected.
-		viewPortIndices.arrayStartIndex renamed to viewPortIndices.startIndex and viewPortIndices.arrayEndIndex renamed to viewPortIndices.endIndex
-	* v0.4.4: The value of IPageInfo.endIndex wasn't intuitive. This has been corrected. Both IPageInfo.startIndex and IPageInfo.endIndex are the 0-based array indexes of the items being rendered in the viewport. (Previously Change.EndIndex was the array index + 1)
 
-NOTE: API methods marked (DEPRECATED) will be removed in the next major version. Please attempt to stop using them in your code & create an issue if you believe they're still necessary.
+- `v3.0.0` Several deprecated properties removed (see changelog).
+    - If items array is prepended with additional items, keep scroll on currently visible items, if possible. There is no flag to disable this, because it seems to be the best user-experience in all cases. If you disagree, please create an issue.
+- `v2.1.0` Dependency Injection syntax was changed.
+- `v1.0.6` viewPortIndices API property removed. (use viewPortInfo instead)
+- `v1.0.3` Renamed everything from _virtual-scroll_ to _virtual-scroller_ and from _virtualScroll_ to _virtualScroller_
+- `v0.4.13` _resizeBypassRefreshTheshold_ renamed to _resizeBypassRefreshThreshold_ (typo)
+- `v0.4.12` The start and end values of the change/start/end events were including bufferAmount, which made them confusing. This has been corrected.
+    - viewPortIndices.arrayStartIndex renamed to viewPortIndices.startIndex and viewPortIndices.arrayEndIndex renamed to viewPortIndices.endIndex
+- `v0.4.4` The value of IPageInfo.endIndex wasn't intuitive. This has been corrected. Both IPageInfo.startIndex and IPageInfo.endIndex are the 0-based array indexes of the items being rendered in the viewport. (Previously Change.EndIndex was the array index + 1)
+
+*Note* - API methods marked *(DEPRECATED)* will be removed in the next major version. Please attempt to stop using them in your code & create an issue if you believe they're still necessary.
 
 ## New features:
-	* RTL Support on Horizontal scrollers
-	* Support for fixed <thead> on <table> elements.
-	* Added API to query for current scroll px position (also passed as argument to IPageInfo listeners)
-	* Added API to invalidate cached child item measurements (if your child item sizes change dynamically)
-	* Added API to scroll to specific px position
-	* If scroll container resizes, the items will auto-refresh. Can be disabled if it causes any performance issues by setting [checkResizeInterval]="0"
-	* useMarginInsteadOfTranslate flag. Defaults to false. This can affect performance (better/worse depending on your circumstances), and also creates a workaround for the transform+position:fixed browser bug.
-	* Support for horizontal scrollbars
-	* Support for elements with different sizes
-	* Added ability to put other elements inside of scroll (Need to wrap list itself in @ContentChild('container'))
-	* Added ability to use any parent with scrollbar instead of this element (@Input() parentScroll)
+
+ - RTL Support on Horizontal scrollers
+ - Support for fixed `<thead>` on `<table>` elements.
+ - Added API to query for current scroll px position (also passed as argument to `IPageInfo` listeners)
+ - Added API to invalidate cached child item measurements (if your child item sizes change dynamically)
+ - Added API to scroll to specific px position
+ - If scroll container resizes, the items will auto-refresh. Can be disabled if it causes any performance issues by setting `[checkResizeInterval]="0"`
+ - `useMarginInsteadOfTranslate` flag. Defaults to _false_. This can affect performance (better/worse depending on your circumstances), and also creates a workaround for the transform+position:fixed browser bug.
+ - Support for horizontal scrollbars
+ - Support for elements with different sizes
+ - Added ability to put other elements inside of scroll (Need to wrap list itself in @ContentChild('container'))
+ - Added ability to use any parent with scrollbar instead of this element (@Input() parentScroll)
 
 ## Demo
 
@@ -206,7 +208,7 @@ In _alphabetical_ order:
 | childHeight *(DEPRECATED)*         | `number`          | The minimum height of the item template's cell. Use this if `enableUnequalChildrenSizes` isn't working well enough. (The actual rendered size of the first cell is used by default if not specified.)
 | childWidth *(DEPRECATED)*          | `number`          | The minimum width of the item template's cell. Use this if `enableUnequalChildrenSizes` isn't working well enough. (The actual rendered size of the first cell is used by default if not specified.)
 
-Note: The Events without the "vs" prefix have been deprecated because they might conflict with native DOM events due to their "bubbling" nature. See https://github.com/angular/angular/issues/13997
+*Note* - The Events without the "vs" prefix have been deprecated because they might conflict with native DOM events due to their "bubbling" nature. See https://github.com/angular/angular/issues/13997
 An example is if an <input> element inside <virtual-scroller> emits a "change" event which bubbles up to the (change) handler of virtual-scroller. Using the vs prefix will prevent this bubbling conflict because there are currently no official DOM events prefixed with vs.
 
 ## Use parent scrollbar
@@ -239,7 +241,7 @@ If the parentScroll is a custom angular component (instead of a native HTML elem
 </custom-angular-component>
 ```
 
-Note: The parent element should have a width and height defined.
+*Note* - The parent element should have a width and height defined.
 
 ## Use scrollbar of window
 
@@ -259,7 +261,7 @@ If you want to use the window's scrollbar, set `parentScroll`.
 
 Items must have fixed height and width for this module to work perfectly. If not, set [enableUnequalChildrenSizes]="true".
 
-(DEPRECATED): If enableUnequalChildrenSizes isn't working, you can set inputs `childWidth` and `childHeight` to their smallest possible values. You can also modify `bufferAmount` which causes extra items to be rendered on the edges of the scrolling area.
+*(DEPRECATED)*: If enableUnequalChildrenSizes isn't working, you can set inputs `childWidth` and `childHeight` to their smallest possible values. You can also modify `bufferAmount` which causes extra items to be rendered on the edges of the scrolling area.
 
 ```html
 <virtual-scroller #scroll [items]="items" [enableUnequalChildrenSizes]="true">
@@ -314,7 +316,7 @@ export class ListWithApiComponent implements OnChanges {
 
 ## With HTML Table
 
-Note: The #header angular selector will make the <thead> element fixed to top. If you want the header to scroll out of view don't add the #header angular element ref.
+*Note* - The #header angular selector will make the `<thead>` element fixed to top. If you want the header to scroll out of view don't add the _#header_ angular element ref.
 
 ```html
 <virtual-scroller #scroll [items]="myItems">
@@ -367,11 +369,11 @@ Example:
 
 ## If container size changes
 
-Note: This should now be auto-detected, however the 'refresh' method can still force it if neeeded.
-	This was implemented using the setInterval method which may cause minor performance issues. It shouldn't be noticeable, but can be disabled via [checkResizeInterval]="0"
-	Performance will be improved once "Resize Observer" (https://wicg.github.io/ResizeObserver/) is fully implemented.
+*Note* - This should now be auto-detected, however the 'refresh' method can still force it if neeeded.
+    This was implemented using the setInterval method which may cause minor performance issues. It shouldn't be noticeable, but can be disabled via `[checkResizeInterval]="0"`
+    Performance will be improved once "Resize Observer" (https://wicg.github.io/ResizeObserver/) is fully implemented.
 
-Refresh method (DEPRECATED)
+Refresh method *(DEPRECATED)*
 If virtual scroll is used within a dropdown or collapsible menu, virtual scroll needs to know when the container size changes. Use `refresh()` function after container is resized (include time for animation as well).
 
 ```ts
@@ -691,9 +693,11 @@ public class MainComponent {
 </virtual-scroller>
 ```
 
-Note: `executeRefreshOutsideAngularZone` will disable Angular ChangeDetection during all virtual-scroller events, including: vsUpdate, vsStart, vsEnd, vsChange. If you change any data-bound properties inside these event handlers, you must perform manual change detection on those specific components. This can be done via changeDetectorRef.detectChanges() at the end of the event handler. Note: The changeDetectorRef is component-specific, so you'll need to inject it into a private variable in the constructor of the appropriate component before calling it in response to the virtual-scroller events.
+*Note* - `executeRefreshOutsideAngularZone` will disable Angular ChangeDetection during all virtual-scroller events, including: vsUpdate, vsStart, vsEnd, vsChange. If you change any data-bound properties inside these event handlers, you must perform manual change detection on those specific components. This can be done via `changeDetectorRef.detectChanges()` at the end of the event handler.
 
-:warning: WARNING - Failure to perform manual change detection in response to _virtual-scroller_ events will cause your components to render a stale UI for a short time (until the next Change Detection cycle), which will make your app feel buggy.
+*Note* - The `changeDetectorRef` is component-specific, so you'll need to inject it into a private variable in the constructor of the appropriate component before calling it in response to the virtual-scroller events.
+
+:warning: *WARNING* - Failure to perform manual change detection in response to _virtual-scroller_ events will cause your components to render a stale UI for a short time (until the next Change Detection cycle), which will make your app feel buggy.
 
 *Note* - `changeDetectorRef.detectChanges()` will execute change detection on the component and all its nested children. If multiple components need to run change detection in response to a virtual-scroller event, you can call detectChanges from a higher-level component in the ancestor hierarchy rather than on each individual component. However, its important to avoid too many extra change detection cycles by not going too high in the hierarchy unless all the nested children really need to have change detection performed.
 
