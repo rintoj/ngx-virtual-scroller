@@ -726,7 +726,7 @@ The initial SSR render isn't a fully functioning site, it's essentially an HTML 
 virtual-scroller relies on JavasSript APIs to measure the size of child elements and the scrollable area of their parent. These APIs do not work in SSR because the HTML/CSS "screenshot" is generated on the server via Node, it doesn't execute/render the site as a browser would. This means _virtual-scroller_ will see all measurements as undefined and the "screenshot" will not be generated correctly. Most likely, only 1 child element will appear in your _virtual-scroller_. This "screenshot" can be fixed with polyfills. However, when the browser renders the "screenshot", the scrolling behaviour still won't work until the full app has loaded.
 
 SSR is an advanced (and complex) topic that can't be fully addressed here. Please research this on your own. However, here are some suggestions:
-1) Use https://www.npmjs.com/package/domino and https://www.npmjs.com/package/raf polyfills in your main.server.ts file
+1) Use https://www.npmjs.com/package/domino and https://www.npmjs.com/package/raf polyfills in your `main.server.ts` file
 ```ts
 const domino = require('domino');
 require('raf/polyfill');
@@ -754,7 +754,7 @@ Object.defineProperty(win.document.body.style, 'transform', { value: () => { ret
 ```
 
 ## Known Issues
-The following are known issues that we don't know how to solve or don't have the resources to do so. Please don't submit a ticket for them. If you have an idea on how to fix them, please submit a pull request :)
+The following are known issues that we don't know how to solve or don't have the resources to do so. Please don't submit a ticket for them. If you have an idea on how to fix them, please submit a pull request :slightly_smiling_face:
 
 ### Nested Scrollbars
 If there are 2 nested scrollbars on the page the mouse scrollwheel will only affect the scrollbar of the nearest parent to the current mouse position. This means if you scroll to the bottom of a _virtual-scroller_ using the mousewheel & the window has an extra scrollbar, you cannot use the scrollwheel to scroll the page unless you move the mouse pointer out of the _virtual-scroller_ element.
