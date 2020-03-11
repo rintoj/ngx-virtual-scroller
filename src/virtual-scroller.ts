@@ -544,7 +544,7 @@ export class VirtualScrollerComponent implements OnInit, OnChanges, OnDestroy {
 			this.currentTween = undefined;
 		}
 
-		if (animationMilliseconds === 0) {
+		if (!animationMilliseconds) { // handles the `animationMilliseconds === 0` case
 			this.renderer.setProperty(scrollElement, this._scrollType, scrollPosition);
 			this.refresh_internal(false, animationCompletedCallback);
 			return;
