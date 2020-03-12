@@ -391,6 +391,9 @@ export class VirtualScrollerComponent implements OnInit, OnChanges, OnDestroy {
 
 	@ContentChild('header', { read: ElementRef, static: false })
 	protected headerElementRef: ElementRef;
+	
+	@ContentChild('footer', { read: ElementRef, static: false })
+        protected footerElementRef: ElementRef;
 
 	@ContentChild('container', { read: ElementRef, static: false })
 	protected containerElementRef: ElementRef;
@@ -812,6 +815,14 @@ export class VirtualScrollerComponent implements OnInit, OnChanges, OnDestroy {
 					this.renderer.setStyle(this.headerElementRef.nativeElement, 'transform', `${this._translateDir}(${offset}px)`);
 					this.renderer.setStyle(this.headerElementRef.nativeElement, 'webkitTransform', `${this._translateDir}(${offset}px)`);
 				}
+				
+				if (this.footerElementRef) {
+                                    let scrollPosition = this.getScrollElement()[this._scrollType];
+                                    let containerOffset = this.getElementsOffset();
+                                    let offset = Math.min(scrollPosition - viewport.padding - containerOffset + (this.footerElementRef.nativeElement.clientHeight*2) - this.contentElementRef.nativeElement.clientHeight, 0);
+                                    this.renderer.setStyle(this.footerElementRef.nativeElement, 'transform', `${this._translateDir}(${offset}px)`);
+                                    this.renderer.setStyle(this.footerElementRef.nativeElement, 'webkitTransform', `${this._translateDir}(${offset}px)`);
+                                }
 
 				const changeEventArg: IPageInfo = (startChanged || endChanged) ? {
 					startIndex: viewport.startIndex,
