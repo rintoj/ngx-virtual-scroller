@@ -668,7 +668,7 @@ export class VirtualScrollerComponent implements OnInit, OnChanges, OnDestroy {
 	protected _marginDir;
 	protected updateDirection(): void {
 		if (this.horizontal) {
-			this._invisiblePaddingProperty = 'scaleY';
+			this._invisiblePaddingProperty = 'scaleX';
 			this._childScrollDim = 'childWidth';
 			this._marginDir = 'margin-left';
 			this._offsetType = 'offsetLeft';
@@ -677,7 +677,7 @@ export class VirtualScrollerComponent implements OnInit, OnChanges, OnDestroy {
 			this._translateDir = 'translateX';
 		}
 		else {
-			this._invisiblePaddingProperty = 'scaleX';
+			this._invisiblePaddingProperty = 'scaleY';
 			this._childScrollDim = 'childHeight';
 			this._marginDir = 'margin-top';
 			this._offsetType = 'offsetTop';
@@ -797,7 +797,7 @@ export class VirtualScrollerComponent implements OnInit, OnChanges, OnDestroy {
 				this.previousViewPort = viewport;
 
 				if (scrollLengthChanged) {
-					this.renderer.setStyle(this.invisiblePaddingElementRef.nativeElement, "transform", this._invisiblePaddingProperty+`(${viewport.scrollLength}px)`);
+					this.renderer.setStyle(this.invisiblePaddingElementRef.nativeElement, "transform", this._invisiblePaddingProperty+`(${viewport.scrollLength})`);
 				}
 
 				if (paddingChanged) {
@@ -814,8 +814,8 @@ export class VirtualScrollerComponent implements OnInit, OnChanges, OnDestroy {
 					let scrollPosition = this.getScrollElement()[this._scrollType];
 					let containerOffset = this.getElementsOffset();
 					let offset = Math.max(scrollPosition - viewport.padding - containerOffset + this.headerElementRef.nativeElement.clientHeight, 0);
-					this.renderer.setStyle(this.headerElementRef.nativeElement, 'transform', `${this._translateDir}(${offset})`);
-					this.renderer.setStyle(this.headerElementRef.nativeElement, 'webkitTransform', `${this._translateDir}(${offset})`);
+					this.renderer.setStyle(this.headerElementRef.nativeElement, 'transform', `${this._translateDir}(${offset}px)`);
+					this.renderer.setStyle(this.headerElementRef.nativeElement, 'webkitTransform', `${this._translateDir}(${offset}px)`);
 				}
 
 				const changeEventArg: IPageInfo = (startChanged || endChanged) ? {
