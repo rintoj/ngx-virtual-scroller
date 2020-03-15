@@ -814,8 +814,8 @@ export class VirtualScrollerComponent implements OnInit, OnChanges, OnDestroy {
 					let scrollPosition = this.getScrollElement()[this._scrollType];
 					let containerOffset = this.getElementsOffset();
 					let offset = Math.max(scrollPosition - viewport.padding - containerOffset + this.headerElementRef.nativeElement.clientHeight, 0);
-					this.renderer.setStyle(this.headerElementRef.nativeElement, 'transform', `${this._translateDir}(${offset}px)`);
-					this.renderer.setStyle(this.headerElementRef.nativeElement, 'webkitTransform', `${this._translateDir}(${offset}px)`);
+					this.renderer.setStyle(this.headerElementRef.nativeElement, 'transform', `${this._translateDir}(${offset})`);
+					this.renderer.setStyle(this.headerElementRef.nativeElement, 'webkitTransform', `${this._translateDir}(${offset})`);
 				}
 
 				const changeEventArg: IPageInfo = (startChanged || endChanged) ? {
