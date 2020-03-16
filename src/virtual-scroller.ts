@@ -549,7 +549,7 @@ export class VirtualScrollerComponent implements OnInit, OnChanges, OnDestroy {
 			this.currentTween = undefined;
 		}
 
-		if (!animationMilliseconds) { // handles the `animationMilliseconds === 0` case
+		if (!animationMilliseconds) {
 			this.renderer.setProperty(scrollElement, this._scrollType, scrollPosition);
 			this.refresh_internal(false, animationCompletedCallback);
 			return;
@@ -668,8 +668,8 @@ export class VirtualScrollerComponent implements OnInit, OnChanges, OnDestroy {
 	protected _marginDir;
 	protected updateDirection(): void {
 		if (this.horizontal) {
-			this._invisiblePaddingProperty = 'scaleX';
 			this._childScrollDim = 'childWidth';
+			this._invisiblePaddingProperty = 'scaleX';
 			this._marginDir = 'margin-left';
 			this._offsetType = 'offsetLeft';
 			this._pageOffsetType = 'pageXOffset';
@@ -677,8 +677,8 @@ export class VirtualScrollerComponent implements OnInit, OnChanges, OnDestroy {
 			this._translateDir = 'translateX';
 		}
 		else {
-			this._invisiblePaddingProperty = 'scaleY';
 			this._childScrollDim = 'childHeight';
+			this._invisiblePaddingProperty = 'scaleY';
 			this._marginDir = 'margin-top';
 			this._offsetType = 'offsetTop';
 			this._pageOffsetType = 'pageYOffset';
@@ -797,7 +797,8 @@ export class VirtualScrollerComponent implements OnInit, OnChanges, OnDestroy {
 				this.previousViewPort = viewport;
 
 				if (scrollLengthChanged) {
-					this.renderer.setStyle(this.invisiblePaddingElementRef.nativeElement, "transform", this._invisiblePaddingProperty+`(${viewport.scrollLength})`);
+ 					this.renderer.setStyle(this.invisiblePaddingElementRef.nativeElement, 'transform', `${this._invisiblePaddingProperty}(${viewport.scrollLength})`);
+ 					this.renderer.setStyle(this.invisiblePaddingElementRef.nativeElement, 'webkitTransform', `${this._invisiblePaddingProperty}(${viewport.scrollLength})`);
 				}
 
 				if (paddingChanged) {

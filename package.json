@@ -1,7 +1,7 @@
 {
   "$schema": "./node_modules/ng-packagr/package.schema.json",
   "name": "ngx-virtual-scroller",
-  "version": "4.0.2",
+  "version": "4.0.3",
   "description": "Angular module for virtual -infinite- list. Supports horizontal/vertical, variable heights, & multi-column",
   "main": "dist/virtual-scroller.js",
   "types": "dist/virtual-scroller.d.ts",
@@ -13,7 +13,6 @@
     "build:all": "npm run build && npm run build:docs",
     "lint": "tslint src/**/*.ts",
     "debug-demo": "npm run build:all && cd demo && npm run start",
-    "test": "echo \"Not implemented\" && exit 1",
     "ngc": "ngc",
     "update-npm-versions": "npm-check --skip-unused --update-all --save-exact --ignore typescript --ignore @tweenjs/tween.js --ignore @types/tween.js",
     "prepublishOnly": "PLEASE RUN \"npm run prod-publish\" NOT \"npm publish\"",
