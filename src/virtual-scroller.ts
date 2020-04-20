@@ -214,11 +214,11 @@ export class VirtualScrollerComponent implements OnInit, OnChanges, OnDestroy {
 		this.minMeasuredChildWidth = undefined;
 		this.minMeasuredChildHeight = undefined;
 	}
-  @Input()
-  public set RTL(rtl: boolean){
-	 console.warn('Deprecated input, please use [reverse]');
-	 this.reverse = rtl;
-  }
+	@Input()
+	public set RTL(rtl: boolean){
+        console.warn('Deprecated input, please use [reverse]');
+        this.reverse = rtl;
+	}
 
 	@Input()
 	public reverse: boolean = false;
