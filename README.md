@@ -183,7 +183,7 @@ In _alphabetical_ order:
 | modifyOverflowStyleOfParentScroll  | `boolean` true    | Set to false if you want to prevent _ngx-virtual-scroller_ from automatically changing the overflow style setting of the parentScroll element to 'scroll'.
 | parentScroll                       | Element / Window  | Element (or window), which will have scrollbar. This element must be one of the parents of virtual-scroller
 | refresh                            | `Function`        | `()=>void` - to force re-rendering of current items in viewport.
-| RTL                                | `boolean` false   | Set to `true` if you want horizontal slider to support right to left script (RTL).
+| reverse                            | `boolean` false   | Set to `true` if you want to reverse the slide direction, in case of horizontal slider to support right to left script (RTL) and in case of vertical slider to support chat style scroll down to up.
 | resizeBypassRefreshThreshold       | `number` 5        | How many pixels to ignore during resize check if _virtual-scroller_ (or parentScroll) are only resized by a very small amount.
 | scrollAnimationTime                | `number` 750      | The time in milliseconds for the scroll animation to run for. 0 will completely disable the tween/animation.
 | scrollDebounceTime                 | `number` 0        | Milliseconds to delay refreshing viewport if user is scrolling quickly (for performance reasons).
