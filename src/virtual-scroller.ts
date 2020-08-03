@@ -1090,9 +1090,9 @@ export class VirtualScrollerComponent implements OnInit, OnChanges, OnDestroy {
 			if (this.calculateDimensionsAutomatically) {
 				if (this.horizontal) {
 					this.scrollContainerHeight = undefined;
-					this.scrollContainerWidth = defaultChildWidth * this._items?.length / itemsPerWrapGroup ?? 0;
+					this.scrollContainerWidth = defaultChildWidth * Math.ceil(this._items?.length / itemsPerWrapGroup) ?? 0;
 				} else {
-					this.scrollContainerHeight = defaultChildHeight * this._items?.length / itemsPerWrapGroup ?? 0;
+					this.scrollContainerHeight = defaultChildHeight * Math.ceil(this._items?.length / itemsPerWrapGroup) ?? 0;
 					this.scrollContainerWidth = undefined;
 				}
 			}
