@@ -1,13 +1,11 @@
-import { Component, Input } from "@angular/core";
-import { ListItem, ListItemComponent } from "./list-item.component";
-import { Chance } from "chance";
+import { Component, Input } from '@angular/core';
+import { ListItem, ListItemComponent } from './list-item.component';
+import { Chance } from 'chance';
 
 @Component({
-  template: "",
+  template: '',
 })
-export class BaseList {
-  protected _items: ListItem[];
-
+export class BaseListComponent {
   @Input()
   public get items(): ListItem[] {
     return this._items;
@@ -17,38 +15,43 @@ export class BaseList {
     this.setToFullList();
   }
 
+  constructor() {
+    this.setToFullList();
+  }
+
+  public static index = 0;
+  public static chance = new Chance(0); // 0 = seed for repeatability
+  protected _items: ListItem[];
+
   public ListItemComponent = ListItemComponent;
   public randomSize = false;
 
   public filteredList: ListItem[];
-
-  public static index = 0;
-  public static chance = new Chance(0); // 0 = seed for repeatability
   public static generateRandomItem(): ListItem {
     return {
-      id: BaseList.chance.guid(),
-      index: BaseList.index++,
-      name: BaseList.chance.name(),
-      gender: BaseList.chance.gender(),
-      age: BaseList.chance.age(),
-      email: BaseList.chance.email(),
-      phone: BaseList.chance.phone(),
+      id: BaseListComponent.chance.guid(),
+      index: BaseListComponent.index++,
+      name: BaseListComponent.chance.name(),
+      gender: BaseListComponent.chance.gender(),
+      age: BaseListComponent.chance.age(),
+      email: BaseListComponent.chance.email(),
+      phone: BaseListComponent.chance.phone(),
       address:
-        BaseList.chance.address() +
-        ", " +
-        BaseList.chance.city() +
-        ", " +
-        BaseList.chance.state() +
-        ", " +
-        BaseList.chance.zip(),
-      company: BaseList.chance.company(),
+        BaseListComponent.chance.address() +
+        ', ' +
+        BaseListComponent.chance.city() +
+        ', ' +
+        BaseListComponent.chance.state() +
+        ', ' +
+        BaseListComponent.chance.zip(),
+      company: BaseListComponent.chance.company(),
     };
   }
 
   public static generateMultipleRandomItems(count: number): ListItem[] {
-    let result = Array(count);
+    const result = Array(count);
     for (let i = 0; i < count; ++i) {
-      result[i] = BaseList.generateRandomItem();
+      result[i] = BaseListComponent.generateRandomItem();
     }
 
     return result;
@@ -57,14 +60,14 @@ export class BaseList {
   public prependItems(): void {
     this.filteredList.unshift.apply(
       this.filteredList,
-      BaseList.generateMultipleRandomItems(10)
+      BaseListComponent.generateMultipleRandomItems(10)
     );
   }
 
   public appendItems(): void {
     this.filteredList.push.apply(
       this.filteredList,
-      BaseList.generateMultipleRandomItems(10)
+      BaseListComponent.generateMultipleRandomItems(10)
     );
   }
 
@@ -90,9 +93,5 @@ export class BaseList {
 
   public setToFullList() {
     this.filteredList = [].concat(this.items || []) || [];
-  }
-
-  constructor() {
-    this.setToFullList();
   }
 }
