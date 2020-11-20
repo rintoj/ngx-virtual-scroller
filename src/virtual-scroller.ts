@@ -208,6 +208,9 @@ export class VirtualScrollerComponent implements OnInit, OnChanges, OnDestroy {
 	}
 
 	@Input()
+	public calculateDimensionsAutomatically = false;
+
+	@Input()
 	public RTL: boolean = false;
 
 	@Input()
@@ -798,7 +801,12 @@ export class VirtualScrollerComponent implements OnInit, OnChanges, OnDestroy {
 
 				if (scrollLengthChanged) {
  					this.renderer.setStyle(this.invisiblePaddingElementRef.nativeElement, 'transform', `${this._invisiblePaddingProperty}(${viewport.scrollLength})`);
- 					this.renderer.setStyle(this.invisiblePaddingElementRef.nativeElement, 'webkitTransform', `${this._invisiblePaddingProperty}(${viewport.scrollLength})`);
+					this.renderer.setStyle(this.invisiblePaddingElementRef.nativeElement, 'webkitTransform', `${this._invisiblePaddingProperty}(${viewport.scrollLength})`);
+
+					if (this.calculateDimensionsAutomatically) {
+						this.renderer.setStyle(this.element.nativeElement, 'height', `${this.scrollContainerHeight !== undefined ? this.scrollContainerHeight + 'px' : 'unset'}`);
+						this.renderer.setStyle(this.element.nativeElement, 'width', `${this.scrollContainerWidth !== undefined ? this.scrollContainerWidth + 'px' : 'unset'}`);
+					}
 				}
 
 				if (paddingChanged) {
@@ -989,6 +997,9 @@ export class VirtualScrollerComponent implements OnInit, OnChanges, OnDestroy {
 
 	protected wrapGroupDimensions: WrapGroupDimensions;
 
+  protected scrollContainerHeight = undefined;
+  protected scrollContainerWidth = undefined;
+
 	protected resetWrapGroupDimensions(): void {
 		const oldWrapGroupDimensions = this.wrapGroupDimensions;
 		this.invalidateAllCachedMeasurements();
@@ -1075,6 +1086,16 @@ export class VirtualScrollerComponent implements OnInit, OnChanges, OnDestroy {
 			let itemsPerRow = Math.max(Math.ceil(viewportWidth / defaultChildWidth), 1);
 			let itemsPerCol = Math.max(Math.ceil(viewportHeight / defaultChildHeight), 1);
 			wrapGroupsPerPage = this.horizontal ? itemsPerRow : itemsPerCol;
+
+			if (this.calculateDimensionsAutomatically) {
+				if (this.horizontal) {
+					this.scrollContainerHeight = undefined;
+					this.scrollContainerWidth = defaultChildWidth * Math.ceil(this._items?.length / itemsPerWrapGroup) ?? 0;
+				} else {
+					this.scrollContainerHeight = defaultChildHeight * Math.ceil(this._items?.length / itemsPerWrapGroup) ?? 0;
+					this.scrollContainerWidth = undefined;
+				}
+			}
 		} else {
 			let scrollOffset = scrollElement[this._scrollType] - (this.previousViewPort ? this.previousViewPort.padding : 0);
 
