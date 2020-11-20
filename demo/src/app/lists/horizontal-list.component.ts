@@ -35,13 +35,13 @@ import { BaseList } from './base-list';
     <virtual-scroller #scroll
       [enableUnequalChildrenSizes]="randomSize"
       [horizontal]="true"
-      [items]="filteredList" [RTL] = "rtl">
-      
+      [items]="filteredList" [reverse] = "reverse">
+
       <list-item [randomWidth]="randomSize" *ngFor="let item of scroll.viewPortItems" class="inline" [item]="item"> </list-item>
     </virtual-scroller>
   `,
   styleUrls: ['./horizontal-list.scss']
 })
 export class HorizontalListComponent extends BaseList {
-  @Input() rtl:boolean;
+  @Input() reverse:boolean;
 }

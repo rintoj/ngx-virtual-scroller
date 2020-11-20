@@ -102,7 +102,7 @@ export interface IViewport extends IPageInfo {
 		'[class.horizontal]': "horizontal",
 		'[class.vertical]': "!horizontal",
 		'[class.selfScroll]': "!parentScroll",
-		'[class.rtl]': "RTL"
+		'[class.reverse]': "reverse"
 	},
 	styles: [`
     :host {
@@ -116,7 +116,7 @@ export interface IViewport extends IPageInfo {
       overflow-x: auto;
 		}
 
-		:host.horizontal.selfScroll.rtl {
+		:host.horizontal.selfScroll.reverse {
 			transform: scaleX(-1);
 		}
 
@@ -124,6 +124,10 @@ export interface IViewport extends IPageInfo {
       overflow-y: auto;
       overflow-x: visible;
 		}
+
+    :host.vertical.selfScroll.reverse {
+        transform: scaleY(-1);
+    }
 
     .scrollable-content {
       top: 0;
@@ -153,9 +157,13 @@ export interface IViewport extends IPageInfo {
 			white-space: initial;
 		}
 
-		:host.horizontal.rtl .scrollable-content ::ng-deep > * {
+		:host.horizontal.reverse .scrollable-content ::ng-deep > * {
 			transform:scaleX(-1);
 		}
+
+    :host.vertical.reverse .scrollable-content ::ng-deep > * {
+      transform:scaleY(-1);
+    }
 
     .total-padding {
       position: absolute;
@@ -206,9 +214,14 @@ export class VirtualScrollerComponent implements OnInit, OnChanges, OnDestroy {
 		this.minMeasuredChildWidth = undefined;
 		this.minMeasuredChildHeight = undefined;
 	}
+	@Input()
+	public set RTL(rtl: boolean){
+        console.warn('Deprecated input, please use [reverse]');
+        this.reverse = rtl;
+	}
 
 	@Input()
-	public RTL: boolean = false;
+	public reverse: boolean = false;
 
 	@Input()
 	public useMarginInsteadOfTranslate: boolean = false;

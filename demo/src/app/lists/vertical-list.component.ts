@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import {Component, Input} from '@angular/core';
 import { ListItem } from './list-item.component';
 import { BaseList } from './base-list';
 
@@ -28,7 +28,9 @@ import { BaseList } from './base-list';
 
     <virtual-scroller #scroll
       [enableUnequalChildrenSizes]="randomSize"
-      [items]="filteredList">
+      [items]="filteredList"
+      [reverse]="reverse"
+    >
 
       <list-item [randomHeight]="randomSize" *ngFor="let item of scroll.viewPortItems" [item]="item"> </list-item>
 
@@ -36,4 +38,5 @@ import { BaseList } from './base-list';
   `
 })
 export class VerticalListComponent extends BaseList {
+  @Input() reverse:boolean;
 }
