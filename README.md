@@ -117,7 +117,7 @@ export class AppModule { }
 
 **Step 3:** Wrap _virtual-scroller_ tag around elements;
 
-```ts
+```html
 <virtual-scroller #scroll [items]="items">
     <my-custom-component *ngFor="let item of scroll.viewPortItems">
     </my-custom-component>
