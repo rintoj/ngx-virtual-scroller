@@ -59,12 +59,12 @@
   },
   "homepage": "https://github.com/rintoj/ngx-virtual-scroller#readme",
   "peerDependencies": {
-    "@angular/core": ">=10.0.0",
-    "tslib": "^2.0.0"
+    "@angular/core": ">=10.0.0"
   },
   "dependencies": {
     "@tweenjs/tween.js": "17.4.0",
-    "@types/tween.js": "17.2.0"
+    "@types/tween.js": "17.2.0",
+    "tslib": "^2.0.1"
   },
   "devDependencies": {
     "@angular/cli": "10.1.0",
@@ -87,7 +87,6 @@
     "replace-x": "1.7.2",
     "rimraf": "3.0.2",
     "rxjs": "6.6.3",
-    "tslib": "2.0.1",
     "tslint": "6.1.3",
     "typescript": "4.0.2",
     "zone.js": "0.11.1"
