@@ -82,11 +82,11 @@ export interface IPageInfo {
 	scrollStartPosition: number;
 	startIndex: number;
 	startIndexWithBuffer: number;
+	scrollLength: number;
 }
 
 export interface IViewport extends IPageInfo {
 	padding: number;
-	scrollLength: number;
 }
 
 @Component({
@@ -185,7 +185,8 @@ export class VirtualScrollerComponent implements OnInit, OnChanges, OnDestroy {
 			scrollEndPosition: pageInfo.scrollEndPosition || 0,
 			maxScrollPosition: pageInfo.maxScrollPosition || 0,
 			startIndexWithBuffer: pageInfo.startIndexWithBuffer || 0,
-			endIndexWithBuffer: pageInfo.endIndexWithBuffer || 0
+			endIndexWithBuffer: pageInfo.endIndexWithBuffer || 0,
+			scrollLength: pageInfo.scrollLength || 0,
 		};
 	}
 
@@ -826,7 +827,8 @@ export class VirtualScrollerComponent implements OnInit, OnChanges, OnDestroy {
 					scrollEndPosition: viewport.scrollEndPosition,
 					startIndexWithBuffer: viewport.startIndexWithBuffer,
 					endIndexWithBuffer: viewport.endIndexWithBuffer,
-					maxScrollPosition: viewport.maxScrollPosition
+					maxScrollPosition: viewport.maxScrollPosition,
+					scrollLength: viewport.scrollLength
 				} : undefined;
 
 
@@ -1300,7 +1302,8 @@ export class VirtualScrollerComponent implements OnInit, OnChanges, OnDestroy {
 			endIndexWithBuffer: endIndexWithBuffer,
 			scrollStartPosition: scrollPosition,
 			scrollEndPosition: scrollPosition + dimensions.viewportLength,
-			maxScrollPosition: dimensions.maxScrollPosition
+			maxScrollPosition: dimensions.maxScrollPosition,
+			scrollLength: dimensions.scrollLength,
 		};
 	}
 
