@@ -81,7 +81,7 @@
     "codelyzer": "5.2.1",
     "copyfiles": "2.2.0",
     "core-js": "3.6.4",
-    "ng-packagr": "9.0.2",
+    "ng-packagr": "10.1.1",
     "npm-check": "5.9.0",
     "replace": "1.1.5",
     "replace-x": "1.7.2",
