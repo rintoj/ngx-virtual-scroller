@@ -300,7 +300,8 @@ export class VirtualScrollerComponent implements OnInit, OnChanges, OnDestroy, D
         protected readonly renderer: Renderer2,
         protected readonly zone: NgZone,
         protected changeDetectorRef: ChangeDetectorRef,
-        @Inject(PLATFORM_ID) platformId: object,
+        // tslint:disable-next-line:ban-types
+        @Inject(PLATFORM_ID) platformId: Object,
         @Optional() @Inject('virtual-scroller-default-options')
             options: VirtualScrollerDefaultOptions
     ) {
