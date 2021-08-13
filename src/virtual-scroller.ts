@@ -795,13 +795,13 @@ export class VirtualScrollerComponent implements OnInit, OnChanges, OnDestroy, D
                     const oldStartItemIndex = this.items.findIndex(x => this.compareItems(oldStartItem, x));
 
                     if (oldStartItemIndex > this.previousViewPort.startIndex) {
-						let itemOrderChanged = false;
-						for (let i = 1; i < this.viewPortItems.length; ++i) {
-							if (!this.compareItems(this.items[oldStartItemIndex + i], oldViewPortItems[i])) {
-								itemOrderChanged = true;
-								break;
-							}
-						}
+                        let itemOrderChanged = false;
+                        for (let i = 1, l = this.viewPortItems.length - offset; i < l; ++i) {
+                            if (!this.compareItems(this.items[oldStartItemIndex + i], oldViewPortItems[offset + i])) {
+                                itemOrderChanged = true;
+                                break;
+                            }
+                        }
 
                         if (!itemOrderChanged) {
                             this.scrollToPosition(this.previousViewPort.scrollStartPosition + scrollLengthDelta,
