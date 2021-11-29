@@ -1,3 +1,5 @@
+
+<!--
 # Sponsors
 
 <table>
@@ -12,6 +14,8 @@
     </tr>
   </tbody>
 </table>
+
+-->
 
 # ngx-virtual-scroller
 
@@ -55,6 +59,7 @@ This method is effective because the number of DOM elements are always constant 
  - Support for elements with different sizes
  - Added ability to put other elements inside of scroll (Need to wrap list itself in @ContentChild('container'))
  - Added ability to use any parent with scrollbar instead of this element (@Input() parentScroll)
+ - Angular 13 Support 
 
 ## Demo
 

@@ -1,7 +1,12 @@
-import { Input } from '@angular/core'; 
+import {Component, Input} from '@angular/core';
 import { ListItem, ListItemComponent } from './list-item.component';
-import { Chance } from 'chance';
+//import { Chance } from 'chance';
 
+@Component({
+  template: `
+  `,
+  selector: ""
+})
 export class BaseList {
   protected _items: ListItem[];
 
@@ -22,38 +27,38 @@ export class BaseList {
   public filteredList: ListItem[];
 
   public static index = 0;
-  public static chance = new Chance(0); // 0 = seed for repeatability
+  public static chance: any = { guid: "1", name: "2", gender: "M" }; //new Chance(0); // 0 = seed for repeatability
   public static generateRandomItem(): ListItem {
 	  return {
-		  id: BaseList.chance.guid(),
+		  id: BaseList.chance.guid,
 		  index: BaseList.index++,
-		  name: BaseList.chance.name(),
-		  gender: BaseList.chance.gender(),
-		  age: BaseList.chance.age(),
-		  email: BaseList.chance.email(),
-		  phone: BaseList.chance.phone(),
-		  address: BaseList.chance.address() + ', ' + BaseList.chance.city() + ', ' + BaseList.chance.state() + ', ' + BaseList.chance.zip(),
-		  company: BaseList.chance.company()
+		  name: BaseList.chance.name,
+		  gender: BaseList.chance.gender,
+		  age: BaseList.chance.age,
+		  email: BaseList.chance.email,
+		  phone: BaseList.chance.phone,
+		  address: BaseList.chance.address, // + ', ' + BaseList.chance.city() + ', ' + BaseList.chance.state() + ', ' + BaseList.chance.zip(),
+		  company: BaseList.chance.company
 	  };
   }
-  
+
   public static generateMultipleRandomItems(count: number): ListItem[] {
 	  let result = Array(count);
   	  for (let i = 0; i < count; ++i) {
 		  result[i] = BaseList.generateRandomItem();
 	  }
-	  
+
 	  return result;
   }
-  
+
   public prependItems(): void {
 	  this.filteredList.unshift.apply(this.filteredList, BaseList.generateMultipleRandomItems(10));
   }
-  
+
   public appendItems(): void {
 	  this.filteredList.push.apply(this.filteredList, BaseList.generateMultipleRandomItems(10));
   }
-    
+
   public reduceListToEmpty() {
     this.filteredList = [];
   }

@@ -619,8 +619,8 @@ export class VirtualScrollerComponent implements OnInit, OnChanges, OnDestroy {
 		this.horizontal = false;
 		this.resetWrapGroupDimensions();
 	}
-
-	protected getElementSize(element: HTMLElement) : ClientRect {
+	
+	protected getElementSize(element: HTMLElement) : any {
 		let result = element.getBoundingClientRect();
 		let styles = getComputedStyle(element);
 		let marginTop = parseInt(styles['margin-top'], 10) || 0;
@@ -735,7 +735,7 @@ export class VirtualScrollerComponent implements OnInit, OnChanges, OnDestroy {
 
 	protected padding: number = 0;
 	protected previousViewPort: IViewport = <any>{};
-	protected currentTween: tween.Tween;
+	protected currentTween: tween.Tween<any>;
 	protected cachedItemsLength: number;
 
 	protected disposeScrollHandler: () => void | undefined;

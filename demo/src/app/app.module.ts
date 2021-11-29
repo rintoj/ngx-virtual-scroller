@@ -2,7 +2,6 @@ import { AppComponent } from './app.component';
 import { RouterModule, Router } from '@angular/router';
 import { BrowserModule } from '@angular/platform-browser';
 import { FormsModule } from '@angular/forms';
-import { HttpModule } from '@angular/http';
 import { NgModule } from '@angular/core';
 
 import { AboutComponent } from './routes/about.component';
@@ -18,7 +17,9 @@ import { MultiColListComponent } from './lists/multi-col-list.component';
 import { TableListComponent } from './lists/table-list.component';
 import { VerticalListComponent } from './lists/vertical-list.component';
 
-import { VirtualScrollerModule, VirtualScrollerDefaultOptions } from 'ngx-virtual-scroller';
+//import { VirtualScrollerModule, VirtualScrollerDefaultOptions } from 'ngx-virtual-scroller';
+import {HttpClientModule} from "@angular/common/http";
+import {VirtualScrollerModule} from "../../../src/virtual-scroller";
 
 const customDefaultOptions = {
 	scrollThrottlingTime: 0,
@@ -60,7 +61,7 @@ const customDefaultOptions = {
     ),
     BrowserModule,
     FormsModule,
-    HttpModule,
+    HttpClientModule,
     VirtualScrollerModule
   ],
   providers: [
