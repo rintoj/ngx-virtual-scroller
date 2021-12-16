@@ -1,7 +1,8 @@
-import { Input } from '@angular/core'; 
+import {Component, Input} from '@angular/core';
 import { ListItem, ListItemComponent } from './list-item.component';
 import { Chance } from 'chance';
 
+@Component({selector: 'base-list', template: '', styles: []})
 export class BaseList {
   protected _items: ListItem[];
 
@@ -36,24 +37,24 @@ export class BaseList {
 		  company: BaseList.chance.company()
 	  };
   }
-  
+
   public static generateMultipleRandomItems(count: number): ListItem[] {
 	  let result = Array(count);
   	  for (let i = 0; i < count; ++i) {
 		  result[i] = BaseList.generateRandomItem();
 	  }
-	  
+
 	  return result;
   }
-  
+
   public prependItems(): void {
 	  this.filteredList.unshift.apply(this.filteredList, BaseList.generateMultipleRandomItems(10));
   }
-  
+
   public appendItems(): void {
 	  this.filteredList.push.apply(this.filteredList, BaseList.generateMultipleRandomItems(10));
   }
-    
+
   public reduceListToEmpty() {
     this.filteredList = [];
   }

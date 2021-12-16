@@ -8,3 +8,4 @@ node_modules/
 ngx-virtual-scroller-*.tgz
 !docs/**/*
 .idea/
+**/.angular

@@ -628,6 +628,10 @@ export class VirtualScrollerComponent implements OnInit, OnChanges, OnDestroy {
 		let marginLeft = parseInt(styles['margin-left'], 10) || 0;
 		let marginRight = parseInt(styles['margin-right'], 10) || 0;
 
+		/*
+		 * As of typescript 4.5.4 from Angular v13 update this type is missing `x`, `y`, and `toJSON` from the `ClientRect` type.
+		 * Casting as any as to not change the functionality and provide properties that were not there before.
+		 */
 		return {
 			top: result.top + marginTop,
 			bottom: result.bottom + marginBottom,
@@ -635,7 +639,7 @@ export class VirtualScrollerComponent implements OnInit, OnChanges, OnDestroy {
 			right: result.right + marginRight,
 			width: result.width + marginLeft + marginRight,
 			height: result.height + marginTop + marginBottom
-		};
+		} as any;
 	}
 
 	protected previousScrollBoundingRect: ClientRect;
