@@ -21,12 +21,9 @@
   },
   "ngPackage": {
     "lib": {
-      "entryFile": "src/virtual-scroller.ts",
-      "umdModuleIds": {
-        "@tweenjs/tween.js": "TWEEN"
-      }
+      "entryFile": "src/virtual-scroller.ts"
     },
-    "whitelistedNonPeerDependencies": [
+    "allowedNonPeerDependencies": [
       "@tweenjs/tween.js",
       "@types/tween.js"
     ]
@@ -58,30 +55,28 @@
     "url": "https://github.com/rintoj/ngx-virtual-scroller/issues"
   },
   "homepage": "https://github.com/rintoj/ngx-virtual-scroller#readme",
-  "peerDependencies": {
-    "@angular/core": ">=6.0.0"
-  },
+  "peerDependencies": {},
   "dependencies": {
     "@tweenjs/tween.js": "17.4.0",
     "@types/tween.js": "17.2.0"
   },
   "devDependencies": {
-    "@angular/cli": "9.0.3",
-    "@angular/common": "9.0.2",
-    "@angular/compiler": "9.0.2",
-    "@angular/compiler-cli": "9.0.2",
-    "@angular/core": "9.0.2",
-    "@angular/forms": "9.0.2",
-    "@angular/http": "7.2.16",
-    "@angular/language-service": "9.0.2",
-    "@angular/platform-browser": "9.0.2",
-    "@angular/platform-browser-dynamic": "9.0.2",
-    "@angular/router": "9.0.2",
+    "@angular-devkit/build-angular": "^13.1.2",
+    "@angular/cli": "13.1.2",
+    "@angular/common": "13.1.1",
+    "@angular/compiler": "13.1.1",
+    "@angular/compiler-cli": "13.1.1",
+    "@angular/core": "13.1.1",
+    "@angular/forms": "13.1.1",
+    "@angular/language-service": "13.1.1",
+    "@angular/platform-browser": "13.1.1",
+    "@angular/platform-browser-dynamic": "13.1.1",
+    "@angular/router": "13.1.1",
     "@types/node": "13.7.6",
     "codelyzer": "5.2.1",
     "copyfiles": "2.2.0",
-    "core-js": "3.6.4",
-    "ng-packagr": "9.0.2",
+    "core-js": "3.20.0",
+    "ng-packagr": "13.1.2",
     "npm-check": "5.9.0",
     "replace": "1.1.5",
     "replace-x": "1.7.2",
@@ -89,7 +84,7 @@
     "rxjs": "6.5.4",
     "tslib": "1.11.0",
     "tslint": "6.0.0",
-    "typescript": "3.7.5",
-    "zone.js": "0.10.2"
+    "typescript": "4.5.4",
+    "zone.js": "0.11.4"
   }
 }
