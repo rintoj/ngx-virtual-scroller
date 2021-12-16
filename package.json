@@ -58,30 +58,27 @@
     "url": "https://github.com/rintoj/ngx-virtual-scroller/issues"
   },
   "homepage": "https://github.com/rintoj/ngx-virtual-scroller#readme",
-  "peerDependencies": {
-    "@angular/core": ">=6.0.0"
-  },
+  "peerDependencies": {},
   "dependencies": {
     "@tweenjs/tween.js": "17.4.0",
     "@types/tween.js": "17.2.0"
   },
   "devDependencies": {
-    "@angular/cli": "9.0.3",
-    "@angular/common": "9.0.2",
-    "@angular/compiler": "9.0.2",
-    "@angular/compiler-cli": "9.0.2",
-    "@angular/core": "9.0.2",
-    "@angular/forms": "9.0.2",
-    "@angular/http": "7.2.16",
-    "@angular/language-service": "9.0.2",
-    "@angular/platform-browser": "9.0.2",
-    "@angular/platform-browser-dynamic": "9.0.2",
-    "@angular/router": "9.0.2",
+    "@angular/cli": "10.2.4",
+    "@angular/common": "10.2.5",
+    "@angular/compiler": "10.2.5",
+    "@angular/compiler-cli": "10.2.5",
+    "@angular/core": "10.2.5",
+    "@angular/forms": "10.2.5",
+    "@angular/language-service": "10.2.5",
+    "@angular/platform-browser": "10.2.5",
+    "@angular/platform-browser-dynamic": "10.2.5",
+    "@angular/router": "10.2.5",
     "@types/node": "13.7.6",
     "codelyzer": "5.2.1",
     "copyfiles": "2.2.0",
     "core-js": "3.6.4",
-    "ng-packagr": "9.0.2",
+    "ng-packagr": "10.1.2",
     "npm-check": "5.9.0",
     "replace": "1.1.5",
     "replace-x": "1.7.2",
@@ -89,7 +86,7 @@
     "rxjs": "6.5.4",
     "tslib": "1.11.0",
     "tslint": "6.0.0",
-    "typescript": "3.7.5",
-    "zone.js": "0.10.2"
+    "typescript": "4.0.8",
+    "zone.js": "0.10.3"
   }
 }

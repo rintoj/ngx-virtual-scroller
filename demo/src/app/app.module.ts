@@ -2,8 +2,8 @@ import { AppComponent } from './app.component';
 import { RouterModule, Router } from '@angular/router';
 import { BrowserModule } from '@angular/platform-browser';
 import { FormsModule } from '@angular/forms';
-import { HttpModule } from '@angular/http';
 import { NgModule } from '@angular/core';
+import { HttpClientModule } from '@angular/common/http';
 
 import { AboutComponent } from './routes/about.component';
 import { DemoComponent } from './routes/demo.component';
@@ -60,7 +60,7 @@ const customDefaultOptions = {
     ),
     BrowserModule,
     FormsModule,
-    HttpModule,
+    HttpClientModule,
     VirtualScrollerModule
   ],
   providers: [
