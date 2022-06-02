@@ -70,7 +70,7 @@
     "@angular/common": "9.0.2",
     "@angular/compiler": "9.0.2",
     "@angular/compiler-cli": "9.0.2",
-    "@angular/core": "9.0.2",
+    "@angular/core": "11.0.5",
     "@angular/forms": "9.0.2",
     "@angular/http": "7.2.16",
     "@angular/language-service": "9.0.2",
