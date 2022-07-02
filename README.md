@@ -21,8 +21,6 @@
 
 Virtual Scroll displays a virtual, "infinite" list. Supports horizontal/vertical, variable heights, & multi-column.
 
-## Renamed from `angular2-virtual-scroll` to `ngx-virtual-scroller`. Please update your _package.json_
-
 ## About
 
 This module displays a small subset of records just enough to fill the viewport and uses the same DOM elements as the user scrolls.

@@ -1,35 +1,38 @@
+/* To learn more about this file see: https://angular.io/config/tsconfig. */
 {
+  "compileOnSave": false,
   "compilerOptions": {
-	"baseUrl": "./src",
-    "rootDir": "./src",
-    "outDir": "./dist",
+    "baseUrl": "./",
+    "outDir": "./dist/out-tsc",
+    "forceConsistentCasingInFileNames": true,
+    "strict": true,
+    "noImplicitOverride": true,
+    "noPropertyAccessFromIndexSignature": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
     "sourceMap": true,
-    "declaration": true,
-    "module": "ES2015",
-    "moduleResolution": "node",
-    "emitDecoratorMetadata": true,
+    "paths": {
+      "ngx-virtual-scroller": [
+        "dist/ngx-virtual-scroller/ngx-virtual-scroller",
+        "dist/ngx-virtual-scroller"
+      ]
+    },
+    "declaration": false,
+    "downlevelIteration": true,
     "experimentalDecorators": true,
+    "moduleResolution": "node",
     "importHelpers": true,
-    "target": "es5",
-    "allowSyntheticDefaultImports": true,
-    "strictNullChecks": false,
+    "target": "es2020",
+    "module": "es2020",
     "lib": [
-      "es2018",
+      "es2020",
       "dom"
-    ],
-    "types": [
-      "node"
     ]
   },
-  "exclude": [
-    "node_modules",
-    "demo",
-    "dist",
-    "compiled"
-  ],
-  "compileOnSave": false,
-  "buildOnSave": false,
   "angularCompilerOptions": {
-    "genDir": "compiled"
+    "enableI18nLegacyMessageIdFormat": false,
+    "strictInjectionParameters": true,
+    "strictInputAccessModifiers": true,
+    "strictTemplates": true
   }
 }
