@@ -18,7 +18,7 @@
     "ngc": "ngc",
     "update-npm-versions": "npm-check --skip-unused --update-all --save-exact --ignore typescript --ignore @tweenjs/tween.js --ignore @types/tween.js",
     "___prepublishOnly": "PLEASE RUN \"npm run prod-publish\" NOT \"npm publish\"",
-    "prod-publish": "npm run build:all2 && npm publish --access=public ./dist",
+    "prod-publish": "npm run build:all2 && npm publish --access=public ./dist/ngx-virtual-scroller",
     "publish-test": "npm pack ./dist"
   },
   "private": true,
