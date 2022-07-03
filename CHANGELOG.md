@@ -1,3 +1,9 @@
+# v14.0.2
+
+* Angular 14 Support
+* Build with Angular 14 CLI Layout
+
+
 # v4.0.3
 
 * Support for 1000000+ items
