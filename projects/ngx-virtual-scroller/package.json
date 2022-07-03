@@ -1,11 +1,42 @@
 {
   "name": "@iharbeck/ngx-virtual-scroller",
-  "version": "14.0.1",
+  "version": "14.0.2",
   "peerDependencies": {
     "@angular/common": "^14.0.0",
-    "@angular/core": "^14.0.0"
+    "@angular/core": "^14.0.0",
+    "@tweenjs/tween.js": "^18.6.4"
   },
   "dependencies": {
     "tslib": "^2.3.0"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/iharbeck/ngx-virtual-scroller.git"
+  },
+  "keywords": [
+    "virtual scroll",
+    "scroll",
+    "ngx",
+    "angular",
+    "angular 14"
+  ],
+  "contributors": [
+    {
+      "name": "Rinto Jose"
+    },
+    {
+      "name": "Devin Garner"
+    },
+    {
+      "name": "Pavel Kukushkin"
+    },
+    {
+      "name" : "Ingo Harbeck"
+    }
+  ],
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/iharbeck/ngx-virtual-scroller/issues"
+  },
+  "homepage": "https://github.com/iharbeck/ngx-virtual-scroller#readme"
 }
