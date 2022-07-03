@@ -1,6 +1,6 @@
 {
   "name": "@iharbeck/ngx-virtual-scroller",
-  "version": "14.0.3",
+  "version": "14.0.4",
   "peerDependencies": {
     "@angular/common": "^14.0.0",
     "@angular/core": "^14.0.0",
