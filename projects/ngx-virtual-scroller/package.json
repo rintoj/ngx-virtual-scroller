@@ -1,13 +1,15 @@
 {
   "name": "@iharbeck/ngx-virtual-scroller",
-  "version": "14.0.4",
+  "version": "15.0.0",
   "peerDependencies": {
-    "@angular/common": "^14.0.0",
-    "@angular/core": "^14.0.0",
-    "@tweenjs/tween.js": "^18.6.4"
+    "@angular/common": "^15.0.4",
+    "@angular/core": "^15.0.4",
+    "@tweenjs/tween.js": "^18.6.4",
+    "tslib": "^2.4.1"
   },
-  "dependencies": {
-    "tslib": "^2.3.0"
+  "devDependencies": {
+    "@tweenjs/tween.js": "^18.6.4",
+    "tslib": "^2.4.1"
   },
   "repository": {
     "type": "git",
@@ -18,7 +20,8 @@
     "scroll",
     "ngx",
     "angular",
-    "angular 14"
+    "angular 14",
+    "angular 15"
   ],
   "contributors": [
     {
