@@ -60,13 +60,13 @@
   },
   "homepage": "https://github.com/rintoj/ngx-virtual-scroller#readme",
   "peerDependencies": {
-    "@angular/core": ">=16.0.0"
-  },
-  "dependencies": {
+    "@angular/core": ">=16.0.0",
     "@tweenjs/tween.js": "17.4.0",
     "@types/tween.js": "17.2.0"
   },
   "devDependencies": {
+    "@tweenjs/tween.js": "17.4.0",
+    "@types/tween.js": "17.2.0",
     "@angular/cli": "16.0.0",
     "@angular/common": "16.0.0",
     "@angular/compiler": "16.0.0",
