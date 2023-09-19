@@ -865,11 +865,6 @@ export class VirtualScrollerComponent implements OnInit, OnChanges, OnDestroy {
             'height',
             `${viewport.scrollLength}px`
           );
-          this.renderer.setStyle(
-            this.invisiblePaddingElementRef.nativeElement,
-            'webkitTransform',
-            `${this._invisiblePaddingProperty}(${viewport.scrollLength})`
-          );
         }
 
         if (paddingChanged) {
