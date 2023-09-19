@@ -159,7 +159,6 @@ export interface IViewport extends IPageInfo {
       }
 
       .total-padding {
-        position: absolute;
         top: 0;
         left: 0;
         height: 1px;
@@ -863,8 +862,8 @@ export class VirtualScrollerComponent implements OnInit, OnChanges, OnDestroy {
         if (scrollLengthChanged) {
           this.renderer.setStyle(
             this.invisiblePaddingElementRef.nativeElement,
-            'transform',
-            `${this._invisiblePaddingProperty}(${viewport.scrollLength})`
+            'height',
+            `${viewport.scrollLength}px`
           );
           this.renderer.setStyle(
             this.invisiblePaddingElementRef.nativeElement,
