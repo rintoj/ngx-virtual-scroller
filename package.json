@@ -34,14 +34,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/rintoj/ngx-virtual-scroller.git"
+    "url": "git+https://github.com/medbenmoussa/ngx-virtual-scroller.git"
   },
   "keywords": [
     "virtual scroll",
     "scroll",
     "ngx",
     "angular",
-    "angular 2"
+    "angular 16"
   ],
   "contributors": [
     {
@@ -52,13 +52,19 @@
     },
     {
       "name": "Pavel Kukushkin"
+    },
+    {
+      "name": "Redouane Tahoum"
+    },
+    {
+      "name": "Mohamed Benmoussa"
     }
   ],
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/rintoj/ngx-virtual-scroller/issues"
+    "url": "https://github.com/medbenmoussa/ngx-virtual-scroller/issues"
   },
-  "homepage": "https://github.com/rintoj/ngx-virtual-scroller#readme",
+  "homepage": "https://github.com/medbenmoussa/ngx-virtual-scroller#readme",
   "peerDependencies": {
     "@angular/core": ">=16.0.0",
     "@tweenjs/tween.js": "17.4.0",
