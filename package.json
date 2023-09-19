@@ -1,14 +1,14 @@
 {
   "$schema": "./node_modules/ng-packagr/package.schema.json",
   "name": "ngx-virtual-scroller",
-  "version": "4.0.3",
+  "version": "1.0.0",
   "description": "Angular module for virtual -infinite- list. Supports horizontal/vertical, variable heights, & multi-column",
   "main": "dist/virtual-scroller.js",
   "types": "dist/virtual-scroller.d.ts",
   "sideEffects": true,
   "scripts": {
     "cleanup": "rimraf dist",
-    "build": "ng-packagr -p package.json",
+    "release": "npm version patch && ng-packagr -p package.json && npm --prefix dist/ publish --registry http://localhost:4873/ --scope=@tt-tech",
     "build:docs": "rimraf demo/node_modules/ngx-virtual-scroller && cd dist && copyfiles **/* ../demo/node_modules/ngx-virtual-scroller && cd .. && rimraf docs && mkdir docs && cd demo && npm run build && cd dist/demo && copyfiles **/* ../../../docs && cd ../../.. && replace \"<base href=\\\"/\\\">\" \"<base href=\\\"/ngx-virtual-scroller/\\\">\" docs/index.html",
     "build:all": "npm run build && npm run build:docs",
     "lint": "tslint src/**/*.ts",
