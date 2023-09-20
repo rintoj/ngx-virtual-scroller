@@ -15,7 +15,7 @@ This method is effective because the number of DOM elements are always constant 
 
 ## Breaking Changes:
 
-- `v1.0.1` Several deprecated properties removed & dependicies version are upgraded .
+- `v16.0.1` Several deprecated properties removed & dependicies version are upgraded .
 
 ## New features:
 
