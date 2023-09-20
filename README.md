@@ -1,23 +1,8 @@
-# Sponsors
-
-<table>
-  <tbody>
-    <tr>
-      <td align="center" valign="middle">
-        <a href="https://moviepix.app/?utm_source=sponsor&utm_campaign=ngx-virtual-scroller" target="_blank">
-          <img src="https://moviepix.app/images/Logo_Small.png">
-          <img src="https://moviepix.app/images/Title_Small.png">
-        </a>
-      </td>
-    </tr>
-  </tbody>
-</table>
-
 # ngx-virtual-scroller
 
 Virtual Scroll displays a virtual, "infinite" list. Supports horizontal/vertical, variable heights, & multi-column.
-
-## Renamed from `angular2-virtual-scroll` to `ngx-virtual-scroller`. Please update your _package.json_
+compatible with angular v16+ 
+## Renamed from `angular2-virtual-scroll` or `ngx-virtual-scroller` to `@tt-tech/ngx-virtual-scroller`. Please update your _package.json_
 
 ## About
 
@@ -30,17 +15,7 @@ This method is effective because the number of DOM elements are always constant 
 
 ## Breaking Changes:
 
-- `v3.0.0` Several deprecated properties removed (see changelog).
-    - If items array is prepended with additional items, keep scroll on currently visible items, if possible. There is no flag to disable this, because it seems to be the best user-experience in all cases. If you disagree, please create an issue.
-- `v2.1.0` Dependency Injection syntax was changed.
-- `v1.0.6` viewPortIndices API property removed. (use viewPortInfo instead)
-- `v1.0.3` Renamed everything from _virtual-scroll_ to _virtual-scroller_ and from _virtualScroll_ to _virtualScroller_
-- `v0.4.13` _resizeBypassRefreshTheshold_ renamed to _resizeBypassRefreshThreshold_ (typo)
-- `v0.4.12` The start and end values of the change/start/end events were including bufferAmount, which made them confusing. This has been corrected.
-    - viewPortIndices.arrayStartIndex renamed to viewPortIndices.startIndex and viewPortIndices.arrayEndIndex renamed to viewPortIndices.endIndex
-- `v0.4.4` The value of IPageInfo.endIndex wasn't intuitive. This has been corrected. Both IPageInfo.startIndex and IPageInfo.endIndex are the 0-based array indexes of the items being rendered in the viewport. (Previously Change.EndIndex was the array index + 1)
-
-*Note* - API methods marked *(DEPRECATED)* will be removed in the next major version. Please attempt to stop using them in your code & create an issue if you believe they're still necessary.
+- `v16.0.3` Several deprecated properties removed & dependicies version are upgraded .
 
 ## New features:
 
@@ -90,17 +65,17 @@ note: viewPortItems must be a public field to work with AOT
 
 ## Get Started
 
-**Step 1:** Install ngx-virtual-scroller
+**Step 1:** Install @tt-tech/ngx-virtual-scroller
 
 ```sh
-npm install ngx-virtual-scroller
+npm install @tt-tech/ngx-virtual-scroller
 ```
 
 **Step 2:** Import virtual scroll module into your app module
 
 ```ts
 ....
-import { VirtualScrollerModule } from 'ngx-virtual-scroller';
+import { VirtualScrollerModule } from '@tt-tech/ngx-virtual-scroller';
 
 ....
 
@@ -278,7 +253,7 @@ Items _must_ have fixed height and width for this module to work perfectly. If n
 The event `vsEnd` is fired every time the scrollbar reaches the end of the list. You could use this to dynamically load more items at the end of the scroll. See below.
 
 ```ts
-import { IPageInfo } from 'ngx-virtual-scroller';
+import { IPageInfo } from '@tt-tech/ngx-virtual-scroller';
 ...
 
 @Component({
@@ -383,7 +358,7 @@ If virtual scroll is used within a dropdown or collapsible menu, virtual scroll 
 
 ```ts
 import { Component, ViewChild } from '@angular/core';
-import { VirtualScrollerComponent } from 'ngx-virtual-scroller';
+import { VirtualScrollerComponent } from '@tt-tech/ngx-virtual-scroller';
 
 @Component({
     selector: 'rj-list',
@@ -415,7 +390,7 @@ You can use the `scrollInto()` or `scrollToIndex()` API to scroll into an item i
 
 ```ts
 import { Component, ViewChild } from '@angular/core';
-import { VirtualScrollerComponent } from 'ngx-virtual-scroller';
+import { VirtualScrollerComponent } from '@tt-tech/ngx-virtual-scroller';
 
 @Component({
     selector: 'rj-list',
@@ -770,17 +745,17 @@ Contributions are very welcome! Just send a pull request. Feel free to contact m
 * **Devin Garner** (speige)
 * **Pavel Kukushkin** (kykint)
 
+## Contributers
+
+* **TT Tech** (tt)
+* **Redouane Tahoum** (R.T)
+* **Mohamed Benmoussa** (M.B)
+
 ### Hope this module is helpful to you. Please make sure to checkout my other [projects](https://github.com/rintoj) and [articles](https://medium.com/@rintoj). Enjoy coding!
 
-Follow me:
-  [GitHub](https://github.com/rintoj)
-| [Facebook](https://www.facebook.com/rinto.jose)
-| [Twitter](https://twitter.com/rintoj)
-| [Google+](https://plus.google.com/+RintoJoseMankudy)
-| [Youtube](https://youtube.com/+RintoJoseMankudy)
 
 ## Versions
-[Check CHANGELOG](https://github.com/rintoj/ngx-virtual-scroller/blob/master/CHANGELOG.md)
+[Check CHANGELOG](https://github.com/medbenmoussa/ngx-virtual-scroller/blob/master/CHANGELOG.md)
 
 ## License
 ```

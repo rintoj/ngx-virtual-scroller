@@ -1,14 +1,15 @@
 {
-  "$schema": "./node_modules/ng-packagr/package.schema.json",
-  "name": "ngx-virtual-scroller",
-  "version": "4.0.3",
+  "name": "@tt-tech/ngx-virtual-scroller",
+  "version": "16.0.3",
   "description": "Angular module for virtual -infinite- list. Supports horizontal/vertical, variable heights, & multi-column",
   "main": "dist/virtual-scroller.js",
   "types": "dist/virtual-scroller.d.ts",
   "sideEffects": true,
   "scripts": {
     "cleanup": "rimraf dist",
-    "build": "ng-packagr -p package.json",
+    "release": "npm run patch-version && npm run build-prod && npm run prod-publish",
+    "patch-version": "npm version patch",
+    "build-prod": "ng-packagr -p ng-package.json",
     "build:docs": "rimraf demo/node_modules/ngx-virtual-scroller && cd dist && copyfiles **/* ../demo/node_modules/ngx-virtual-scroller && cd .. && rimraf docs && mkdir docs && cd demo && npm run build && cd dist/demo && copyfiles **/* ../../../docs && cd ../../.. && replace \"<base href=\\\"/\\\">\" \"<base href=\\\"/ngx-virtual-scroller/\\\">\" docs/index.html",
     "build:all": "npm run build && npm run build:docs",
     "lint": "tslint src/**/*.ts",
@@ -16,7 +17,7 @@
     "ngc": "ngc",
     "update-npm-versions": "npm-check --skip-unused --update-all --save-exact --ignore typescript --ignore @tweenjs/tween.js --ignore @types/tween.js",
     "prepublishOnly": "PLEASE RUN \"npm run prod-publish\" NOT \"npm publish\"",
-    "prod-publish": "npm run build:all && npm publish ./dist",
+    "prod-publish": "npm publish ./dist/ngx-virtual-scroller  --registry http://localhost:4873/ --scope=@tt-tech",
     "publish-test": "npm pack ./dist"
   },
   "ngPackage": {
@@ -33,14 +34,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/rintoj/ngx-virtual-scroller.git"
+    "url": "git+https://github.com/medbenmoussa/ngx-virtual-scroller.git"
   },
   "keywords": [
     "virtual scroll",
     "scroll",
     "ngx",
     "angular",
-    "angular 2"
+    "angular 16"
   ],
   "contributors": [
     {
@@ -51,45 +52,49 @@
     },
     {
       "name": "Pavel Kukushkin"
+    },
+    {
+      "name": "Redouane Tahoum"
+    },
+    {
+      "name": "Mohamed Benmoussa"
     }
   ],
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/rintoj/ngx-virtual-scroller/issues"
+    "url": "https://github.com/medbenmoussa/ngx-virtual-scroller/issues"
   },
-  "homepage": "https://github.com/rintoj/ngx-virtual-scroller#readme",
+  "homepage": "https://github.com/medbenmoussa/ngx-virtual-scroller#readme",
   "peerDependencies": {
-    "@angular/core": ">=6.0.0"
-  },
-  "dependencies": {
-    "@tweenjs/tween.js": "17.4.0",
+    "@angular/core": ">=16.0.0",
+    "@tweenjs/tween.js": "^20.0.3",
     "@types/tween.js": "17.2.0"
   },
   "devDependencies": {
-    "@angular/cli": "9.0.3",
-    "@angular/common": "9.0.2",
-    "@angular/compiler": "9.0.2",
-    "@angular/compiler-cli": "9.0.2",
-    "@angular/core": "9.0.2",
-    "@angular/forms": "9.0.2",
-    "@angular/http": "7.2.16",
-    "@angular/language-service": "9.0.2",
-    "@angular/platform-browser": "9.0.2",
-    "@angular/platform-browser-dynamic": "9.0.2",
-    "@angular/router": "9.0.2",
-    "@types/node": "13.7.6",
+    "@tweenjs/tween.js": "20.0.3",
+    "@types/tween.js": "17.2.0",
+    "@angular/cli": "16.0.0",
+    "@angular/common": "16.0.0",
+    "@angular/compiler": "16.0.0",
+    "@angular/compiler-cli": "16.0.0",
+    "@angular/core": "16.0.0",
+    "@angular/forms": "16.0.0",
+    "@angular/language-service": "16.0.0",
+    "@angular/platform-browser": "16.0.0",
+    "@angular/platform-browser-dynamic": "16.0.0",
+    "@types/node": "20.1.1",
     "codelyzer": "5.2.1",
     "copyfiles": "2.2.0",
     "core-js": "3.6.4",
-    "ng-packagr": "9.0.2",
+    "ng-packagr": "16.0.0",
     "npm-check": "5.9.0",
     "replace": "1.1.5",
     "replace-x": "1.7.2",
     "rimraf": "3.0.2",
-    "rxjs": "6.5.4",
-    "tslib": "1.11.0",
+    "rxjs": "7.8.1",
+    "tslib": "2.5.0",
     "tslint": "6.0.0",
-    "typescript": "3.7.5",
-    "zone.js": "0.10.2"
+    "typescript": "5.0.4",
+    "zone.js": "0.13.0"
   }
 }
