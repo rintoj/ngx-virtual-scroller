@@ -1,94 +1,102 @@
 import {
-	ChangeDetectorRef,
-	Component,
-	ContentChild,
-	ElementRef,
-	EventEmitter,
-	Inject,
-	Input,
-	NgModule,
-	NgZone,
-	OnChanges,
-	OnDestroy,
-	OnInit,
-	Optional,
-	Output,
-	Renderer2,
-	ViewChild,
+  ChangeDetectorRef,
+  Component,
+  ContentChild,
+  ElementRef,
+  EventEmitter,
+  Inject,
+  Input,
+  NgModule,
+  NgZone,
+  OnChanges,
+  OnDestroy,
+  OnInit,
+  Optional,
+  Output,
+  Renderer2,
+  ViewChild
 } from '@angular/core';
 
-import { PLATFORM_ID } from '@angular/core';
-import { isPlatformServer } from '@angular/common';
+import {PLATFORM_ID} from '@angular/core';
+import {isPlatformServer} from '@angular/common';
 
-import { CommonModule } from '@angular/common';
+import {CommonModule} from '@angular/common';
 
-import * as tween from '@tweenjs/tween.js'
+import * as tween from '@tweenjs/tween.js';
 
 export interface VirtualScrollerDefaultOptions {
-	checkResizeInterval: number
-	modifyOverflowStyleOfParentScroll: boolean,
-	resizeBypassRefreshThreshold: number,
-	scrollAnimationTime: number;
-	scrollDebounceTime: number;
-	scrollThrottlingTime: number;
-	scrollbarHeight?: number;
-	scrollbarWidth?: number;
-	stripedTable: boolean
+  checkResizeInterval: number;
+  modifyOverflowStyleOfParentScroll: boolean;
+  resizeBypassRefreshThreshold: number;
+  scrollAnimationTime: number;
+  scrollDebounceTime: number;
+  scrollThrottlingTime: number;
+  scrollbarHeight?: number;
+  scrollbarWidth?: number;
+  stripedTable: boolean;
 }
 
 export function VIRTUAL_SCROLLER_DEFAULT_OPTIONS_FACTORY(): VirtualScrollerDefaultOptions {
-	return {
-		checkResizeInterval: 1000,
-		modifyOverflowStyleOfParentScroll: true,
-		resizeBypassRefreshThreshold: 5,
-		scrollAnimationTime: 750,
-		scrollDebounceTime: 0,
-		scrollThrottlingTime: 0,
-		stripedTable: false
-	};
+  return {
+    checkResizeInterval: 1000,
+    modifyOverflowStyleOfParentScroll: true,
+    resizeBypassRefreshThreshold: 5,
+    scrollAnimationTime: 750,
+    scrollDebounceTime: 0,
+    scrollThrottlingTime: 0,
+    stripedTable: false
+  };
 }
 
 export interface WrapGroupDimensions {
-	maxChildSizePerWrapGroup: WrapGroupDimension[];
-	numberOfKnownWrapGroupChildSizes: number;
-	sumOfKnownWrapGroupChildHeights: number;
-	sumOfKnownWrapGroupChildWidths: number;
+  maxChildSizePerWrapGroup: WrapGroupDimension[];
+  numberOfKnownWrapGroupChildSizes: number;
+  sumOfKnownWrapGroupChildHeights: number;
+  sumOfKnownWrapGroupChildWidths: number;
 }
 
 export interface WrapGroupDimension {
-	childHeight: number;
-	childWidth: number;
-	items: any[];
+  childHeight: number;
+  childWidth: number;
+  items: any[];
 }
 
 export interface IDimensions {
-	childHeight: number;
-	childWidth: number;
-	itemCount: number;
-	itemsPerPage: number;
-	itemsPerWrapGroup: number;
-	maxScrollPosition: number;
-	pageCount_fractional: number;
-	scrollLength: number;
-	viewportLength: number;
-	wrapGroupsPerPage: number;
+  childHeight: number;
+  childWidth: number;
+  itemCount: number;
+  itemsPerPage: number;
+  itemsPerWrapGroup: number;
+  maxScrollPosition: number;
+  pageCount_fractional: number;
+  scrollLength: number;
+  viewportLength: number;
+  wrapGroupsPerPage: number;
 }
 
 export interface IPageInfo {
-	endIndex: number;
-	endIndexWithBuffer: number;
-	maxScrollPosition: number;
-	scrollEndPosition: number;
-	scrollStartPosition: number;
-	startIndex: number;
-	startIndexWithBuffer: number;
+  endIndex: number;
+  endIndexWithBuffer: number;
+  maxScrollPosition: number;
+  scrollEndPosition: number;
+  scrollStartPosition: number;
+  startIndex: number;
+  startIndexWithBuffer: number;
 }
 
 export interface IViewport extends IPageInfo {
-	padding: number;
-	scrollLength: number;
+  padding: number;
+  scrollLength: number;
 }
 
+export interface IDomRect extends Partial<DOMRect> {
+  top: number;
+  bottom: number;
+  left: number;
+  right: number;
+  width: number;
+  height: number;
+}
 @Component({
   selector: 'virtual-scroller,[virtualScroller]',
   exportAs: 'virtualScroller',
@@ -667,7 +675,7 @@ export class VirtualScrollerComponent implements OnInit, OnChanges, OnDestroy {
     this.resetWrapGroupDimensions();
   }
 
-  protected getElementSize(element: HTMLElement): any {
+  protected getElementSize(element: HTMLElement): IDomRect {
     let result = element.getBoundingClientRect();
     let styles = getComputedStyle(element);
     let marginTop = parseInt(styles['margin-top'], 10) || 0;
@@ -685,7 +693,7 @@ export class VirtualScrollerComponent implements OnInit, OnChanges, OnDestroy {
     };
   }
 
-  protected previousScrollBoundingRect: ClientRect;
+  protected previousScrollBoundingRect: IDomRect;
   protected checkScrollElementResized(): void {
     let boundingRect = this.getElementSize(this.getScrollElement());
 
@@ -1504,14 +1512,14 @@ export class VirtualScrollerComponent implements OnInit, OnChanges, OnDestroy {
 }
 
 @NgModule({
-	exports: [VirtualScrollerComponent],
-	declarations: [VirtualScrollerComponent],
-	imports: [CommonModule],
-	providers: [
-		{
-			provide: 'virtual-scroller-default-options',
-			useFactory: VIRTUAL_SCROLLER_DEFAULT_OPTIONS_FACTORY
-		}
-	]
+  exports: [VirtualScrollerComponent],
+  declarations: [VirtualScrollerComponent],
+  imports: [CommonModule],
+  providers: [
+    {
+      provide: 'virtual-scroller-default-options',
+      useFactory: VIRTUAL_SCROLLER_DEFAULT_OPTIONS_FACTORY
+    }
+  ]
 })
-export class VirtualScrollerModule { }
+export class VirtualScrollerModule {}
