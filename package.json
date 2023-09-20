@@ -68,11 +68,11 @@
   "peerDependencies": {
     "@angular/core": ">=16.0.0",
     "@tweenjs/tween.js": "^20.0.3",
-    "@types/tween.js": "20.0.3"
+    "@types/tween.js": "17.2.0"
   },
   "devDependencies": {
     "@tweenjs/tween.js": "20.0.3",
-    "@types/tween.js": "20.0.3",
+    "@types/tween.js": "17.2.0",
     "@angular/cli": "16.0.0",
     "@angular/common": "16.0.0",
     "@angular/compiler": "16.0.0",
